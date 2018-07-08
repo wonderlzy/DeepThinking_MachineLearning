@@ -1,0 +1,41 @@
+= 深度思考之机器学习系列
+xjtu-zhongyingLi
+{docdate}
+:stem: latexmath
+:doctype: book
+:icons: font
+:source-highlighter: coderay
+:source-language: python
+:pygments-linenums-mode: table
+:docinfo:
+:toc: left
+:toc-title: 目录
+:toclevels: 4
+:sectnumlevels: 4
+:preface-title: 前言
+:chapter-lable: 章
+:appendix-caption: 附录
+:listing-caption: 代码
+:figure-caption: 图
+:version-label: V
+:pdf-page-size: A4
+:example-caption: 示例
+:keywords: 机器学习，统计学习，逻辑回归，决策树，支持向量机，条件随机场，聚类
+:description: 机器学习深度思考学习笔记。从最简单的机器学习基本概念，逐层剖析，挖掘机器学习最本质的问题，展示机器学习背后的数学之美
+:last-update-label: 最后更新时间
+
+数学是人类智慧的结晶，统计学习是数学领域最璀璨的明珠，算法可以让这个明珠照亮整个世界!
+
+:sectnums:
+
+//第一章:机器学习基础
+include::machine_learning_base.adoc[]
+
+//第二章:线性回归和逻辑回归
+include::linear_logistric_regression.adoc[]
+
+//第三章:特征工程
+include::feature_engineering.adoc[]
+
+//第四章:支持向量机
+include::support_vector_machine.adoc[]

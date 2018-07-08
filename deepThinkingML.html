@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="generator" content="Asciidoctor 1.5.7.1">
+<meta name="description" content="机器学习深度思考学习笔记。从最简单的机器学习基本概念，逐层剖析，挖掘机器学习最本质的问题，展示机器学习背后的数学之美">
+<meta name="keywords" content="机器学习，统计学习，逻辑回归，决策树，支持向量机，条件随机场，聚类">
+<meta name="author" content="xjtu-zhongyingLi">
+<title>深度思考之机器学习系列</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
+<style>
+/* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
+/* Uncomment @import statement below to use as custom stylesheet */
+/*@import "https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700";*/
+article,aside,details,figcaption,figure,footer,header,hgroup,main,nav,section,summary{display:block}
+audio,canvas,video{display:inline-block}
+audio:not([controls]){display:none;height:0}
+script{display:none!important}
+html{font-family:sans-serif;-ms-text-size-adjust:100%;-webkit-text-size-adjust:100%}
+a{background:transparent}
+a:focus{outline:thin dotted}
+a:active,a:hover{outline:0}
+h1{font-size:2em;margin:.67em 0}
+abbr[title]{border-bottom:1px dotted}
+b,strong{font-weight:bold}
+dfn{font-style:italic}
+hr{-moz-box-sizing:content-box;box-sizing:content-box;height:0}
+mark{background:#ff0;color:#000}
+code,kbd,pre,samp{font-family:monospace;font-size:1em}
+pre{white-space:pre-wrap}
+q{quotes:"\201C" "\201D" "\2018" "\2019"}
+small{font-size:80%}
+sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}
+sup{top:-.5em}
+sub{bottom:-.25em}
+img{border:0}
+svg:not(:root){overflow:hidden}
+figure{margin:0}
+fieldset{border:1px solid silver;margin:0 2px;padding:.35em .625em .75em}
+legend{border:0;padding:0}
+button,input,select,textarea{font-family:inherit;font-size:100%;margin:0}
+button,input{line-height:normal}
+button,select{text-transform:none}
+button,html input[type="button"],input[type="reset"],input[type="submit"]{-webkit-appearance:button;cursor:pointer}
+button[disabled],html input[disabled]{cursor:default}
+input[type="checkbox"],input[type="radio"]{box-sizing:border-box;padding:0}
+button::-moz-focus-inner,input::-moz-focus-inner{border:0;padding:0}
+textarea{overflow:auto;vertical-align:top}
+table{border-collapse:collapse;border-spacing:0}
+*,*::before,*::after{-moz-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box}
+html,body{font-size:100%}
+body{background:#fff;color:rgba(0,0,0,.8);padding:0;margin:0;font-family:"Noto Serif","DejaVu Serif",serif;font-weight:400;font-style:normal;line-height:1;position:relative;cursor:auto;tab-size:4;-moz-osx-font-smoothing:grayscale;-webkit-font-smoothing:antialiased}
+a:hover{cursor:pointer}
+img,object,embed{max-width:100%;height:auto}
+object,embed{height:100%}
+img{-ms-interpolation-mode:bicubic}
+.left{float:left!important}
+.right{float:right!important}
+.text-left{text-align:left!important}
+.text-right{text-align:right!important}
+.text-center{text-align:center!important}
+.text-justify{text-align:justify!important}
+.hide{display:none}
+img,object,svg{display:inline-block;vertical-align:middle}
+textarea{height:auto;min-height:50px}
+select{width:100%}
+.center{margin-left:auto;margin-right:auto}
+.stretch{width:100%}
+.subheader,.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{line-height:1.45;color:#7a2518;font-weight:400;margin-top:0;margin-bottom:.25em}
+div,dl,dt,dd,ul,ol,li,h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6,pre,form,p,blockquote,th,td{margin:0;padding:0;direction:ltr}
+a{color:#2156a5;text-decoration:underline;line-height:inherit}
+a:hover,a:focus{color:#1d4b8f}
+a img{border:none}
+p{font-family:inherit;font-weight:400;font-size:1em;line-height:1.6;margin-bottom:1.25em;text-rendering:optimizeLegibility}
+p aside{font-size:.875em;line-height:1.35;font-style:italic}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{font-family:"Open Sans","DejaVu Sans",sans-serif;font-weight:300;font-style:normal;color:#ba3925;text-rendering:optimizeLegibility;margin-top:1em;margin-bottom:.5em;line-height:1.0125em}
+h1 small,h2 small,h3 small,#toctitle small,.sidebarblock>.content>.title small,h4 small,h5 small,h6 small{font-size:60%;color:#e99b8f;line-height:0}
+h1{font-size:2.125em}
+h2{font-size:1.6875em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.375em}
+h4,h5{font-size:1.125em}
+h6{font-size:1em}
+hr{border:solid #ddddd8;border-width:1px 0 0;clear:both;margin:1.25em 0 1.1875em;height:0}
+em,i{font-style:italic;line-height:inherit}
+strong,b{font-weight:bold;line-height:inherit}
+small{font-size:60%;line-height:inherit}
+code{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;color:rgba(0,0,0,.9)}
+ul,ol,dl{font-size:1em;line-height:1.6;margin-bottom:1.25em;list-style-position:outside;font-family:inherit}
+ul,ol{margin-left:1.5em}
+ul li ul,ul li ol{margin-left:1.25em;margin-bottom:0;font-size:1em}
+ul.square li ul,ul.circle li ul,ul.disc li ul{list-style:inherit}
+ul.square{list-style-type:square}
+ul.circle{list-style-type:circle}
+ul.disc{list-style-type:disc}
+ol li ul,ol li ol{margin-left:1.25em;margin-bottom:0}
+dl dt{margin-bottom:.3125em;font-weight:bold}
+dl dd{margin-bottom:1.25em}
+abbr,acronym{text-transform:uppercase;font-size:90%;color:rgba(0,0,0,.8);border-bottom:1px dotted #ddd;cursor:help}
+abbr{text-transform:none}
+blockquote{margin:0 0 1.25em;padding:.5625em 1.25em 0 1.1875em;border-left:1px solid #ddd}
+blockquote cite{display:block;font-size:.9375em;color:rgba(0,0,0,.6)}
+blockquote cite::before{content:"\2014 \0020"}
+blockquote cite a,blockquote cite a:visited{color:rgba(0,0,0,.6)}
+blockquote,blockquote p{line-height:1.6;color:rgba(0,0,0,.85)}
+@media screen and (min-width:768px){h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2}
+h1{font-size:2.75em}
+h2{font-size:2.3125em}
+h3,#toctitle,.sidebarblock>.content>.title{font-size:1.6875em}
+h4{font-size:1.4375em}}
+table{background:#fff;margin-bottom:1.25em;border:solid 1px #dedede}
+table thead,table tfoot{background:#f7f8f7}
+table thead tr th,table thead tr td,table tfoot tr th,table tfoot tr td{padding:.5em .625em .625em;font-size:inherit;color:rgba(0,0,0,.8);text-align:left}
+table tr th,table tr td{padding:.5625em .625em;font-size:inherit;color:rgba(0,0,0,.8)}
+table tr.even,table tr.alt,table tr:nth-of-type(even){background:#f8f8f7}
+table thead tr th,table tfoot tr th,table tbody tr td,table tr td,table tfoot tr td{display:table-cell;line-height:1.6}
+h1,h2,h3,#toctitle,.sidebarblock>.content>.title,h4,h5,h6{line-height:1.2;word-spacing:-.05em}
+h1 strong,h2 strong,h3 strong,#toctitle strong,.sidebarblock>.content>.title strong,h4 strong,h5 strong,h6 strong{font-weight:400}
+.clearfix::before,.clearfix::after,.float-group::before,.float-group::after{content:" ";display:table}
+.clearfix::after,.float-group::after{clear:both}
+*:not(pre)>code{font-size:.9375em;font-style:normal!important;letter-spacing:0;padding:.1em .5ex;word-spacing:-.15em;background-color:#f7f7f8;-webkit-border-radius:4px;border-radius:4px;line-height:1.45;text-rendering:optimizeSpeed;word-wrap:break-word}
+*:not(pre)>code.nobreak{word-wrap:normal}
+*:not(pre)>code.nowrap{white-space:nowrap}
+pre,pre>code{line-height:1.45;color:rgba(0,0,0,.9);font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;font-weight:400;text-rendering:optimizeSpeed}
+em em{font-style:normal}
+strong strong{font-weight:400}
+.keyseq{color:rgba(51,51,51,.8)}
+kbd{font-family:"Droid Sans Mono","DejaVu Sans Mono",monospace;display:inline-block;color:rgba(0,0,0,.8);font-size:.65em;line-height:1.45;background-color:#f7f7f7;border:1px solid #ccc;-webkit-border-radius:3px;border-radius:3px;-webkit-box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em white inset;box-shadow:0 1px 0 rgba(0,0,0,.2),0 0 0 .1em #fff inset;margin:0 .15em;padding:.2em .5em;vertical-align:middle;position:relative;top:-.1em;white-space:nowrap}
+.keyseq kbd:first-child{margin-left:0}
+.keyseq kbd:last-child{margin-right:0}
+.menuseq,.menuref{color:#000}
+.menuseq b:not(.caret),.menuref{font-weight:inherit}
+.menuseq{word-spacing:-.02em}
+.menuseq b.caret{font-size:1.25em;line-height:.8}
+.menuseq i.caret{font-weight:bold;text-align:center;width:.45em}
+b.button::before,b.button::after{position:relative;top:-1px;font-weight:400}
+b.button::before{content:"[";padding:0 3px 0 2px}
+b.button::after{content:"]";padding:0 2px 0 3px}
+p a>code:hover{color:rgba(0,0,0,.9)}
+#header,#content,#footnotes,#footer{width:100%;margin-left:auto;margin-right:auto;margin-top:0;margin-bottom:0;max-width:62.5em;*zoom:1;position:relative;padding-left:.9375em;padding-right:.9375em}
+#header::before,#header::after,#content::before,#content::after,#footnotes::before,#footnotes::after,#footer::before,#footer::after{content:" ";display:table}
+#header::after,#content::after,#footnotes::after,#footer::after{clear:both}
+#content{margin-top:1.25em}
+#content::before{content:none}
+#header>h1:first-child{color:rgba(0,0,0,.85);margin-top:2.25rem;margin-bottom:0}
+#header>h1:first-child+#toc{margin-top:8px;border-top:1px solid #ddddd8}
+#header>h1:only-child,body.toc2 #header>h1:nth-last-child(2){border-bottom:1px solid #ddddd8;padding-bottom:8px}
+#header .details{border-bottom:1px solid #ddddd8;line-height:1.45;padding-top:.25em;padding-bottom:.25em;padding-left:.25em;color:rgba(0,0,0,.6);display:-ms-flexbox;display:-webkit-flex;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap}
+#header .details span:first-child{margin-left:-.125em}
+#header .details span.email a{color:rgba(0,0,0,.85)}
+#header .details br{display:none}
+#header .details br+span::before{content:"\00a0\2013\00a0"}
+#header .details br+span.author::before{content:"\00a0\22c5\00a0";color:rgba(0,0,0,.85)}
+#header .details br+span#revremark::before{content:"\00a0|\00a0"}
+#header #revnumber{text-transform:capitalize}
+#header #revnumber::after{content:"\00a0"}
+#content>h1:first-child:not([class]){color:rgba(0,0,0,.85);border-bottom:1px solid #ddddd8;padding-bottom:8px;margin-top:0;padding-top:1rem;margin-bottom:1.25rem}
+#toc{border-bottom:1px solid #efefed;padding-bottom:.5em}
+#toc>ul{margin-left:.125em}
+#toc ul.sectlevel0>li>a{font-style:italic}
+#toc ul.sectlevel0 ul.sectlevel1{margin:.5em 0}
+#toc ul{font-family:"Open Sans","DejaVu Sans",sans-serif;list-style-type:none}
+#toc li{line-height:1.3334;margin-top:.3334em}
+#toc a{text-decoration:none}
+#toc a:active{text-decoration:underline}
+#toctitle{color:#7a2518;font-size:1.2em}
+@media screen and (min-width:768px){#toctitle{font-size:1.375em}
+body.toc2{padding-left:15em;padding-right:0}
+#toc.toc2{margin-top:0!important;background-color:#f8f8f7;position:fixed;width:15em;left:0;top:0;border-right:1px solid #efefed;border-top-width:0!important;border-bottom-width:0!important;z-index:1000;padding:1.25em 1em;height:100%;overflow:auto}
+#toc.toc2 #toctitle{margin-top:0;margin-bottom:.8rem;font-size:1.2em}
+#toc.toc2>ul{font-size:.9em;margin-bottom:0}
+#toc.toc2 ul ul{margin-left:0;padding-left:1em}
+#toc.toc2 ul.sectlevel0 ul.sectlevel1{padding-left:0;margin-top:.5em;margin-bottom:.5em}
+body.toc2.toc-right{padding-left:0;padding-right:15em}
+body.toc2.toc-right #toc.toc2{border-right-width:0;border-left:1px solid #efefed;left:auto;right:0}}
+@media screen and (min-width:1280px){body.toc2{padding-left:20em;padding-right:0}
+#toc.toc2{width:20em}
+#toc.toc2 #toctitle{font-size:1.375em}
+#toc.toc2>ul{font-size:.95em}
+#toc.toc2 ul ul{padding-left:1.25em}
+body.toc2.toc-right{padding-left:0;padding-right:20em}}
+#content #toc{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+#content #toc>:first-child{margin-top:0}
+#content #toc>:last-child{margin-bottom:0}
+#footer{max-width:100%;background-color:rgba(0,0,0,.8);padding:1.25em}
+#footer-text{color:rgba(255,255,255,.8);line-height:1.44}
+#content{margin-bottom:.625em}
+.sect1{padding-bottom:.625em}
+@media screen and (min-width:768px){#content{margin-bottom:1.25em}
+.sect1{padding-bottom:1.25em}}
+.sect1:last-child{padding-bottom:0}
+.sect1+.sect1{border-top:1px solid #efefed}
+#content h1>a.anchor,h2>a.anchor,h3>a.anchor,#toctitle>a.anchor,.sidebarblock>.content>.title>a.anchor,h4>a.anchor,h5>a.anchor,h6>a.anchor{position:absolute;z-index:1001;width:1.5ex;margin-left:-1.5ex;display:block;text-decoration:none!important;visibility:hidden;text-align:center;font-weight:400}
+#content h1>a.anchor::before,h2>a.anchor::before,h3>a.anchor::before,#toctitle>a.anchor::before,.sidebarblock>.content>.title>a.anchor::before,h4>a.anchor::before,h5>a.anchor::before,h6>a.anchor::before{content:"\00A7";font-size:.85em;display:block;padding-top:.1em}
+#content h1:hover>a.anchor,#content h1>a.anchor:hover,h2:hover>a.anchor,h2>a.anchor:hover,h3:hover>a.anchor,#toctitle:hover>a.anchor,.sidebarblock>.content>.title:hover>a.anchor,h3>a.anchor:hover,#toctitle>a.anchor:hover,.sidebarblock>.content>.title>a.anchor:hover,h4:hover>a.anchor,h4>a.anchor:hover,h5:hover>a.anchor,h5>a.anchor:hover,h6:hover>a.anchor,h6>a.anchor:hover{visibility:visible}
+#content h1>a.link,h2>a.link,h3>a.link,#toctitle>a.link,.sidebarblock>.content>.title>a.link,h4>a.link,h5>a.link,h6>a.link{color:#ba3925;text-decoration:none}
+#content h1>a.link:hover,h2>a.link:hover,h3>a.link:hover,#toctitle>a.link:hover,.sidebarblock>.content>.title>a.link:hover,h4>a.link:hover,h5>a.link:hover,h6>a.link:hover{color:#a53221}
+.audioblock,.imageblock,.literalblock,.listingblock,.stemblock,.videoblock{margin-bottom:1.25em}
+.admonitionblock td.content>.title,.audioblock>.title,.exampleblock>.title,.imageblock>.title,.listingblock>.title,.literalblock>.title,.stemblock>.title,.openblock>.title,.paragraph>.title,.quoteblock>.title,table.tableblock>.title,.verseblock>.title,.videoblock>.title,.dlist>.title,.olist>.title,.ulist>.title,.qlist>.title,.hdlist>.title{text-rendering:optimizeLegibility;text-align:left;font-family:"Noto Serif","DejaVu Serif",serif;font-size:1rem;font-style:italic}
+table.tableblock.fit-content>caption.title{white-space:nowrap;width:0}
+.paragraph.lead>p,#preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:1.21875em;line-height:1.6;color:rgba(0,0,0,.85)}
+table.tableblock #preamble>.sectionbody>[class="paragraph"]:first-of-type p{font-size:inherit}
+.admonitionblock>table{border-collapse:separate;border:0;background:none;width:100%}
+.admonitionblock>table td.icon{text-align:center;width:80px}
+.admonitionblock>table td.icon img{max-width:none}
+.admonitionblock>table td.icon .title{font-weight:bold;font-family:"Open Sans","DejaVu Sans",sans-serif;text-transform:uppercase}
+.admonitionblock>table td.content{padding-left:1.125em;padding-right:1.25em;border-left:1px solid #ddddd8;color:rgba(0,0,0,.6)}
+.admonitionblock>table td.content>:last-child>:last-child{margin-bottom:0}
+.exampleblock>.content{border-style:solid;border-width:1px;border-color:#e6e6e6;margin-bottom:1.25em;padding:1.25em;background:#fff;-webkit-border-radius:4px;border-radius:4px}
+.exampleblock>.content>:first-child{margin-top:0}
+.exampleblock>.content>:last-child{margin-bottom:0}
+.sidebarblock{border-style:solid;border-width:1px;border-color:#e0e0dc;margin-bottom:1.25em;padding:1.25em;background:#f8f8f7;-webkit-border-radius:4px;border-radius:4px}
+.sidebarblock>:first-child{margin-top:0}
+.sidebarblock>:last-child{margin-bottom:0}
+.sidebarblock>.content>.title{color:#7a2518;margin-top:0;text-align:center}
+.exampleblock>.content>:last-child>:last-child,.exampleblock>.content .olist>ol>li:last-child>:last-child,.exampleblock>.content .ulist>ul>li:last-child>:last-child,.exampleblock>.content .qlist>ol>li:last-child>:last-child,.sidebarblock>.content>:last-child>:last-child,.sidebarblock>.content .olist>ol>li:last-child>:last-child,.sidebarblock>.content .ulist>ul>li:last-child>:last-child,.sidebarblock>.content .qlist>ol>li:last-child>:last-child{margin-bottom:0}
+.literalblock pre,.listingblock pre:not(.highlight),.listingblock pre[class="highlight"],.listingblock pre[class^="highlight "],.listingblock pre.CodeRay,.listingblock pre.prettyprint{background:#f7f7f8}
+.sidebarblock .literalblock pre,.sidebarblock .listingblock pre:not(.highlight),.sidebarblock .listingblock pre[class="highlight"],.sidebarblock .listingblock pre[class^="highlight "],.sidebarblock .listingblock pre.CodeRay,.sidebarblock .listingblock pre.prettyprint{background:#f2f1f1}
+.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{-webkit-border-radius:4px;border-radius:4px;word-wrap:break-word;padding:1em;font-size:.8125em}
+.literalblock pre.nowrap,.literalblock pre[class].nowrap,.listingblock pre.nowrap,.listingblock pre[class].nowrap{overflow-x:auto;white-space:pre;word-wrap:normal}
+@media screen and (min-width:768px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:.90625em}}
+@media screen and (min-width:1280px){.literalblock pre,.literalblock pre[class],.listingblock pre,.listingblock pre[class]{font-size:1em}}
+.literalblock.output pre{color:#f7f7f8;background-color:rgba(0,0,0,.9)}
+.listingblock pre.highlightjs{padding:0}
+.listingblock pre.highlightjs>code{padding:1em;-webkit-border-radius:4px;border-radius:4px}
+.listingblock pre.prettyprint{border-width:0}
+.listingblock>.content{position:relative}
+.listingblock code[data-lang]::before{display:none;content:attr(data-lang);position:absolute;font-size:.75em;top:.425rem;right:.5rem;line-height:1;text-transform:uppercase;color:#999}
+.listingblock:hover code[data-lang]::before{display:block}
+.listingblock.terminal pre .command::before{content:attr(data-prompt);padding-right:.5em;color:#999}
+.listingblock.terminal pre .command:not([data-prompt])::before{content:"$"}
+table.pyhltable{border-collapse:separate;border:0;margin-bottom:0;background:none}
+table.pyhltable td{vertical-align:top;padding-top:0;padding-bottom:0;line-height:1.45}
+table.pyhltable td.code{padding-left:.75em;padding-right:0}
+pre.pygments .lineno,table.pyhltable td:not(.code){color:#999;padding-left:0;padding-right:.5em;border-right:1px solid #ddddd8}
+pre.pygments .lineno{display:inline-block;margin-right:.25em}
+table.pyhltable .linenodiv{background:none!important;padding-right:0!important}
+.quoteblock{margin:0 1em 1.25em 1.5em;display:table}
+.quoteblock>.title{margin-left:-1.5em;margin-bottom:.75em}
+.quoteblock blockquote,.quoteblock blockquote p{color:rgba(0,0,0,.85);font-size:1.15rem;line-height:1.75;word-spacing:.1em;letter-spacing:0;font-style:italic;text-align:justify}
+.quoteblock blockquote{margin:0;padding:0;border:0}
+.quoteblock blockquote::before{content:"\201c";float:left;font-size:2.75em;font-weight:bold;line-height:.6em;margin-left:-.6em;color:#7a2518;text-shadow:0 1px 2px rgba(0,0,0,.1)}
+.quoteblock blockquote>.paragraph:last-child p{margin-bottom:0}
+.quoteblock .attribution{margin-top:.5em;margin-right:.5ex;text-align:right}
+.quoteblock .quoteblock{margin-left:0;margin-right:0;padding:.5em 0;border-left:3px solid rgba(0,0,0,.6)}
+.quoteblock .quoteblock blockquote{padding:0 0 0 .75em}
+.quoteblock .quoteblock blockquote::before{display:none}
+.verseblock{margin:0 1em 1.25em}
+.verseblock pre{font-family:"Open Sans","DejaVu Sans",sans;font-size:1.15rem;color:rgba(0,0,0,.85);font-weight:300;text-rendering:optimizeLegibility}
+.verseblock pre strong{font-weight:400}
+.verseblock .attribution{margin-top:1.25rem;margin-left:.5ex}
+.quoteblock .attribution,.verseblock .attribution{font-size:.9375em;line-height:1.45;font-style:italic}
+.quoteblock .attribution br,.verseblock .attribution br{display:none}
+.quoteblock .attribution cite,.verseblock .attribution cite{display:block;letter-spacing:-.025em;color:rgba(0,0,0,.6)}
+.quoteblock.abstract{margin:0 1em 1.25em;display:block}
+.quoteblock.abstract>.title{margin:0 0 .375em;font-size:1.15em;text-align:center}
+.quoteblock.abstract blockquote,.quoteblock.abstract blockquote p{word-spacing:0;line-height:1.6}
+.quoteblock.abstract blockquote::before,.quoteblock.abstract p::before{display:none}
+table.tableblock{max-width:100%;border-collapse:separate}
+p.tableblock:last-child{margin-bottom:0}
+td.tableblock>.content{margin-bottom:-1.25em}
+table.tableblock,th.tableblock,td.tableblock{border:0 solid #dedede}
+table.grid-all>thead>tr>.tableblock,table.grid-all>tbody>tr>.tableblock{border-width:0 1px 1px 0}
+table.grid-all>tfoot>tr>.tableblock{border-width:1px 1px 0 0}
+table.grid-cols>*>tr>.tableblock{border-width:0 1px 0 0}
+table.grid-rows>thead>tr>.tableblock,table.grid-rows>tbody>tr>.tableblock{border-width:0 0 1px}
+table.grid-rows>tfoot>tr>.tableblock{border-width:1px 0 0}
+table.grid-all>*>tr>.tableblock:last-child,table.grid-cols>*>tr>.tableblock:last-child{border-right-width:0}
+table.grid-all>tbody>tr:last-child>.tableblock,table.grid-all>thead:last-child>tr>.tableblock,table.grid-rows>tbody>tr:last-child>.tableblock,table.grid-rows>thead:last-child>tr>.tableblock{border-bottom-width:0}
+table.frame-all{border-width:1px}
+table.frame-sides{border-width:0 1px}
+table.frame-topbot,table.frame-ends{border-width:1px 0}
+table.stripes-all tr,table.stripes-odd tr:nth-of-type(odd){background:#f8f8f7}
+table.stripes-none tr,table.stripes-odd tr:nth-of-type(even){background:none}
+th.halign-left,td.halign-left{text-align:left}
+th.halign-right,td.halign-right{text-align:right}
+th.halign-center,td.halign-center{text-align:center}
+th.valign-top,td.valign-top{vertical-align:top}
+th.valign-bottom,td.valign-bottom{vertical-align:bottom}
+th.valign-middle,td.valign-middle{vertical-align:middle}
+table thead th,table tfoot th{font-weight:bold}
+tbody tr th{display:table-cell;line-height:1.6;background:#f7f8f7}
+tbody tr th,tbody tr th p,tfoot tr th,tfoot tr th p{color:rgba(0,0,0,.8);font-weight:bold}
+p.tableblock>code:only-child{background:none;padding:0}
+p.tableblock{font-size:1em}
+td>div.verse{white-space:pre}
+ol{margin-left:1.75em}
+ul li ol{margin-left:1.5em}
+dl dd{margin-left:1.125em}
+dl dd:last-child,dl dd:last-child>:last-child{margin-bottom:0}
+ol>li p,ul>li p,ul dd,ol dd,.olist .olist,.ulist .ulist,.ulist .olist,.olist .ulist{margin-bottom:.625em}
+ul.checklist,ul.none,ol.none,ul.no-bullet,ol.no-bullet,ol.unnumbered,ul.unstyled,ol.unstyled{list-style-type:none}
+ul.no-bullet,ol.no-bullet,ol.unnumbered{margin-left:.625em}
+ul.unstyled,ol.unstyled{margin-left:0}
+ul.checklist{margin-left:.625em}
+ul.checklist li>p:first-child>.fa-square-o:first-child,ul.checklist li>p:first-child>.fa-check-square-o:first-child{width:1.25em;font-size:.8em;position:relative;bottom:.125em}
+ul.checklist li>p:first-child>input[type="checkbox"]:first-child{margin-right:.25em}
+ul.inline{display:-ms-flexbox;display:-webkit-box;display:flex;-ms-flex-flow:row wrap;-webkit-flex-flow:row wrap;flex-flow:row wrap;list-style:none;margin:0 0 .625em -1.25em}
+ul.inline>li{margin-left:1.25em}
+.unstyled dl dt{font-weight:400;font-style:normal}
+ol.arabic{list-style-type:decimal}
+ol.decimal{list-style-type:decimal-leading-zero}
+ol.loweralpha{list-style-type:lower-alpha}
+ol.upperalpha{list-style-type:upper-alpha}
+ol.lowerroman{list-style-type:lower-roman}
+ol.upperroman{list-style-type:upper-roman}
+ol.lowergreek{list-style-type:lower-greek}
+.hdlist>table,.colist>table{border:0;background:none}
+.hdlist>table>tbody>tr,.colist>table>tbody>tr{background:none}
+td.hdlist1,td.hdlist2{vertical-align:top;padding:0 .625em}
+td.hdlist1{font-weight:bold;padding-bottom:1.25em}
+.literalblock+.colist,.listingblock+.colist{margin-top:-.5em}
+.colist td:not([class]):first-child{padding:.4em .75em 0;line-height:1;vertical-align:top}
+.colist td:not([class]):first-child img{max-width:none}
+.colist td:not([class]):last-child{padding:.25em 0}
+.thumb,.th{line-height:0;display:inline-block;border:solid 4px #fff;-webkit-box-shadow:0 0 0 1px #ddd;box-shadow:0 0 0 1px #ddd}
+.imageblock.left,.imageblock[style*="float: left"]{margin:.25em .625em 1.25em 0}
+.imageblock.right,.imageblock[style*="float: right"]{margin:.25em 0 1.25em .625em}
+.imageblock>.title{margin-bottom:0}
+.imageblock.thumb,.imageblock.th{border-width:6px}
+.imageblock.thumb>.title,.imageblock.th>.title{padding:0 .125em}
+.image.left,.image.right{margin-top:.25em;margin-bottom:.25em;display:inline-block;line-height:0}
+.image.left{margin-right:.625em}
+.image.right{margin-left:.625em}
+a.image{text-decoration:none;display:inline-block}
+a.image object{pointer-events:none}
+sup.footnote,sup.footnoteref{font-size:.875em;position:static;vertical-align:super}
+sup.footnote a,sup.footnoteref a{text-decoration:none}
+sup.footnote a:active,sup.footnoteref a:active{text-decoration:underline}
+#footnotes{padding-top:.75em;padding-bottom:.75em;margin-bottom:.625em}
+#footnotes hr{width:20%;min-width:6.25em;margin:-.25em 0 .75em;border-width:1px 0 0}
+#footnotes .footnote{padding:0 .375em 0 .225em;line-height:1.3334;font-size:.875em;margin-left:1.2em;margin-bottom:.2em}
+#footnotes .footnote a:first-of-type{font-weight:bold;text-decoration:none;margin-left:-1.05em}
+#footnotes .footnote:last-of-type{margin-bottom:0}
+#content #footnotes{margin-top:-.625em;margin-bottom:0;padding:.75em 0}
+.gist .file-data>table{border:0;background:#fff;width:100%;margin-bottom:0}
+.gist .file-data>table td.line-data{width:99%}
+div.unbreakable{page-break-inside:avoid}
+.big{font-size:larger}
+.small{font-size:smaller}
+.underline{text-decoration:underline}
+.overline{text-decoration:overline}
+.line-through{text-decoration:line-through}
+.aqua{color:#00bfbf}
+.aqua-background{background-color:#00fafa}
+.black{color:#000}
+.black-background{background-color:#000}
+.blue{color:#0000bf}
+.blue-background{background-color:#0000fa}
+.fuchsia{color:#bf00bf}
+.fuchsia-background{background-color:#fa00fa}
+.gray{color:#606060}
+.gray-background{background-color:#7d7d7d}
+.green{color:#006000}
+.green-background{background-color:#007d00}
+.lime{color:#00bf00}
+.lime-background{background-color:#00fa00}
+.maroon{color:#600000}
+.maroon-background{background-color:#7d0000}
+.navy{color:#000060}
+.navy-background{background-color:#00007d}
+.olive{color:#606000}
+.olive-background{background-color:#7d7d00}
+.purple{color:#600060}
+.purple-background{background-color:#7d007d}
+.red{color:#bf0000}
+.red-background{background-color:#fa0000}
+.silver{color:#909090}
+.silver-background{background-color:#bcbcbc}
+.teal{color:#006060}
+.teal-background{background-color:#007d7d}
+.white{color:#bfbfbf}
+.white-background{background-color:#fafafa}
+.yellow{color:#bfbf00}
+.yellow-background{background-color:#fafa00}
+span.icon>.fa{cursor:default}
+a span.icon>.fa{cursor:inherit}
+.admonitionblock td.icon [class^="fa icon-"]{font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,.5);cursor:default}
+.admonitionblock td.icon .icon-note::before{content:"\f05a";color:#19407c}
+.admonitionblock td.icon .icon-tip::before{content:"\f0eb";text-shadow:1px 1px 2px rgba(155,155,0,.8);color:#111}
+.admonitionblock td.icon .icon-warning::before{content:"\f071";color:#bf6900}
+.admonitionblock td.icon .icon-caution::before{content:"\f06d";color:#bf3400}
+.admonitionblock td.icon .icon-important::before{content:"\f06a";color:#bf0000}
+.conum[data-value]{display:inline-block;color:#fff!important;background-color:rgba(0,0,0,.8);-webkit-border-radius:100px;border-radius:100px;text-align:center;font-size:.75em;width:1.67em;height:1.67em;line-height:1.67em;font-family:"Open Sans","DejaVu Sans",sans-serif;font-style:normal;font-weight:bold}
+.conum[data-value] *{color:#fff!important}
+.conum[data-value]+b{display:none}
+.conum[data-value]::after{content:attr(data-value)}
+pre .conum[data-value]{position:relative;top:-.125em}
+b.conum *{color:inherit!important}
+.conum:not([data-value]):empty{display:none}
+dt,th.tableblock,td.content,div.footnote{text-rendering:optimizeLegibility}
+h1,h2,p,td.content,span.alt{letter-spacing:-.01em}
+p strong,td.content strong,div.footnote strong{letter-spacing:-.005em}
+p,blockquote,dt,td.content,span.alt{font-size:1.0625rem}
+p{margin-bottom:1.25rem}
+.sidebarblock p,.sidebarblock dt,.sidebarblock td.content,p.tableblock{font-size:1em}
+.exampleblock>.content{background-color:#fffef7;border-color:#e0e0dc;-webkit-box-shadow:0 1px 4px #e0e0dc;box-shadow:0 1px 4px #e0e0dc}
+.print-only{display:none!important}
+@page{margin:1.25cm .75cm}
+@media print{*{-webkit-box-shadow:none!important;box-shadow:none!important;text-shadow:none!important}
+html{font-size:80%}
+a{color:inherit!important;text-decoration:underline!important}
+a.bare,a[href^="#"],a[href^="mailto:"]{text-decoration:none!important}
+a[href^="http:"]:not(.bare)::after,a[href^="https:"]:not(.bare)::after{content:"(" attr(href) ")";display:inline-block;font-size:.875em;padding-left:.25em}
+abbr[title]::after{content:" (" attr(title) ")"}
+pre,blockquote,tr,img,object,svg{page-break-inside:avoid}
+thead{display:table-header-group}
+svg{max-width:100%}
+p,blockquote,dt,td.content{font-size:1em;orphans:3;widows:3}
+h2,h3,#toctitle,.sidebarblock>.content>.title{page-break-after:avoid}
+#toc,.sidebarblock,.exampleblock>.content{background:none!important}
+#toc{border-bottom:1px solid #ddddd8!important;padding-bottom:0!important}
+body.book #header{text-align:center}
+body.book #header>h1:first-child{border:0!important;margin:2.5em 0 1em}
+body.book #header .details{border:0!important;display:block;padding:0!important}
+body.book #header .details span:first-child{margin-left:0!important}
+body.book #header .details br{display:block}
+body.book #header .details br+span::before{content:none!important}
+body.book #toc{border:0!important;text-align:left!important;padding:0!important;margin:0!important}
+body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-break-before:always}
+.listingblock code[data-lang]::before{display:block}
+#footer{padding:0 .9375em}
+.hide-on-print{display:none!important}
+.print-only{display:block!important}
+.hide-for-print{display:none!important}
+.show-for-print{display:inherit!important}}
+@media print,amzn-kf8{#header>h1:first-child{margin-top:1.25rem}
+.sect1{padding:0!important}
+.sect1+.sect1{border:0}
+#footer{background:none}
+#footer-text{color:rgba(0,0,0,.6);font-size:.9em}}
+@media amzn-kf8{#header,#content,#footnotes,#footer{padding:0}}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+/* Stylesheet for CodeRay to match GitHub theme | MIT License | http://foundation.zurb.com */
+/*pre.CodeRay {background-color:#f7f7f8;}*/
+.CodeRay .line-numbers{border-right:1px solid #d8d8d8;padding:0 0.5em 0 .25em}
+.CodeRay span.line-numbers{display:inline-block;margin-right:.5em;color:rgba(0,0,0,.3)}
+.CodeRay .line-numbers strong{color:rgba(0,0,0,.4)}
+table.CodeRay{border-collapse:separate;border-spacing:0;margin-bottom:0;border:0;background:none}
+table.CodeRay td{vertical-align: top;line-height:1.45}
+table.CodeRay td.line-numbers{text-align:right}
+table.CodeRay td.line-numbers>pre{padding:0;color:rgba(0,0,0,.3)}
+table.CodeRay td.code{padding:0 0 0 .5em}
+table.CodeRay td.code>pre{padding:0}
+.CodeRay .debug{color:#fff !important;background:#000080 !important}
+.CodeRay .annotation{color:#007}
+.CodeRay .attribute-name{color:#000080}
+.CodeRay .attribute-value{color:#700}
+.CodeRay .binary{color:#509}
+.CodeRay .comment{color:#998;font-style:italic}
+.CodeRay .char{color:#04d}
+.CodeRay .char .content{color:#04d}
+.CodeRay .char .delimiter{color:#039}
+.CodeRay .class{color:#458;font-weight:bold}
+.CodeRay .complex{color:#a08}
+.CodeRay .constant,.CodeRay .predefined-constant{color:#008080}
+.CodeRay .color{color:#099}
+.CodeRay .class-variable{color:#369}
+.CodeRay .decorator{color:#b0b}
+.CodeRay .definition{color:#099}
+.CodeRay .delimiter{color:#000}
+.CodeRay .doc{color:#970}
+.CodeRay .doctype{color:#34b}
+.CodeRay .doc-string{color:#d42}
+.CodeRay .escape{color:#666}
+.CodeRay .entity{color:#800}
+.CodeRay .error{color:#808}
+.CodeRay .exception{color:inherit}
+.CodeRay .filename{color:#099}
+.CodeRay .function{color:#900;font-weight:bold}
+.CodeRay .global-variable{color:#008080}
+.CodeRay .hex{color:#058}
+.CodeRay .integer,.CodeRay .float{color:#099}
+.CodeRay .include{color:#555}
+.CodeRay .inline{color:#000}
+.CodeRay .inline .inline{background:#ccc}
+.CodeRay .inline .inline .inline{background:#bbb}
+.CodeRay .inline .inline-delimiter{color:#d14}
+.CodeRay .inline-delimiter{color:#d14}
+.CodeRay .important{color:#555;font-weight:bold}
+.CodeRay .interpreted{color:#b2b}
+.CodeRay .instance-variable{color:#008080}
+.CodeRay .label{color:#970}
+.CodeRay .local-variable{color:#963}
+.CodeRay .octal{color:#40e}
+.CodeRay .predefined{color:#369}
+.CodeRay .preprocessor{color:#579}
+.CodeRay .pseudo-class{color:#555}
+.CodeRay .directive{font-weight:bold}
+.CodeRay .type{font-weight:bold}
+.CodeRay .predefined-type{color:inherit}
+.CodeRay .reserved,.CodeRay .keyword {color:#000;font-weight:bold}
+.CodeRay .key{color:#808}
+.CodeRay .key .delimiter{color:#606}
+.CodeRay .key .char{color:#80f}
+.CodeRay .value{color:#088}
+.CodeRay .regexp .delimiter{color:#808}
+.CodeRay .regexp .content{color:#808}
+.CodeRay .regexp .modifier{color:#808}
+.CodeRay .regexp .char{color:#d14}
+.CodeRay .regexp .function{color:#404;font-weight:bold}
+.CodeRay .string{color:#d20}
+.CodeRay .string .string .string{background:#ffd0d0}
+.CodeRay .string .content{color:#d14}
+.CodeRay .string .char{color:#d14}
+.CodeRay .string .delimiter{color:#d14}
+.CodeRay .shell{color:#d14}
+.CodeRay .shell .delimiter{color:#d14}
+.CodeRay .symbol{color:#990073}
+.CodeRay .symbol .content{color:#a60}
+.CodeRay .symbol .delimiter{color:#630}
+.CodeRay .tag{color:#008080}
+.CodeRay .tag-special{color:#d70}
+.CodeRay .variable{color:#036}
+.CodeRay .insert{background:#afa}
+.CodeRay .delete{background:#faa}
+.CodeRay .change{color:#aaf;background:#007}
+.CodeRay .head{color:#f8f;background:#505}
+.CodeRay .insert .insert{color:#080}
+.CodeRay .delete .delete{color:#800}
+.CodeRay .change .change{color:#66f}
+.CodeRay .head .head{color:#f4f}
+</style>
+</head>
+<body class="book toc2 toc-left">
+<div id="header">
+<h1>深度思考之机器学习系列</h1>
+<div class="details">
+<span id="author" class="author">xjtu-zhongyingLi</span><br>
+<span id="revdate">2018-07-08</span>
+</div>
+<div id="toc" class="toc2">
+<div id="toctitle">目录</div>
+<ul class="sectlevel1">
+<li><a href="#_机器学习基本概念">1. 机器学习基本概念</a>
+<ul class="sectlevel2">
+<li><a href="#_统计学习">1.1. 统计学习</a></li>
+<li><a href="#_统计学习三要素">1.2. 统计学习三要素</a>
+<ul class="sectlevel3">
+<li><a href="#_模型">1.2.1. 模型</a></li>
+<li><a href="#_策略">1.2.2. 策略</a>
+<ul class="sectlevel4">
+<li><a href="#_损失函数">1.2.2.1. 损失函数</a></li>
+<li><a href="#_经验风险最小化">1.2.2.2. 经验风险最小化</a></li>
+<li><a href="#_结构风险最小化">1.2.2.3. 结构风险最小化</a></li>
+</ul>
+</li>
+<li><a href="#_算法">1.2.3. 算法</a></li>
+</ul>
+</li>
+<li><a href="#_模型评估">1.3. 模型评估</a>
+<ul class="sectlevel3">
+<li><a href="#_正则化">1.3.1. 正则化</a></li>
+<li><a href="#_交叉验证">1.3.2. 交叉验证</a></li>
+<li><a href="#_泛化能力">1.3.3. 泛化能力</a></li>
+<li><a href="#_生成模型和判别模型">1.3.4. 生成模型和判别模型</a>
+<ul class="sectlevel4">
+<li><a href="#_判别模型">1.3.4.1. 判别模型</a></li>
+<li><a href="#_生成模型">1.3.4.2. 生成模型</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_线性回归与逻辑回归">2. 线性回归与逻辑回归</a>
+<ul class="sectlevel2">
+<li><a href="#_线性回归">2.1. 线性回归</a>
+<ul class="sectlevel3">
+<li><a href="#_概念">2.1.1. 概念</a></li>
+<li><a href="#_梯度下降">2.1.2. 梯度下降</a></li>
+<li><a href="#_梯度下降的局限性">2.1.3. 梯度下降的局限性</a></li>
+</ul>
+</li>
+<li><a href="#_逻辑回归">2.2. 逻辑回归</a>
+<ul class="sectlevel3">
+<li><a href="#_揭开面纱">2.2.1. 揭开面纱</a></li>
+<li><a href="#_sigmoid函数">2.2.2. Sigmoid函数</a></li>
+<li><a href="#_参数更新">2.2.3. 参数更新</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_特征工程">3. 特征工程</a>
+<ul class="sectlevel2">
+<li><a href="#_引子">3.1. 引子</a></li>
+<li><a href="#_特征工程_2">3.2. 特征工程</a>
+<ul class="sectlevel3">
+<li><a href="#_数据清洗">3.2.1. 数据清洗</a></li>
+<li><a href="#_数据采样">3.2.2. 数据采样</a></li>
+<li><a href="#_特征处理">3.2.3. 特征处理</a>
+<ul class="sectlevel4">
+<li><a href="#_数值型特征">3.2.3.1. 数值型特征</a></li>
+<li><a href="#_类别型特征">3.2.3.2. 类别型特征</a></li>
+<li><a href="#_时间型特征">3.2.3.3. 时间型特征</a></li>
+<li><a href="#_文本型特征">3.2.3.4. 文本型特征</a></li>
+<li><a href="#_统计特征">3.2.3.5. 统计特征</a></li>
+<li><a href="#_组合特征">3.2.3.6. 组合特征</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_支持向量机">4. 支持向量机</a></li>
+</ul>
+</div>
+</div>
+<div id="content">
+<div id="preamble">
+<div class="sectionbody">
+<div class="paragraph">
+<p>数学是人类智慧的结晶，统计学习是数学领域最璀璨的明珠，算法可以让这个明珠照亮整个世界!</p>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_机器学习基本概念">1. 机器学习基本概念</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_统计学习">1.1. 统计学习</h3>
+<div class="paragraph">
+<p>统计学习是关于计算机基于数据构建概率统计模型并运用模型对数据进行预测与分析的一门学科，也成为统计机器学习。
+统计学习的对象是数据，它从数据出发，提取数据的特征，抽象出数据的模型，发现数据中的知识，又回到对数据的分析与预测中去，
+统计学习关于数据的基本假设是：同类数据具有一定的统计规律性.<br></p>
+</div>
+<div class="paragraph">
+<p>统计学习的目的是对数据进行预测与分析，是通过构建概率统计模型实现的，统计学习总的目的就是考虑学习什么样的模型和如何学习模型，
+以使模型能对数据进行准确的预测和分析，同时考虑尽可能的提高学习效率.<br></p>
+</div>
+<div class="paragraph">
+<p>统计学习的方法包括：监督学习、非监督学习、半监督学习和强化学习，我们重点讨论监督学习.<br></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_统计学习三要素">1.2. 统计学习三要素</h3>
+<div class="sect3">
+<h4 id="_模型">1.2.1. 模型</h4>
+<div class="paragraph">
+<p>在监督学习中，模型就是指要学习的条件概率分布或决策函数。假设空间中的模型一般有无穷多个，假设空间可定义为：<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{equation}
+F=\left \{ f|Y=f(X) \right \}
+\end{equation}</p>
+</div>
+<div class="paragraph">
+<p>假设空间通常是由参数向量决定的函数簇，其中参数向量取值于n维欧氏空间，称为参数空间。</p>
+</div>
+<div class="paragraph">
+<p>\begin{equation}
+F=\left \{ f|Y=f_{\theta }(X),\theta \in R^{n} \right \}
+\end{equation}</p>
+</div>
+<div class="paragraph">
+<p>假设空间也可以定义为条件概率的集合:</p>
+</div>
+<div class="paragraph">
+<p>\begin{equation}
+F=\left \{ P|P_{\theta }(Y|X),\theta \in R^{n} \right \}
+\end{equation}</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_策略">1.2.2. 策略</h4>
+<div class="paragraph">
+<p>有了模型的假设空间，统计学习接着要考虑的是按照什么样的准则学习或选择最优的模型，这就是策略。<br></p>
+</div>
+<div class="sect4">
+<h5 id="_损失函数">1.2.2.1. 损失函数</h5>
+<div class="paragraph">
+<p>策略用来解决最优模型的选择问题，那么如何评价模型优劣，这就是损失函数或代价函数，下面是一些常见的损失函数：<br>
+（1）0-1损失<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{equation}
+L(Y|f(X))=\left\{\begin{matrix}
+1,Y\neq f(X) &amp; \\
+0,Y=f(X)&amp;
+\end{matrix}\right.
+\end{equation}</p>
+</div>
+<div class="paragraph">
+<p>（2）平方损失<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{equation}
+L(Y|f(X))=(Y-f(X))^{2}
+\end{equation}</p>
+</div>
+<div class="paragraph">
+<p>（3）绝对损失<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{equation}
+L(Y|f(X))=\left |Y-f(X) \right |
+\end{equation}</p>
+</div>
+<div class="paragraph">
+<p>（4）对数损失<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{equation}
+L(Y|f(X))=-log(P(Y|X)
+\end{equation}</p>
+</div>
+<div class="paragraph">
+<p>损失函数越小，模型就越好，理论上的最优模型应该是损失函数的期望值最小，而理论模型是关于联合分布下的平均损失，称为期望损失或风险损失，然而现实的问题是联合分布是未知的，如果已知也就不需要学习了。<br></p>
+</div>
+<div class="paragraph">
+<p>所以机器学习采用的方法时是通过用<strong>训练数据集上的平均损失近似期望损失</strong>，训练集上的风险我们称为经验风险，根据大数定理，当训练样本数量趋近于无穷时，经验风险趋近于期望风险。<br></p>
+</div>
+<div class="paragraph">
+<p>但是现实中的训练样本数量是有限的，甚至很小，所以直接使用经验风险估计期望风险常常不理想，需要对经验风险进行一定的矫正，这就关系到监督学习的两个基本策略：<strong>经验风险最小化和结构风险最小化</strong>。<br></p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_经验风险最小化">1.2.2.2. 经验风险最小化</h5>
+<div class="paragraph">
+<p>经验风险最小化的策略认为：经验风险最小化的模型是最优模型，根据这一策略，
+按照经验风险最小化策略求最优模型就是求解最优化问题：<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{equation}
+min\frac{1}{m}\sum_{i=1}^{m}L(y_{i},f(x_{i}))
+\end{equation}</p>
+</div>
+<div class="paragraph">
+<p>极大似然估计就是经验风险最小化的典型例子，当模型是条件概率，损失函数是对数损失函数时，经验风险最小化就等价于极大似然估计。<br></p>
+</div>
+<div class="paragraph">
+<p>但是，当样本量较少时，经验风险最小化学习的效果未必很好，会产生过拟合的问题，结构风险最小化是为了防止过拟合而提出的策略。<br></p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_结构风险最小化">1.2.2.3. 结构风险最小化</h5>
+<div class="paragraph">
+<p>结构风险最小化等价于正则化，结构风险在经验风险上加上表示模型复杂度的正则化项或惩罚项，结构风险求解的最优化问题是：<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{equation}
+min\frac{1}{m}\sum_{i=1}^{m}L(y_{i},f(x_{i}))+\lambda J(f)
+\end{equation}</p>
+</div>
+<div class="paragraph">
+<p>其中 \(J(f)\) 为模型复杂度，\(\lambda \geqslant 0\)是系数，用以权衡经验风险和模型复杂度。结构风险小需要经验风险和模型复杂度同时小，结构风险小的模型往往对未知的测试数据和已知的训练数据都有较好的预测.<br></p>
+</div>
+<div class="paragraph">
+<p>比如，贝叶斯估计中的最大后验概率估计就是结构风险最小化的一个例子。<strong>当模型是条件概率分布、损失函数是对数损失函数、模型复杂度由模型的先验概率表示时，结构风险最小化就等价于最大后验概率估计</strong>。<br></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="title">经验风险最小化深度理解</div>
+<div class="paragraph">
+<p>模型是条件概率分布，优化目标可以表示为概率连乘的形势，如果损失函数是对数损失，即可以写成连加的形势，由于最大后验概率可以写成似然函数和先验概率分布的乘积，对数损失后，先验概率就变成似然函数连加后的一项，对比上面公式，先验概率就刚好等价于模型复杂度，因此这种情况下，结构风险最小化就等价于最大后验概率估计。<br></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>我们将会在一个独立的小节阐述如何用贝叶斯理论理解本章的概念</p>
+</li>
+</ul>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_算法">1.2.3. 算法</h4>
+<div class="paragraph">
+<p>从假设空间选择最优模型后，需要考虑用什么计算方法求解最优模型，如果最优化问题有显式的解析解，这个最优化问题就比较简单，但通常解析解不存在，这就需要用数值计算的方法求解，如何保证找到全局最优解，并使求解的过程高效，是算法最核心的问题。<br></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_模型评估">1.3. 模型评估</h3>
+<div class="paragraph">
+<p>统计学习的目的是使学到的模型不仅对已知数据且对未知数据都有很好的预测能力，一般采用训练误差和测试误差作为评价模型的标准，而最终决定模型是否真的不错，是由模型在未知数据上的预测能力决定的。<br></p>
+</div>
+<div class="paragraph">
+<p>通常将学习方法对未知数据的预测能力称为泛化能力。因此选择模型时一定是选择泛化能力强的模型，而这个指标很难量化，通常在模型选择时参考奥卡姆剃刀原理，即当两个模型在测试集上具有相近的误差时，倾向于选择更简单的模型。<br></p>
+</div>
+<div class="paragraph">
+<p>换句话说，越复杂的模型，其过拟合的风险也就越高，一味追求对训练数据的预测能力，会导致模型的复杂度高于真是模型的复杂度，这种现象就是<strong>过拟合</strong>。<br></p>
+</div>
+<div class="paragraph">
+<p>避免模型过拟合的方法有很多，我们重点介绍常用的两种方法：<strong>正则化和交叉验证</strong>。</p>
+</div>
+<div class="sect3">
+<h4 id="_正则化">1.3.1. 正则化</h4>
+<div class="paragraph">
+<p>模型选择的典型方法是正则化，正则化是结构最小化策略的实现，是在经验风险上加上一个正则化项或惩罚项。正则化项一般是模型复杂度的单调递增函数，模型越复杂，正则化值越大，正则化一般的形势：<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{equation}
+min\frac{1}{m}\sum_{i=1}^{m}L(y_{i},f(x_{i}))+\lambda J(f)
+\end{equation}</p>
+</div>
+<div class="paragraph">
+<p>其中，第一项是经验风险，第二项是正则化项，正则化项可以取不同的形势，常见的有L1和L2正则化.<br></p>
+</div>
+<div class="paragraph">
+<p>正则化的作用是选择经验风险和模型复杂度同时较小的模型，正则化符合奥卡姆剃刀原理：在所有可能选择的模型中，能够很好的解释已知数据并且十分简单才是最好的模型。<strong>从贝叶斯的角度来看，正则化对应于模型的先验概率，可以假设复杂的模型具有较小的先验概率，简单的模型有较大的先验概率</strong>。<br></p>
+</div>
+<div class="admonitionblock important">
+<table>
+<tr>
+<td class="icon">
+<i class="fa icon-important" title="Important"></i>
+</td>
+<td class="content">
+<div class="title">正则化项深入理解</div>
+<div class="paragraph">
+<p>如果正则化项等价于模型的复杂度，那么复杂模型的正则化项应该较大，如果正则化想对应于模型的先验概率，那么复杂模型应该具有较大的先验概率才对？ 其实，最大后验概率是一个\(max\)问题，而最优化问题是一个\(min\)问题，在最大后验概率转换为最优化问题时，需要给优化项取负值。</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_交叉验证">1.3.2. 交叉验证</h4>
+<div class="paragraph">
+<p>经验告诉我们，交叉验证非常非常重要，任何模型都会多少有一些超参数需要调（即调参），不同的超参数对应了不同的模型，如果选择超参数和对应的模型呢？让不同超参数对应的模型都在同一份验证集上评估，选择性能最优的模型。<br></p>
+</div>
+<div class="paragraph">
+<p>理想条件下，当样本数据充足时，一般将数据分成：训练集、验证集和测试集，即模型的学习有完全独立的验证数据，训练集负责模型的训练，验证集负责模型选择，而测试集负责模型最终的评估。<br></p>
+</div>
+<div class="paragraph">
+<p>实际情况下，样本的数据量往往较少，此时常用的交叉验证有：简单交叉验证-将数据分成7:3的训练集和测试集，测试集负责验证和模型选择；K折交叉验证-将数据随机分成K份，选取其中一份作为测试集，其余K-1份训练，将这一过程进行K次选择重复进行，最后选出K次评估中平均测试误差最小的模型；留一法-当数据严重缺乏时使用，实际应用很少。<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_泛化能力">1.3.3. 泛化能力</h4>
+<div class="paragraph">
+<p>泛化能力是模型最本质的要求，也机器学习中最核心的概念。经验风险最小化的角度考虑，训练误差小的模型，其泛化误差也会小，应用Hoeffding不等式证明泛化误差的上界。<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_生成模型和判别模型">1.3.4. 生成模型和判别模型</h4>
+<div class="sect4">
+<h5 id="_判别模型">1.3.4.1. 判别模型</h5>
+<div class="paragraph">
+<p>以二分类问题为例，在解空间中寻找一条直线把两种类别的样本分开，对于新的样本只需判断在直线的哪一侧即可，这种直接对问题求解的的方法称为判别模型。<br></p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_生成模型">1.3.4.2. 生成模型</h5>
+<div class="paragraph">
+<p>生成模型会首先对两类样本分别进行建模，用新的样本去分别匹配两个模型，匹配度高的作为新样本的类别。</p>
+</div>
+<div class="paragraph">
+<p>形式化地说，判别模型是直接对进行建模或者直接学习输入空间到输出空间的映射关系，而生成模型是对条件概率和先验概率进行建模，然后按照贝叶斯公式求出后验概率。使得后验概率最大的类别就是新样本的预测值。<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+p(y|x) = \frac{p(y)\cdot p(x|y)}{p(x)} \\
+\underset{y}{argmax\, p(y|x)} = \underset{y}{argmax\, p(x|y)\cdot p(y)}
+\end{align}</p>
+</div>
+<div class="exampleblock">
+<div class="title">示例 1. 贝叶斯学派下的生成模型是如何对未知样本进行预测</div>
+<div class="content">
+<div class="paragraph">
+<p>假设仍然是个二分类问题，问题是预测一个人是男人还是女人，为了简单起见，假设特征只有一个：是否有胡子。</p>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>思路肯定是分别求解新样本是男人和女人的概率，取概率最大的类别作为预测结果，假定新样本为"有胡子"：</pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>p(y=male|x=beard) = p(x=beard|y=male)✖️p(y=male)<i class="conum" data-value="1"></i><b>(1)</b>
+
+p(y=female|x=beard) = p(x=beard|y=female)✖️p(y=female) <i class="conum" data-value="2"></i><b>(2)</b></pre>
+</div>
+</div>
+<div class="listingblock">
+<div class="content">
+<pre>关键在于如何求解上面两个概率值，其实上面公式的概率值全部都是统计值，也就是训练样本中，根据条件统计出来的概率。比如第一个公式，是男人的概率就是样本中男人的占比，而条件概率（似然函数）就是男人中有胡子的概率。</pre>
+</div>
+</div>
+<div class="paragraph">
+<p><em>你可能会问特征参数去哪了？求特征参数的方法是判别模型，而生成模型不需要!</em></p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_线性回归与逻辑回归">2. 线性回归与逻辑回归</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_线性回归">2.1. 线性回归</h3>
+<div class="sect3">
+<h4 id="_概念">2.1.1. 概念</h4>
+<div class="paragraph">
+<p>线形回归主要研究一个变量(\(y\))关于另一些变量(\(X\))的具体依赖关系的。例如，房价问题，假设我们只考虑房屋的面积和卧室的个数，问题就可以具体解释为：我们希望得到这样一个线形模型，使得给它一个房子的面积和卧室个数，它就可以准确的评估出房价。<br></p>
+</div>
+<div class="paragraph">
+<p>假设房价为\(y\)，房屋面积为\(x_{1}\)，卧室个数为\(x_{2}\)，那么线形模型就可以表示为：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[y=\theta _{0}x_{0}+\theta _{1}x_{1}+\theta _{2}x_{2}=\sum_{i=0}^{i=2}\theta _{i}x_{i}\hspace{2cm}(2.1)\]
+</div>
+</div>
+<div class="paragraph">
+<p>其中\(\theta \)为要学习的参数，这里\(x_{0}=1\)，对于一般问题，公式通常写成：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[h_{\theta }(x) = \sum_{i=0}^{m}\theta ^{i}x^{i}=\Theta ^{T}X\hspace{4cm} (2.2)\]
+</div>
+</div>
+<div class="paragraph">
+<p>我们用\(x^{i}\)表示第\(i\)个特征，\( y^{i} \)表示\(x^{i}\)对应的房价，从而定义损失函数\( J(\theta)\)，一个很自然的想法就是用所有样本预测值和真实值的平方差和作为损失函数：</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[J(\theta )=\frac{1}{2}\sum_{i=0}^{m}(h_{\theta}(x^{i})-y^{i})^{2}\hspace{3.5cm}(2.3)\]
+</div>
+</div>
+<div class="paragraph">
+<p>我们的目标就是找出使损失函数最小的参数值，就得到了拟合训练集的最佳参数，至于为什么使用该函数会取得很好的效果，后面会有解释，这种通过最小化误差的平方和来求解最佳参数的方法又称为 <code>最小二乘法或最小平方误差</code>。<br></p>
+</div>
+<div class="paragraph">
+<p>求一个函数的最小值，最简单的方法是对函数求导，令导数为0，直接解出参数，这种方法叫 <code>解正规方程组</code>，方法简单直接，却有很多限制，比如未知数（即参数）个数大于方程组个数（即训练样本）时，无法求解，该方法我们将在后面单独讲述。<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_梯度下降">2.1.2. 梯度下降</h4>
+<div class="paragraph">
+<p>这里我们重点介绍 <code>梯度下降（Gradient Descent）</code> 来求参数，即通过不断调整参数的值，使得损失函数值不断减小，迭代收敛至满足损失误差允许的范围，一个直观的更新规则为：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{j} = \theta_{j} + \delta \hspace{6cm}(2.4)\]
+</div>
+</div>
+<div class="paragraph">
+<p>关键就在于每次迭代如何求解\(\delta\)，确定\(\delta\)是什么的过程不是一个数学上严格的推断（即没有标准答案），而是一种猜想（也正是因为没有标准答案所以更新参数的方法除了梯度下降，还有牛顿法、拟牛顿法等），我们要做的就是如何让猜想尽可能的合理。<br></p>
+</div>
+<div class="paragraph">
+<p>首先介绍梯度的概念，我们中学学过的导数即梯度，反映的是 <code>参数往正向的变化量趋向于0时的其函数值变化量的极限</code>，比如梯度为5，表示参数往梯度方向增加一点点时，其函数值也增加一点点，但不一定是5；再比如梯度为-5，参数往梯度方向增加一点点的时候，其函数值会将少一点点。而我们的目的是让函数值不断减小，因此不管梯度是正还是负，我们只要将参数往梯度相反的方向增加一点点，函数值就会减小，则更新规则就可以变成:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{j} = \theta_{j} + \delta = \theta_{j} - \frac{\partial }{\partial \theta _{j}}J(\theta) \hspace{2.5cm}(2.5)\]
+</div>
+</div>
+<div class="paragraph">
+<p>此时的\(\delta\)不再是未知数，而是损失函数的负梯度。至此，我们仅确定了没步迭代更新的方向，而每次更新多少合适呢？这个值确实很难给出，不妨引入步长因子\(\alpha\)作为超参数，那么最终的更新规则就变为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{j} = \theta_{j}-\alpha \frac{\partial }{\partial \theta _{j}}J(\theta) \hspace{4.2cm}(2.6)\]
+</div>
+</div>
+<div class="exampleblock">
+<div class="title">示例 2. 关于梯度下降</div>
+<div class="content">
+<div class="paragraph">
+<p>关于如何理解更新规则的最终形势，大家经常讲到的一个故事场景：想想一下你站在山腰（任意初始位置）上，目标是走到山谷（最小值），你将如何走才能尽快的到达山谷？沿着最陡峭的方向迈一大步！这个最陡峭的方向就是副梯度方向，而你迈得一大步就是步长，一直这样走下去，你会走到谷底。<br></p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>言归正传，根据公式(2.6)发现：问题的关键就在于如何求解损失函数即公式(2.3)的梯度，下面给出求解过程（假定只有一个训练样本）：<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\frac{\partial}{\partial \theta_{j}}J(\theta) &amp; = \frac{\partial}{\partial \theta_{j}} \frac{1}{2}(h_{\theta}(x)-y)^{2} \\
+&amp; = (h_{\theta}(x)-y)\frac{\partial}{\partial \theta_{j}}h_{\theta}(x) \\
+&amp; = x_{j}(h_{\theta}(x)-y) \hspace{3cm} (2.7)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>将公式(2.7)带入公式(2.4)得到：</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{j} = \theta_{j} - x_{j}(h_{\theta}(x)-y) \hspace{3.5cm} (2.8)\]
+</div>
+</div>
+<div class="paragraph">
+<p>公式(2.7)是针对只有一个训练样本的情况，考虑到所有 <code>m</code> 个样本时，更新规则就变为：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{j} = \theta_{j} - x_{j}^{i}\sum_{i=0}^{m}(h_{\theta}(x^{i})-y^{i}) \hspace{2.5cm} (2.9)\]
+</div>
+</div>
+<div class="paragraph">
+<p>运用这种规则直到收敛，就是批梯度下降算法 <code>BGD（Batch Gradient Descent）</code>，判断收敛的方法主要包括：一是,两次迭代后参数的变化量；二是,两次迭代后损失函数的变化量。<br>
+规则中的\(\alpha\)为步长因子，又称为学习率，需要在实践中调整，过小会导致算法收敛的很慢，过大会导致算法很容易越过最优点，或在最优点附近震荡。<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_梯度下降的局限性">2.1.3. 梯度下降的局限性</h4>
+<div class="paragraph">
+<p>梯度下降算法会导致 <code>局部极小值</code> 的产生，可以通过随机初始化，寻找多个最优点来解决该问题，在所有最优点中选择最小的作为最终的最终结果。对于本例中的线形回归问题，不会存在局部极值的问题，因为本问题的随时函数是凸二次函数。<br></p>
+</div>
+<div class="paragraph">
+<p>根据公式(2.9)的更新规则，每次迭代更新都需要遍历所有样本，当样本量很大时算法运行速度就会变成龟速。<br></p>
+</div>
+<div class="paragraph">
+<p>一种比较好的解决方案就是每次更新时我们只选用一个样本，由于一个样本的梯度方向是随机的，不是全局梯度方向，因此该方法又称为随机梯度下降 <code>SGD（Stochastic Gradient Descent）</code>； <code>BGD</code> 每次使用的样本过多，<code>SGD</code> 每次使用的样本又过少，每次更新时我们还可以随机选择一小批样本进行更新，这种方法叫做小批量梯度下降 <code>Mini-Batch Gradient Descent(MBGD)</code>。<br></p>
+</div>
+<div class="exampleblock">
+<div class="title">示例 3. 扩展问题</div>
+<div class="content">
+<div class="ulist square">
+<ul class="square">
+<li>
+<p>线形回归的损失函数为什么要选用最小二乘损失（<code>L2损失</code>），如何概率解释 ?</p>
+</li>
+<li>
+<p>如何解决模型在训练集上过拟合问题 ?</p>
+</li>
+<li>
+<p>如何从贝叶斯角度深入理解正则化,为什么说L1正则化等价于参数的先验概率分布满足拉普拉斯分布？L2正则化等价于参数的先验概率分布满足高斯分布 ?</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_逻辑回归">2.2. 逻辑回归</h3>
+<div class="sect3">
+<h4 id="_揭开面纱">2.2.1. 揭开面纱</h4>
+<div class="paragraph">
+<p>这一节将介绍在工业界应用最广，又最简单、最容易理解的神器 <code>逻辑回归(Logistic Regression)</code>，问题的背景：假设我们需要解决一个二分类问题，比如给你一辆ofo小黄车，判定该车是好车还是坏车。<br></p>
+</div>
+<div class="paragraph">
+<p>首先，我们期望学到一个什么样的模型？最简单的需求就是把一批车辆的数据丢给模型，模型返回 <code>0</code> 或者 <code>1</code> 表示好和坏；更近一步，我们希望模型能返回给我们一个 <code>0~1</code> 之间的概率值，这样我们可以根据模型输出的概率值选择坏的概率很大的丢给师傅去修理，选择好的概率很大的推荐给用户骑行。<br></p>
+</div>
+<div class="paragraph">
+<p>那么，首先明确了学习模型的输入和输出，输入是车辆的各种维度的信息（比如，昨天发生了几个正常单、报修单、报修部位、报修后是否又有正常骑行等等），输出是一个 <code>0～1</code> 之间的概率值。问题就变成了如何将输入转为输出。<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_sigmoid函数">2.2.2. Sigmoid函数</h4>
+<div class="paragraph">
+<p>输入空间显然是实数空间，输出空间为 <code>0～1</code> ，而 <code>sigmoid</code> 刚好就是可以完成这种归一化的函数：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[h(z)=\frac{1}{1+e^{-z}} \hspace{6cm} (2.10)\]
+</div>
+</div>
+<div class="paragraph">
+<p>而我们的输入可以表示为多个特征加权和的形式：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[z = \theta^{T} x \hspace{7.5cm} (2.11)\]
+</div>
+</div>
+<div class="paragraph">
+<p>有了这个映射函数，对于一个样例，我们就可以得到它分类的概率值：<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+p(y=1|x;\theta) &amp; = h_{\theta}(x) \\
+p(y=0|x;\theta) &amp; = 1 - h_{\theta}(x)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>将上面两个公式联合起来可以写成：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[p(y|x;\theta) = [h_{\theta}(x)]^{y} [1-h_{\theta}(x)]^{1-y} \hspace{2cm} (2.12)\]
+</div>
+</div>
+<div class="paragraph">
+<p>这样我们就可以得到在整个数据集上的似然函数:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+l(\theta) &amp; = p(Y|X;\theta) \\
+&amp; = \prod_{i=1}^{m} p(y^{i}; x^{i}; \theta ) \\
+&amp; = \prod_{i=1}^{m} [p_{\theta} (x^{i}) ]^{ y^{i} } [(1-h_{\theta} (x^{i})) ]^{1- y^{i} }\hspace{1cm}(2.13)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>对似然函数取对数，可以得到：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L(\theta) = log(l(\theta)) = \sum_{i=1}^{m}[y^{i} logh_{\theta}(x^{i}) + (1 - y^{i}) log(1-h_{\theta}(x^{i}))] \hspace{0.5cm}(2.14)\]
+</div>
+</div>
+<div class="paragraph">
+<p>为了简化其间，我们先只考虑一个样本的情况，则：</p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L(\theta) = ylogh_{\theta}(x) + (1-y)log(1-h_{\theta}(x)) \hspace{1cm} (2.15)\]
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_参数更新">2.2.3. 参数更新</h4>
+<div class="paragraph">
+<p>公式(2.15)是二分类问题的最大似然函数，那么我们应该怎样定义损失函数，然后应用梯度下降更新参数呢？首先，损失函数作为优化目标时，其函数值越小越好；而似然函数则刚好相反，其越大越好。所以一个很自然的想法就是取似然函数的负函数作为损失函数：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[J(\theta) = -L(\theta) = -ylogh_{\theta}(x) - (1-y)log(1-h_{\theta}(x)) \hspace{2cm} (2.16)\]
+</div>
+</div>
+<div class="paragraph">
+<p>对公式(2.16)应用梯度下降算法，更新规则为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{j} = \theta_{j} - \frac{\partial}{\partial \theta_{j}}J(\theta) \hspace{6cm} (2.17)\]
+</div>
+</div>
+<div class="paragraph">
+<p>求公式(2.16)的导数，公式中有一个复合函数\(h_{\theta}(x)\)，我们可以先求解它的导数，求解过程如下：<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\frac{\partial}{\partial h_{\theta}(x_{j})} &amp; = (\frac{1}{1+e^{-{ \theta^{T} } x}})^{'} \\
+&amp; = [(1 + e^{- \theta^{T} x})^{-1} ]^{'} \\
+&amp; = (-1) (1 + e^{- \theta^{T} x})^{-2} e^{- \theta^{T} x} (- x^{j} ) \\
+&amp; = x_{j} ·\frac{ e^{ \theta^{T} } x}{ (1 + e^{ \theta^{T} x} )^{2} } \\
+&amp; = x_{j} ·\frac{ 1+ e^{ \theta^{T} x} -1}{ (1 + e^{ \theta^{T} x} )^{2} } \\
+&amp; = x_{j}· [( h_{\theta}(x) )^{2} - h_{\theta}(x)] \\
+&amp; = x_{j}· h_{\theta}(x)(1 - h_{\theta}(x) ) \hspace{3cm} (2.18)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>实际上，<code>sigmoid</code> 函数 <code>y=h(x)</code> 的导数就等于 <code>y(1-y)</code>。<br>
+然后求解损失函数\(J(\theta)\)的导数，利用公式(2.18)的结论，求解过程如下:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\frac{\partial}{\partial \theta_{j}}J(\theta) &amp; = -[ ylogh_{\theta}(x) + (1-y)log(1-h_{\theta}(x)) ]^{'} \\
+&amp; = -[ \frac{y}{h_{\theta}(x)} h_{\theta}^{'}(x) + \frac{1-y}{1-h_{\theta}(x)} (-h_{\theta}^{'}(x) ] \\
+&amp; = -x_{j} [ \frac{y}{h_{\theta}(x)} h_{\theta}(x) (1-h_{\theta}(x)) - \frac{1-y}{1-h_{\theta}(x)} h_{\theta}(x)(1-h_{\theta}(x))] \\
+&amp; = -x_{j}[y(1-h_{\theta}(x))-(1-y)h_{\theta}(x)] \\
+&amp; = -x_{j}[y-yh_{\theta}(x)+yh_{\theta}(x)-h_{\theta}(x)] \\
+&amp; = x_{j}(h_{\theta}(x) - y) \hspace{6cm} (2.19)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>导入公式(2.17),得到参数更新的规则为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{j} = \theta_{j} - \alpha · (h_{\theta}(x)-y)·x_{j} \hspace{3cm} (2.20)\]
+</div>
+</div>
+<div class="paragraph">
+<p>考虑多个样本的时候，规则就应该变成:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\theta_{j} = \theta_{j} - \alpha · \sum_{i=1}^{m}(h_{\theta}(x^{i})-y^{i})·x_{j}^{i} \hspace{2cm} (2.21)\]
+</div>
+</div>
+<div class="exampleblock">
+<div class="title">示例 4. 扩展问题</div>
+<div class="content">
+<div class="ulist square">
+<ul class="square">
+<li>
+<p>为什么二分类问题的模型会叫 <code>逻辑 <em>回归</em></code> ?</p>
+</li>
+<li>
+<p>损失函数不选用公式(2.16)的形式会怎样？比如，仍然采用最小二乘法。</p>
+</li>
+<li>
+<p>转换函数还有别的选择吗？为什么要选择 <code>sigmoid</code> 函数？</p>
+</li>
+<li>
+<p>回归问题通过一个非线性变换就变成了分类问题，从拟合数据转变为拟合决策边界，这是什么原因导致的？</p>
+</li>
+<li>
+<p>如果损失函数就是 <code>L2</code> 损失，有什么办法可以求解？</p>
+</li>
+<li>
+<p>最大似然估计和最小化损失函数、最大后验概率等是什么关系？</p>
+</li>
+<li>
+<p>如何用逻辑回归解决多分类问题？</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_特征工程">3. 特征工程</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_引子">3.1. 引子</h3>
+<div class="paragraph">
+<p>首先来看一张关于梯度下降的示意图：<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/feature_scaling.png" alt="feature scaling" width="60%" height="45%">
+</div>
+<div class="title">图 1. 梯度下降</div>
+</div>
+<div class="paragraph">
+<p>上图给出了两个损失函数的等高线，左图是一个很扁的等高线，右图是一个很规整的等高线，哪一个损失函数好？<br></p>
+</div>
+<div class="paragraph">
+<p>一个很直观的结论是：当在左图进行梯度下降时，如果我们选择的初始位置为长轴附近，那么需要很多次的迭代才能到达最优点，现象就是算法收敛的很慢，模型学不动。由于模型学习时初始位置都是随机选取的，因此我们更倾向于选择第二种损失函数。<br></p>
+</div>
+<div class="paragraph">
+<p>怎样才能保障我们的损失函数像右图那样规整呢？这就是特征工程的一个典型作用，当然特征工程的作用还有很多，以至于它是非常非常重要！<br></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_特征工程_2">3.2. 特征工程</h3>
+<div class="paragraph">
+<p>下图是一个机器学习任务典型的工作流程:<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/pipline.png" alt="pipline" width="60%" height="45%">
+</div>
+<div class="title">图 2. 工作流程</div>
+</div>
+<div class="paragraph">
+<p>这个 <code>pipline</code> 包括了数据预处理、模型学习、模型评估和新样本预测，每个过程的时间和收益比是按照流程越来越低的，也就是我们把更多的时间花在数据预处理上，获得的收益远大于模型算法的选择；换言之，如果数据处理有问题，后面的环节再完美，也无法得到不错的模型。<br></p>
+</div>
+<div class="paragraph">
+<p>工业界，大概有70%的时间都花在了数据预处理上，当然数据预处理中又包含了数据清洗、特征工程等。一般，算法工程师拿到的数据是经过数据挖掘或数据分析师们清洗后的数据，因此更重要的工作是进行特征工程！<br></p>
+</div>
+<div class="paragraph">
+<p>不过有的时候，算法工程师们也需要从头做起，数据清洗往往是第一步，我们就从数据清洗开始讲述特征工程。<br></p>
+</div>
+<div class="sect3">
+<h4 id="_数据清洗">3.2.1. 数据清洗</h4>
+<div class="paragraph">
+<p><code>Garbage in , garbage out !</code> 当你给模型丢进一堆错误数据时，很显然你得到的也肯定是毫无意义的结果;<br></p>
+</div>
+<div class="paragraph">
+<p>算法大多数情况下就是个加工厂，至于最后的产品(输出)如何，取决于原材料的好坏:<br></p>
+</div>
+<div class="paragraph">
+<p>这个过程会花掉你一般的时间，当然会促进你对业务的理解;<br></p>
+</div>
+<div class="paragraph">
+<p>数据清洗要做的事情就是去掉脏数据！<br></p>
+</div>
+<div class="paragraph">
+<p>比如，一个人的身高为3米&#8230;&#8203;    缺省值太多的样本丢弃&#8230;&#8203;    数据间存在相互矛盾&#8230;&#8203;<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_数据采样">3.2.2. 数据采样</h4>
+<div class="paragraph">
+<p>很多情况下数据样本是不均衡的，如小黄车中好车和坏车的比例<br></p>
+</div>
+<div class="paragraph">
+<p>往往好车的数量要远远大于坏车的数量，这个时候该如何采样？<br></p>
+</div>
+<div class="paragraph">
+<p>如果坏车的数量也很多，那就下采样；如果坏车的数量很有限，多采集、过采样(旋转等)、修改损失函数<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_特征处理">3.2.3. 特征处理</h4>
+<div class="sect4">
+<h5 id="_数值型特征">3.2.3.1. 数值型特征</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>幅度调整/归一化 如，各种 <code>scalar</code></p>
+</li>
+<li>
+<p><code>log</code> 等变换</p>
+</li>
+<li>
+<p>换成统计值，如 <code>max、min、mean、std</code></p>
+</li>
+<li>
+<p>离散化、<code>Hash</code> 分桶</p>
+</li>
+<li>
+<p>尝试转为类别型特征</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_类别型特征">3.2.3.2. 类别型特征</h5>
+<div class="ulist">
+<ul>
+<li>
+<p><code>One-hot</code> 编码, [0 0 0 1 0]</p>
+</li>
+<li>
+<p>哑变量，虚拟变量，如没有填写性别的用户由于数据量较大，给他们一个类别标识</p>
+</li>
+<li>
+<p><code>Hash</code> 与聚类处理，如海量数据推荐，不会直接比较每个数据的相似性，往往会先进行聚类</p>
+</li>
+<li>
+<p>尝试转为数值型</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_时间型特征">3.2.3.3. 时间型特征</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>看作连续值，如转为持续时间或间隔时间</p>
+</li>
+<li>
+<p>看作离散值，如一天中的哪个时段、一周中的星期几、一年中的哪个月、是不是周末、是不是假期等</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_文本型特征">3.2.3.4. 文本型特征</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>词袋，去掉停用词后，在词库中的映射稀疏向量</p>
+</li>
+<li>
+<p><code>N-gram</code></p>
+</li>
+<li>
+<p>使用 <code>TF-IDF</code> 统计<br>
+TF(t) = (词t在当前文中出现次数) / (t在全部文档中出现次数)<br>
+IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_统计特征">3.2.3.5. 统计特征</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>多维度统计特征，具备良好特征的潜质</p>
+</li>
+</ul>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_组合特征">3.2.3.6. 组合特征</h5>
+<div class="ulist">
+<ul>
+<li>
+<p>一般用树模型进行组合特征的筛选，一条组合路径就是一个组合特征</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_支持向量机">4. 支持向量机</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+</div>
+<div id="footer">
+<div id="footer-text">
+最后更新时间 2018-07-08 23:21:59 CST
+</div>
+</div>
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  messageStyle: "none",
+  tex2jax: {
+    inlineMath: [["\\(", "\\)"]],
+    displayMath: [["\\[", "\\]"]],
+    ignoreClass: "nostem|nolatexmath"
+  },
+  asciimath2jax: {
+    delimiters: [["\\$", "\\$"]],
+    ignoreClass: "nostem|noasciimath"
+  },
+  TeX: { equationNumbers: { autoNumber: "none" } }
+});
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_HTMLorMML"></script>
+</body>
+</html>
