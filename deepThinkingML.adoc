@@ -32,6 +32,9 @@ xjtu-zhongyingLi
 //第一章:机器学习基础
 include::machine_learning_base.adoc[]
 
+//·
+include::deep_thinking_for_base.adoc[]
+
 //第二章:线性回归和逻辑回归
 include::linear_logistric_regression.adoc[]
 
@@ -40,3 +43,6 @@ include::feature_engineering.adoc[]
 
 //第四章:支持向量机
 include::support_vector_machine.adoc[]
+
+//第五章：主题模型
+include::latent_dirichlet_allocation.adoc[]
