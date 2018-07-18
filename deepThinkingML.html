@@ -530,7 +530,7 @@ table.CodeRay td.code>pre{padding:0}
 <h1>深度思考之机器学习系列</h1>
 <div class="details">
 <span id="author" class="author">xjtu-zhongyingLi</span><br>
-<span id="revdate">2018-07-16</span>
+<span id="revdate">2018-07-18</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">目录</div>
@@ -643,11 +643,37 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_模型训练和推演">5.3.3.7. 模型训练和推演</a></li>
 </ul>
 </li>
+<li><a href="#_变分em算法求解plsa模型">5.3.4. 变分EM算法求解pLSA模型</a>
+<ul class="sectlevel4">
+<li><a href="#_em算法">5.3.4.1. EM算法</a></li>
+<li><a href="#_求解plsa算法">5.3.4.2. 求解pLSA算法</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#_终篇">5.4. 终篇</a></li>
 </ul>
 </li>
+<li><a href="#_最大熵理论和多分类器">6. 最大熵理论和多分类器</a></li>
+<li><a href="#_em_算法">7. <code>EM</code> 算法</a></li>
+<li><a href="#_决策树和集成学习">8. 决策树和集成学习</a></li>
+<li><a href="#_推荐系统">9. 推荐系统</a></li>
+<li><a href="#_聚类和近邻算法">10. 聚类和近邻算法</a></li>
+<li><a href="#_神经网络">11. 神经网络</a></li>
+<li><a href="#_隐马尔可夫模型">12. 隐马尔可夫模型</a></li>
+<li><a href="#_条件随机场">13. 条件随机场</a></li>
+<li><a href="#_深度学习概论">14. 深度学习概论</a></li>
+<li><a href="#_深度学习中的优化算法">15. 深度学习中的优化算法</a></li>
+<li><a href="#_深度学习中的正则化">16. 深度学习中的正则化</a></li>
+<li><a href="#_深度神经网络">17. 深度神经网络</a></li>
+<li><a href="#_卷积神经网络">18. 卷积神经网络</a></li>
+<li><a href="#_循环神经网络">19. 循环神经网络</a></li>
+<li><a href="#_神经网络番外篇">20. 神经网络番外篇</a></li>
+<li><a href="#_生成对抗网络">21. 生成对抗网络</a></li>
+<li><a href="#_迁移学习">22. 迁移学习</a></li>
+<li><a href="#_数学之美">23. 数学之美</a></li>
+<li><a href="#_深度学习框架">24. 深度学习框架</a></li>
+<li><a href="#_走进互联网">25. 走进互联网</a></li>
 </ul>
 </div>
 </div>
@@ -2827,9 +2853,23 @@ p(\vec{z} \mid \vec{\alpha }) &amp; = \int p(\vec{z} \mid \Theta ) p(\Theta \mid
 p(z_{i} &amp; = k \mid \vec{z_{ \neg i }}, \vec{w}) = \frac{p( \vec{w}, \vec{z} )}{p( \vec{w}, \vec{z_{\neg i}} )} = \frac{p( \vec{w} \mid \vec{z} )}{p(\vec{w_{ \neg i} } \mid \vec{z_{\neg i}} ) p(w_{i})} \cdot \frac{p(\vec{z})}{p(\vec{z_{\neg i}})} \\
 &amp; = \propto \frac{ \Delta (\vec{n_{z}} + \vec{\beta}) }{\Delta( \vec{n_{z, \neg i}} + \vec{\beta} )} \cdot \frac{ \Delta( \vec{n_{m}} + \vec{\alpha} ) }{ \Delta ( \vec{n_{m, \neg i}} + \vec{\alpha}) } \\
 &amp; = \frac{\Gamma (n_{k}^{(t)} + \beta_{t}) \Gamma( \sum_{t=1}^{V} n_{k, \neg i}^{(t)} + \beta_{t}  )}{ \Gamma( n_{k, \neg i}^{(t)} + \beta_{t}) \Gamma( \sum_{t=1}^{V} n_{k}^{(t)} + \beta_{t}   )  } \cdot \frac{ \Gamma( n_{m}^{(k)} + \alpha_{k}) \Gamma(\sum_{k=1}^{K} n_{m, \neg i}^{(k)} + \alpha_{k}) }{ \Gamma(n_{m, \neg i}^{(k)} + \alpha_{k}) \Gamma(\sum_{k=1}^{K} n_{m}^{(k)} + \alpha_{k}) } \\
-&amp; = \frac{n_{k, \neg i}^{(t)} + \beta_{t} }{\sum_{t=1}^{V} n_{k, \neg i}^{(t)} + \beta_{t}} \cdot \frac{ n_{m, \neg i}^{(k)} + \alpha_{k}}{ \sum_{k=1}^{K} n_{m, \neg i}^{(k)} + \alpha_{k}}  \hspace{1cm} (5.20)\\
-&amp; = \varphi_{k,t} \cdot \theta_{m,k} \\
-&amp; = p(word \mid topic) \cdot p(topic \mid doc)
+&amp; = \frac{n_{k, \neg i}^{(t)} + \beta_{t} }{\sum_{t=1}^{V} n_{k, \neg i}^{(t)} + \beta_{t}} \cdot \frac{ n_{m, \neg i}^{(k)} + \alpha_{k}}{ [\sum_{k=1}^{K} n_{m, \neg i}^{(k)} + \alpha_{k}]-1}  \hspace{1cm} (5.20)\\
+&amp; \propto \frac{n_{k, \neg i}^{(t)} + \beta_{t} }{\sum_{t=1}^{V} n_{k, \neg i}^{(t)} + \beta_{t}} \cdot (n_{m, \neg i}^{(k)} + \alpha_{k})
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>上面是邹博老师的推导，感觉这么推导结果不是那么美啊，还是看看 <code>Rickjin</code> 的积分转为期望的推导<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) &amp; \propto p(z_{i}=k, w_{i}=t \mid \vec{z_{ \neg i }, \vec{ w_{ \neg i } }}) \\
+&amp; = \int p(z_{i} = k, w_{i} = t, \vec{\theta_{m}}, \vec{\varphi_{k}} \mid \vec{z_{ \neg i}}, \vec{w_{\neg i}}) d\vec{\theta_{m} }d\vec{\varphi_{k}} \\
+&amp; = \int p(z_{i} = k \mid \vec{\theta_{m}}) p( \vec{\theta_{m}} \mid \vec{z_{ \neg i}}, \vec{ w_{\neg i} } ) \cdot p(w_{i} = t \mid \vec{\varphi_{k}} ) p(\vec{\varphi_{k}} \mid \vec{z_{\neg i}}, \vec{w_{\neg i}}) d\vec{\theta_{m}} d\vec{\varphi_{k}} \\
+&amp; = \int p(z_{i} = k \mid \vec{\theta_{m}}) Dir(\vec{\theta_{m}} \mid \vec{n_{m, \neg i}} + \vec{\alpha})d\vec{\theta_{m}} \cdot p(w_{i} = t \mid \vec{\varphi_{k}}) Dir(\vec{\varphi_{k}} \mid \vec{n_{k, \neg i}} + \vec{\beta}) d\vec{\varphi_{k}} \\
+&amp; = \int \theta_{mk} Dir(\vec{\theta_{m}} \mid \vec{n_{m, \neg i}} + \vec{\alpha})d\vec{\theta_{m}}  \cdot \int \varphi_{kt}Dir(\vec{\varphi_{k}} \mid \vec{n_{k, \neg i}} + \vec{\beta}) d\vec{\varphi_{k}} \\
+&amp; = E(\theta_{mk}) \cdot E(\varphi_{kt}) \\
+&amp; = \hat{\theta_{mk}} \cdot \hat{\varphi_{kt}} \\
+&amp; = \frac{ n_{m, \neg i}^{(k)} + \alpha_{k}}{\sum_{k=1}^{K} n_{m, \neg i}^{(k)} + \alpha_{k}} \cdot \frac{n_{k, \neg i}^{(t)} + \beta_{t} }{\sum_{t=1}^{V} n_{k, \neg i}^{(t)} + \beta_{t}} \hspace{1cm} (5.20)
 \end{align}</p>
 </div>
 <div class="paragraph">
@@ -2889,20 +2929,349 @@ p(z_{i} &amp; = k \mid \vec{z_{ \neg i }}, \vec{w}) = \frac{p( \vec{w}, \vec{z} 
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_变分em算法求解plsa模型">5.3.4. 变分EM算法求解pLSA模型</h4>
+<div class="paragraph">
+<p>由于后面会有独立的章节介绍EM算法，因此本节我们介绍其基本原理，在不影响pLSA算法正常运算逻辑基础上尽可能简化介绍。<br></p>
+</div>
+<div class="sect4">
+<h5 id="_em算法">5.3.4.1. EM算法</h5>
+<div class="paragraph">
+<p>EM算法(<code>Expectation Maximization algorithm</code>),又称期望最大算法，其基本思想是：首先随机选取一个值去初始化待估计的值\(\theta^{0}\)，然后不断迭代寻找更优\( \theta^{n+1}\)的使得其似然函数比原来的要大。
+即通过不断迭代更新，提高似然函数的概率值，使得最大似然函数值取极值点的参数就是最优化参数。<br></p>
+</div>
+<div class="paragraph">
+<p>所以EM算法的一般步骤为：<br></p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>随机选取或者根据先验知识初始化\(\theta^{0}\);</p>
+</li>
+<li>
+<p>不断迭代下述两步：</p>
+<div class="ulist">
+<ul>
+<li>
+<p>给出当前的参数估计\(\theta^{n}\)，计算似然函数\(L(\theta)\)的下界\(Q(\theta; \theta^{n})\);</p>
+</li>
+<li>
+<p>重新估计参数\(\theta\)，即求\(\theta^{n+1}\),使得\( \theta^{n+1} = \underset{\theta}{argmax} \hspace{0.1cm} Q(\theta; \theta^{n})\);</p>
+</li>
+</ul>
+</div>
+</li>
+<li>
+<p>上述第二步后，如果\(L(\theta)\) (即\(Q(\theta; \theta^{n})\))收敛，则退出算法，否则继续回到第二步。</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>下面给出推导公式，假设有训练集\(\left \{ x^{1}, x^{2}, &#8230;&#8203; , x^{m} \right \}\),包含\(m\)个独立样本，希望从中找到该数组的模型\(p(x,z)\)的参数。其中\(z\)是隐变量，
+然后通过极大似然估计建立目标函数(对数似然函数)<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+l(\theta) &amp; = \sum_{i=1}^{m}log \hspace{0.1cm} p(x;\theta) \\
+&amp; = \sum_{i=1}^{m} log\hspace{0.1cm}\sum_{z}^{}p(x;z;\theta)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>这里\(z\)是隐变量，要找到参数的估计很难，我们的策略是建立\(l(\theta)\)的下界，并且求该下界的最大值；重复这个过程，直到收敛到局部最大值。<br></p>
+</div>
+<div class="paragraph">
+<p>令\(Q_{i}\)为\(z\)的某一个分布，\(Q_{i} \geq 0\)，根据 <code>Jenssen</code> 不等式，有<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\sum_{i=0}^{m} log\hspace{0.1cm}p(x^{i} ; \theta) &amp; = \sum_{i=0}^{m} log\sum_{z^{0} }^{ z^{m} }p(x^{i} ; z^{i}; \theta) \\
+&amp; = \sum_{i=0}^{m} log\sum_{z^{0} }^{ z^{m} } Q_{i}(z^{i}) \frac{p(x^{i} ; z^{i}; \theta)}{Q_{i}(z^{i})} \\
+&amp; \geq \sum_{i=0}^{m} \sum_{z^{0} }^{ z^{m}} Q_{i}(z^{i}) log  \frac{p(x^{i} ; z^{i}; \theta)}{Q_{i}(z^{i})}
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>要理解上面不等式的转换很简单，将\(Q_{i}(z^{i})\)看作 <code>Jenssen</code> 不等式中的平衡因子，且\(\sum_{i=0}^{m} Q_{i}(z^{i})=1\)，我们要寻找的下界就是不等式取等号，
+若要让 <code>Jenssen</code> 不等式，则必须让两个点重合，点的值为固定常量，即满足<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{ p(x^{i} ; z^{i}; \theta)}{Q_{i}(z^{i})}=C\]
+</div>
+</div>
+<div class="paragraph">
+<p>所以可得<br>
+\begin{align}
+Q_{i}(z^{i}) &amp; = \frac{p(x^{i} , z^{i} ; \theta)}{ \sum_{i=0}^{m} p(x^{i} , z^{i} ; \theta) } \\
+&amp; =  \frac{p(x^{i} , z^{i} ; \theta)}{ p(x^{i}  ; \theta) } \\
+&amp; =  p(z^{i} \mid x^{i} ; \theta)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>最后得导EM算法的正题框架<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/em.png" alt="em" width="50%" height="55%">
+</div>
+<div class="title">图 26. EM算法伪代码</div>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_求解plsa算法">5.3.4.2. 求解pLSA算法</h5>
+<div class="paragraph">
+<p>首先尝试从矩阵的角度来描述两个待估计的变量\(p(w_{j} \mid z_{k})\)和\(p(z_{k} \mid d_{i})\)。<br></p>
+</div>
+<div class="paragraph">
+<p>假定用\(\phi_{k}\)表示词表\(V\)在主题\(z_{k}\)上一个多项分布，则\(\phi_{k}\)可以表示为一个向量，每个元素\(\phi_{k,j}\)表示词项\(w_{j}\)在主题\(z_{k}\)上的概率，即<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[p(w_{j} \mid z_{k})= \phi_{k,j}, \hspace{1cm} \sum_{w_{j}\in V}\phi_{k,j} = 1\]
+</div>
+</div>
+<div class="paragraph">
+<p>用\(\theta_{i}\)表示主题\(Z\)在文档\(d_{i}\)上的一个多项分布，则\(\theta_{i}\)也可以表示为一个向量，每个元素\(\theta_{i,k}\)表示主题\(z_{k}\)出现在文档\(d_{i}\)中的概率，即<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[p(z_{k} \mid d_{i})= \theta_{i,k}, \hspace{1cm} \sum_{z_{i}\in Z}\theta_{i,k} = 1\]
+</div>
+</div>
+<div class="paragraph">
+<p>这样巧妙的把\(p(w_{j} \mid z_{k})\)和\(p(z_{k} \mid d_{i})\)转换为了两个矩阵，换言之我们最终要求解的参数是两个矩阵<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\Phi =\left \{ \phi_{1},...,\phi_{K} \right \}, \hspace{1cm} z_{k}\in Z \\
+\Theta=\left \{ \theta_{1},...,\theta_{M} \right \}, \hspace{1cm} d_{i}\in D\]
+</div>
+</div>
+<div class="paragraph">
+<p>由于每篇文章的词和词之间是相互独立的，所以整篇文章\(N\)个词的分布为<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[p(W \mid d_{i}) = \prod_{j=1}^{N}p(d_{i}, w_{j})^{ n(d_{i}, w_{j})}\]
+</div>
+</div>
+<div class="paragraph">
+<p>而由于文章和文章之间也是相互独立的，所以整个预料的词分布为<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[p(W \mid D) =\prod_{i=0}^{M} \prod_{j=1}^{N}p(d_{i}, w_{j})^{ n(d_{i}, w_{j})}\]
+</div>
+</div>
+<div class="paragraph">
+<p>其中\(n(d_{i}, w_{j})\)表示词项\(w_{j}\)在文档\(d_{i}\)中的词频，\(n(d_{i})\)表示文档\(d_{i}\)中词的总数,显然\(n(d_{i}) = \sum_{w_{j} \in V}n(d_{i}, w_{j})\)。
+从而得到整个语料库的词分布的对数似然函数<br>
+\begin{align}
+l(\Phi,\Theta) &amp; = \sum_{i=1}^{M} \sum_{j=1}^{N}n(d_{i}, w_{j})log\hspace{0.1cm}p(d_{i}, w_{j}) \\
+&amp; = \sum_{i=1}^{M}n(d_{i})(logp(d_{i}) + \sum_{j=1}^{N} \frac{n(d_{i},w_{j})}{n(d_{i})}) log\sum_{k=1}^{K}p(w_{j} \mid z_{k}) p(z_{k}, d_{i}) \\
+&amp; = \sum_{i=1}^{M}n(d_{i})(logp(d_{i}) + \sum_{j=1}^{N} \frac{n(d_{i},w_{j})}{n(d_{i})}) log\sum_{k=1}^{K}\phi_{k,j}\theta_{i,k}
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>现在，我们的工作就是最大化这个对数似然函数，求解参数\(\phi_{k,j}\)和\(\theta_{i,k}\)，对于这种隐含变量的最大似然估计，可以使用EM算法，典型的EM算法分成两步，先E后M。<br></p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>E-step:假定参数已知，计算此时隐变量的后验概率，利用贝叶斯公式，可得<br>
+\begin{align}
+p(z_{k} \mid d_{i}, w_{j}) &amp; = \frac{p(z_{k}, d_{i}, w_{j})}{\sum_{l=1}^{K} p(z_{l}, d_{i}, w_{j})} \\
+&amp; = \frac{ p(w_{j} \mid d_{i}, z_{k}) p(z_{k} \mid d_{i}) p(d_{i}) }{\sum_{l=1}^{K} p(w_{j} \mid d_{i}, z_{l}) p(z_{l} \mid d_{i}) p(d_{i})} \\
+&amp; = \frac{ p(w_{j} \mid z_{k}) p(z_{k} \mid d_{i})}{\sum_{l=1}^{K} p(w_{j} \mid z_{l}) p(z_{l} \mid d_{i})} \\
+&amp; = \frac{ \phi_{k,j} \theta_{i,k} }{\sum_{l=1}^{K}\phi_{l,j} \theta_{i,l}}
+\end{align}</p>
+</li>
+<li>
+<p>M-step:这样隐变量的乘积可以用后验概率表示，将其代入似然函数，最大化对数似然，求解相应参数。</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>由于文档长度\(p(d_{i}) \propto n(d_{i})\)可单独计算，去掉它不影响最大似然函数，此外，根据 <code>E-step</code> 结果，将\(\phi_{k.j} \theta_{i,k}=\) \(p(z_{k} \mid d_{i}, w_{j})\sum_{l=1}^{K}\phi_{l,j}\theta_{i,l}\)带入似然函数,得到:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[l=\sum_{i=1}^{M}\sum_{j=1}^{N}n(d_{i}, w_{j})\sum_{k=1}^{K}p(z_{k} \mid d_{i}, w_{j}) \hspace{0.1cm} log( \phi_{k,j}, \theta_{i,k} )  \hspace{1cm}(5.21)\]
+</div>
+</div>
+<div class="paragraph">
+<p>这是一个多元函数求极值问题，并且有如下的约束条件:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\sum_{j=1}^{N}\phi_{k,j} = 1 \\
+\sum_{k=1}^{K}\theta_{i,k} = 1\]
+</div>
+</div>
+<div class="paragraph">
+<p>一般这种带约束条件的极值问题，常用的方法便是拉格朗日乘法，即通过引入拉格朗日乘子将目标函数和约束条件融合到一起，转化为无约束条件的优化问题。<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[H = L^{c} + \sum_{k=1}^{K}\gamma_{k}(1-\sum_{j=1}^{N} \phi_{k,j})  + \sum_{i=1}^{M}\rho_{i}(1-\sum_{k=1}^{K}\theta_{i,k})\]
+</div>
+</div>
+<div class="paragraph">
+<p>分别对\(\phi_{k,j}\)和\(\theta_{i,k}\)求导，令导数为0，得到<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\phi_{k,j} &amp; = \frac{ \sum_{i=1}^{M} n(d_{i}, w_{j}) p(z_{k} \mid d_{i}, w_{j}) }{\sum_{j=1}^{M} \sum_{i=1}^{N} n(d_{i}, w_{j}) p(z_{k} \mid d_{i}, w_{j})} \\
+\theta_{i,k} &amp; = \frac{ \sum_{j=1}^{N} n(d_{i}, w_{j}) p(z_{k} \mid d_{i}, w_{j}) }{n(d_{i})}
+\end{align}</p>
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
 <h3 id="_终篇">5.4. 终篇</h3>
 <div class="paragraph">
 <p>走到这里的人，我相信你们一定被 <code>LDA</code> 模型深深的吸引，这也是我为何要花费大量时间编写这个章节的原因，LDA原始论文中是基于变分 <code>EM</code> 算法进行参数公式推导，当然对应的模型实现也可以采用变分法，本章我们对基于 <code>Gibbs Sampling</code> 的 <code>LDA</code> 模型进行了详细描述，整章的编写花费了大概两天的时间，是在太累了，
-后续有时间再将变分法补上。</p>
+后续有时间再将变分法补上(已经补上)。</p>
 </div>
 </div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_最大熵理论和多分类器">6. 最大熵理论和多分类器</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_em_算法">7. <code>EM</code> 算法</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_决策树和集成学习">8. 决策树和集成学习</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_推荐系统">9. 推荐系统</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_聚类和近邻算法">10. 聚类和近邻算法</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_神经网络">11. 神经网络</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_隐马尔可夫模型">12. 隐马尔可夫模型</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_条件随机场">13. 条件随机场</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_深度学习概论">14. 深度学习概论</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_深度学习中的优化算法">15. 深度学习中的优化算法</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_深度学习中的正则化">16. 深度学习中的正则化</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_深度神经网络">17. 深度神经网络</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_卷积神经网络">18. 卷积神经网络</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_循环神经网络">19. 循环神经网络</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_神经网络番外篇">20. 神经网络番外篇</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_生成对抗网络">21. 生成对抗网络</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_迁移学习">22. 迁移学习</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_数学之美">23. 数学之美</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_深度学习框架">24. 深度学习框架</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_走进互联网">25. 走进互联网</h2>
+<div class="sectionbody">
+
 </div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-最后更新时间 2018-07-16 14:00:28 CST
+最后更新时间 2018-07-18 12:01:57 CST
 </div>
 </div>
 <script type="text/x-mathjax-config">

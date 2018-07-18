@@ -802,9 +802,21 @@ p(\vec{z} \mid \vec{\alpha }) & = \int p(\vec{z} \mid \Theta ) p(\Theta \mid \ve
 p(z_{i} & = k \mid \vec{z_{ \neg i }}, \vec{w}) = \frac{p( \vec{w}, \vec{z} )}{p( \vec{w}, \vec{z_{\neg i}} )} = \frac{p( \vec{w} \mid \vec{z} )}{p(\vec{w_{ \neg i} } \mid \vec{z_{\neg i}} ) p(w_{i})} \cdot \frac{p(\vec{z})}{p(\vec{z_{\neg i}})} \\
 & = \propto \frac{ \Delta (\vec{n_{z}} + \vec{\beta}) }{\Delta( \vec{n_{z, \neg i}} + \vec{\beta} )} \cdot \frac{ \Delta( \vec{n_{m}} + \vec{\alpha} ) }{ \Delta ( \vec{n_{m, \neg i}} + \vec{\alpha}) } \\
 & = \frac{\Gamma (n_{k}^{(t)} + \beta_{t}) \Gamma( \sum_{t=1}^{V} n_{k, \neg i}^{(t)} + \beta_{t}  )}{ \Gamma( n_{k, \neg i}^{(t)} + \beta_{t}) \Gamma( \sum_{t=1}^{V} n_{k}^{(t)} + \beta_{t}   )  } \cdot \frac{ \Gamma( n_{m}^{(k)} + \alpha_{k}) \Gamma(\sum_{k=1}^{K} n_{m, \neg i}^{(k)} + \alpha_{k}) }{ \Gamma(n_{m, \neg i}^{(k)} + \alpha_{k}) \Gamma(\sum_{k=1}^{K} n_{m}^{(k)} + \alpha_{k}) } \\
-& = \frac{n_{k, \neg i}^{(t)} + \beta_{t} }{\sum_{t=1}^{V} n_{k, \neg i}^{(t)} + \beta_{t}} \cdot \frac{ n_{m, \neg i}^{(k)} + \alpha_{k}}{ \sum_{k=1}^{K} n_{m, \neg i}^{(k)} + \alpha_{k}}  \hspace{1cm} (5.20)\\
-& = \varphi_{k,t} \cdot \theta_{m,k} \\
-& = p(word \mid topic) \cdot p(topic \mid doc)
+& = \frac{n_{k, \neg i}^{(t)} + \beta_{t} }{\sum_{t=1}^{V} n_{k, \neg i}^{(t)} + \beta_{t}} \cdot \frac{ n_{m, \neg i}^{(k)} + \alpha_{k}}{ [\sum_{k=1}^{K} n_{m, \neg i}^{(k)} + \alpha_{k}]-1}  \hspace{1cm} (5.20)\\
+& \propto \frac{n_{k, \neg i}^{(t)} + \beta_{t} }{\sum_{t=1}^{V} n_{k, \neg i}^{(t)} + \beta_{t}} \cdot (n_{m, \neg i}^{(k)} + \alpha_{k})
+\end{align}
+
+上面是邹博老师的推导，感觉这么推导结果不是那么美啊，还是看看 `Rickjin` 的积分转为期望的推导 +
+
+\begin{align}
+p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) & \propto p(z_{i}=k, w_{i}=t \mid \vec{z_{ \neg i }, \vec{ w_{ \neg i } }}) \\
+& = \int p(z_{i} = k, w_{i} = t, \vec{\theta_{m}}, \vec{\varphi_{k}} \mid \vec{z_{ \neg i}}, \vec{w_{\neg i}}) d\vec{\theta_{m} }d\vec{\varphi_{k}} \\
+& = \int p(z_{i} = k \mid \vec{\theta_{m}}) p( \vec{\theta_{m}} \mid \vec{z_{ \neg i}}, \vec{ w_{\neg i} } ) \cdot p(w_{i} = t \mid \vec{\varphi_{k}} ) p(\vec{\varphi_{k}} \mid \vec{z_{\neg i}}, \vec{w_{\neg i}}) d\vec{\theta_{m}} d\vec{\varphi_{k}} \\
+& = \int p(z_{i} = k \mid \vec{\theta_{m}}) Dir(\vec{\theta_{m}} \mid \vec{n_{m, \neg i}} + \vec{\alpha})d\vec{\theta_{m}} \cdot p(w_{i} = t \mid \vec{\varphi_{k}}) Dir(\vec{\varphi_{k}} \mid \vec{n_{k, \neg i}} + \vec{\beta}) d\vec{\varphi_{k}} \\
+& = \int \theta_{mk} Dir(\vec{\theta_{m}} \mid \vec{n_{m, \neg i}} + \vec{\alpha})d\vec{\theta_{m}}  \cdot \int \varphi_{kt}Dir(\vec{\varphi_{k}} \mid \vec{n_{k, \neg i}} + \vec{\beta}) d\vec{\varphi_{k}} \\
+& = E(\theta_{mk}) \cdot E(\varphi_{kt}) \\
+& = \hat{\theta_{mk}} \cdot \hat{\varphi_{kt}} \\
+& = \frac{ n_{m, \neg i}^{(k)} + \alpha_{k}}{\sum_{k=1}^{K} n_{m, \neg i}^{(k)} + \alpha_{k}} \cdot \frac{n_{k, \neg i}^{(t)} + \beta_{t} }{\sum_{t=1}^{V} n_{k, \neg i}^{(t)} + \beta_{t}} \hspace{1cm} (5.20)
 \end{align}
 
 公式(5.20)就是 `LDA模型` 的 `Gibbs Sampling` 公式，这个概率其实是\(doc -> topic -> word\)的路径概率，由于\(topic\)有\(K\)个，所以 `Gibbs Sampling` 公式的物理意义就是在这\(K\)条路径中进行采样。 +
@@ -830,7 +842,142 @@ image::images/train.png[title="LDA训练过程",width="50%", height="55%"]
 
 image::images/inference.png[title="LDA推演过程",width="50%", height="55%"]
 
+==== 变分EM算法求解pLSA模型
+
+由于后面会有独立的章节介绍EM算法，因此本节我们介绍其基本原理，在不影响pLSA算法正常运算逻辑基础上尽可能简化介绍。 +
+
+===== EM算法
+EM算法(`Expectation Maximization algorithm`),又称期望最大算法，其基本思想是：首先随机选取一个值去初始化待估计的值\(\theta^{0}\)，然后不断迭代寻找更优\( \theta^{n+1}\)的使得其似然函数比原来的要大。
+即通过不断迭代更新，提高似然函数的概率值，使得最大似然函数值取极值点的参数就是最优化参数。 +
+
+所以EM算法的一般步骤为： +
+====
+--
+* 随机选取或者根据先验知识初始化\(\theta^{0}\);
+* 不断迭代下述两步：
+** 给出当前的参数估计\(\theta^{n}\)，计算似然函数\(L(\theta)\)的下界\(Q(\theta; \theta^{n})\);
+** 重新估计参数\(\theta\)，即求\(\theta^{n+1}\),使得\( \theta^{n+1} = \underset{\theta}{argmax} \hspace{0.1cm} Q(\theta; \theta^{n})\);
+* 上述第二步后，如果\(L(\theta)\) (即\(Q(\theta; \theta^{n})\))收敛，则退出算法，否则继续回到第二步。
+--
+====
+
+下面给出推导公式，假设有训练集\(\left \{ x^{1}, x^{2}, ... , x^{m} \right \}\),包含\(m\)个独立样本，希望从中找到该数组的模型\(p(x,z)\)的参数。其中\(z\)是隐变量，
+然后通过极大似然估计建立目标函数(对数似然函数) +
+
+\begin{align}
+l(\theta) & = \sum_{i=1}^{m}log \hspace{0.1cm} p(x;\theta) \\
+& = \sum_{i=1}^{m} log\hspace{0.1cm}\sum_{z}^{}p(x;z;\theta)
+\end{align}
+
+这里\(z\)是隐变量，要找到参数的估计很难，我们的策略是建立\(l(\theta)\)的下界，并且求该下界的最大值；重复这个过程，直到收敛到局部最大值。 +
+
+令\(Q_{i}\)为\(z\)的某一个分布，\(Q_{i} \geq 0\)，根据 `Jenssen` 不等式，有 +
+
+\begin{align}
+\sum_{i=0}^{m} log\hspace{0.1cm}p(x^{i} ; \theta) & = \sum_{i=0}^{m} log\sum_{z^{0} }^{ z^{m} }p(x^{i} ; z^{i}; \theta) \\
+& = \sum_{i=0}^{m} log\sum_{z^{0} }^{ z^{m} } Q_{i}(z^{i}) \frac{p(x^{i} ; z^{i}; \theta)}{Q_{i}(z^{i})} \\
+& \geq \sum_{i=0}^{m} \sum_{z^{0} }^{ z^{m}} Q_{i}(z^{i}) log  \frac{p(x^{i} ; z^{i}; \theta)}{Q_{i}(z^{i})}
+\end{align}
+
+要理解上面不等式的转换很简单，将\(Q_{i}(z^{i})\)看作 `Jenssen` 不等式中的平衡因子，且\(\sum_{i=0}^{m} Q_{i}(z^{i})=1\)，我们要寻找的下界就是不等式取等号，
+若要让 `Jenssen` 不等式，则必须让两个点重合，点的值为固定常量，即满足 +
+[stem]
+++++
+\frac{ p(x^{i} ; z^{i}; \theta)}{Q_{i}(z^{i})}=C
+++++
+
+所以可得 +
+\begin{align}
+Q_{i}(z^{i}) & = \frac{p(x^{i} , z^{i} ; \theta)}{ \sum_{i=0}^{m} p(x^{i} , z^{i} ; \theta) } \\
+& =  \frac{p(x^{i} , z^{i} ; \theta)}{ p(x^{i}  ; \theta) } \\
+& =  p(z^{i} \mid x^{i} ; \theta)
+\end{align}
+
+最后得导EM算法的正题框架 +
+
+image::images/em.png[title="EM算法伪代码",width="50%", height="55%"]
+
+===== 求解pLSA算法
+首先尝试从矩阵的角度来描述两个待估计的变量\(p(w_{j} \mid z_{k})\)和\(p(z_{k} \mid d_{i})\)。 +
+
+假定用\(\phi_{k}\)表示词表\(V\)在主题\(z_{k}\)上一个多项分布，则\(\phi_{k}\)可以表示为一个向量，每个元素\(\phi_{k,j}\)表示词项\(w_{j}\)在主题\(z_{k}\)上的概率，即 +
+[stem]
+++++
+p(w_{j} \mid z_{k})= \phi_{k,j}, \hspace{1cm} \sum_{w_{j}\in V}\phi_{k,j} = 1
+++++
+
+用\(\theta_{i}\)表示主题\(Z\)在文档\(d_{i}\)上的一个多项分布，则\(\theta_{i}\)也可以表示为一个向量，每个元素\(\theta_{i,k}\)表示主题\(z_{k}\)出现在文档\(d_{i}\)中的概率，即 +
+[stem]
+++++
+p(z_{k} \mid d_{i})= \theta_{i,k}, \hspace{1cm} \sum_{z_{i}\in Z}\theta_{i,k} = 1
+++++
+
+这样巧妙的把\(p(w_{j} \mid z_{k})\)和\(p(z_{k} \mid d_{i})\)转换为了两个矩阵，换言之我们最终要求解的参数是两个矩阵 +
+[stem]
+++++
+\Phi =\left \{ \phi_{1},...,\phi_{K} \right \}, \hspace{1cm} z_{k}\in Z \\
+\Theta=\left \{ \theta_{1},...,\theta_{M} \right \}, \hspace{1cm} d_{i}\in D
+++++
+
+由于每篇文章的词和词之间是相互独立的，所以整篇文章\(N\)个词的分布为 +
+[stem]
+++++
+p(W \mid d_{i}) = \prod_{j=1}^{N}p(d_{i}, w_{j})^{ n(d_{i}, w_{j})}
+++++
+
+而由于文章和文章之间也是相互独立的，所以整个预料的词分布为 +
+[stem]
+++++
+p(W \mid D) =\prod_{i=0}^{M} \prod_{j=1}^{N}p(d_{i}, w_{j})^{ n(d_{i}, w_{j})}
+++++
+
+其中\(n(d_{i}, w_{j})\)表示词项\(w_{j}\)在文档\(d_{i}\)中的词频，\(n(d_{i})\)表示文档\(d_{i}\)中词的总数,显然\(n(d_{i}) = \sum_{w_{j} \in V}n(d_{i}, w_{j})\)。
+从而得到整个语料库的词分布的对数似然函数 +
+\begin{align}
+l(\Phi,\Theta) & = \sum_{i=1}^{M} \sum_{j=1}^{N}n(d_{i}, w_{j})log\hspace{0.1cm}p(d_{i}, w_{j}) \\
+& = \sum_{i=1}^{M}n(d_{i})(logp(d_{i}) + \sum_{j=1}^{N} \frac{n(d_{i},w_{j})}{n(d_{i})}) log\sum_{k=1}^{K}p(w_{j} \mid z_{k}) p(z_{k}, d_{i}) \\
+& = \sum_{i=1}^{M}n(d_{i})(logp(d_{i}) + \sum_{j=1}^{N} \frac{n(d_{i},w_{j})}{n(d_{i})}) log\sum_{k=1}^{K}\phi_{k,j}\theta_{i,k}
+\end{align}
+
+现在，我们的工作就是最大化这个对数似然函数，求解参数\(\phi_{k,j}\)和\(\theta_{i,k}\)，对于这种隐含变量的最大似然估计，可以使用EM算法，典型的EM算法分成两步，先E后M。 +
+====
+* E-step:假定参数已知，计算此时隐变量的后验概率，利用贝叶斯公式，可得 +
+\begin{align}
+p(z_{k} \mid d_{i}, w_{j}) & = \frac{p(z_{k}, d_{i}, w_{j})}{\sum_{l=1}^{K} p(z_{l}, d_{i}, w_{j})} \\
+& = \frac{ p(w_{j} \mid d_{i}, z_{k}) p(z_{k} \mid d_{i}) p(d_{i}) }{\sum_{l=1}^{K} p(w_{j} \mid d_{i}, z_{l}) p(z_{l} \mid d_{i}) p(d_{i})} \\
+& = \frac{ p(w_{j} \mid z_{k}) p(z_{k} \mid d_{i})}{\sum_{l=1}^{K} p(w_{j} \mid z_{l}) p(z_{l} \mid d_{i})} \\
+& = \frac{ \phi_{k,j} \theta_{i,k} }{\sum_{l=1}^{K}\phi_{l,j} \theta_{i,l}}
+\end{align}
+* M-step:这样隐变量的乘积可以用后验概率表示，将其代入似然函数，最大化对数似然，求解相应参数。
+====
+
+由于文档长度\(p(d_{i}) \propto n(d_{i})\)可单独计算，去掉它不影响最大似然函数，此外，根据 `E-step` 结果，将\(\phi_{k.j} \theta_{i,k}=\) \(p(z_{k} \mid d_{i}, w_{j})\sum_{l=1}^{K}\phi_{l,j}\theta_{i,l}\)带入似然函数,得到: +
+[stem]
+++++
+l=\sum_{i=1}^{M}\sum_{j=1}^{N}n(d_{i}, w_{j})\sum_{k=1}^{K}p(z_{k} \mid d_{i}, w_{j}) \hspace{0.1cm} log( \phi_{k,j}, \theta_{i,k} )  \hspace{1cm}(5.21)
+++++
+
+这是一个多元函数求极值问题，并且有如下的约束条件: +
+[stem]
+++++
+\sum_{j=1}^{N}\phi_{k,j} = 1 \\
+\sum_{k=1}^{K}\theta_{i,k} = 1
+++++
+
+一般这种带约束条件的极值问题，常用的方法便是拉格朗日乘法，即通过引入拉格朗日乘子将目标函数和约束条件融合到一起，转化为无约束条件的优化问题。 +
+[stem]
+++++
+H = L^{c} + \sum_{k=1}^{K}\gamma_{k}(1-\sum_{j=1}^{N} \phi_{k,j})  + \sum_{i=1}^{M}\rho_{i}(1-\sum_{k=1}^{K}\theta_{i,k})
+++++
+
+分别对\(\phi_{k,j}\)和\(\theta_{i,k}\)求导，令导数为0，得到 +
+
+\begin{align}
+\phi_{k,j} & = \frac{ \sum_{i=1}^{M} n(d_{i}, w_{j}) p(z_{k} \mid d_{i}, w_{j}) }{\sum_{j=1}^{M} \sum_{i=1}^{N} n(d_{i}, w_{j}) p(z_{k} \mid d_{i}, w_{j})} \\
+\theta_{i,k} & = \frac{ \sum_{j=1}^{N} n(d_{i}, w_{j}) p(z_{k} \mid d_{i}, w_{j}) }{n(d_{i})}
+\end{align}
+
 === 终篇
 
 走到这里的人，我相信你们一定被 `LDA` 模型深深的吸引，这也是我为何要花费大量时间编写这个章节的原因，LDA原始论文中是基于变分 `EM` 算法进行参数公式推导，当然对应的模型实现也可以采用变分法，本章我们对基于 `Gibbs Sampling` 的 `LDA` 模型进行了详细描述，整章的编写花费了大概两天的时间，是在太累了，
-后续有时间再将变分法补上。
+后续有时间再将变分法补上(已经补上)。
