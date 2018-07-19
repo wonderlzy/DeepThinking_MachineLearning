@@ -106,6 +106,114 @@ J(\theta )=\frac{1}{2}\sum_{i=0}^{m}(h_{\theta}(x^{i})-y^{i})^{2}\hspace{3.5cm}(
 
 ====
 
+==== 深度思考
+
+====
+1、先来看下第一个问题：`最小二乘法的概率解释`，即为什么选择平方函数作为目标函数会使得效果比较好(并非一定是)!
+
+* 假设1:对每一个样本\((x^{i}, y^{i})\)，模型预测结果和真实结果的关系可以写成： +
+
+[stem]
+++++
+y^{i} = \theta^{T}x^{i} + \epsilon^{i} \hspace{2cm} (1)
+++++
+
+其中，\(\epsilon^{i}\)表示模型的误差。 +
+
+* 假设2:误差\(\epsilon^{i}\)服从正态分布，即 +
+
+[stem]
+++++
+\epsilon \sim N(0, \sigma^{2})  \hspace{2cm} (2)
+++++
+
+假设1只是一种表示形式，那么假设二为何会成立呢？这是因为影响误差的因素有很多，这些因素都是随机分布，根据中心极限定理，即 `许多随机变量的和趋向于正态分布` ，我们可以得到假设二，那么 +
+
+[stem]
+++++
+p(\epsilon^{i}) = \frac{1}{\sqrt{2\pi }\sigma}exp(-\frac{(\epsilon^{i})^{2}}{2\sigma^{2}}) \hspace{1cm}(3)
+++++
+
+这也表示，当给定参数\(\theta\)和\(x\)时，目标值\(y\)也服从正态分布. +
+[stem]
+++++
+p(y^{(i)} \mid x^{(i)};\theta) = \frac{1}{\sqrt{2\pi }\sigma}exp(-\frac{(\theta^{T}x^{(i)}-y^{(i)})^{2}}{2\sigma^{2}}) \hspace{1cm} (4)
+++++
+* 假设3:对于各个样本的误差\(\epsilon^{i}\)是独立同分布的随机变量，这样，我们可以得到似然函数 +
+
+\begin{align}
+l(\theta) & = P(Y \mid X; \theta ) \\
+& = \prod_{i=1}^{m} p(y^{(i)} \mid x^{(i)};\theta) =\prod_{i=1}^{m} \frac{1}{\sqrt{2\pi }\sigma}exp(-\frac{(\theta^{T} x^{(i)} -y^{(i)} )^{2} }{2\sigma^{2}})  \hspace{1cm} (5)
+\end{align}
+
+似然函数什么意义呢？表示是在参数\(\theta\)下，数据集出现的概率，似然函数同概率的概念很相似，不同之处在于似然函数把\(\theta\)作为变量，找到使得数据集出现的概率最大时的参数，就是最大似然估计。 +
+
+对于公式(5)的右端取对数，我们发现可以将似然函数最大化的问题转化为使得平方和最小的问题： +
+
+\begin{align}
+L(\theta) & = log \hspace{0.1cm} l(\theta) = log\prod_{i=1}^{m} \frac{1}{\sqrt{2\pi }\sigma}exp(-\frac{(\theta^{T} x^{(i)} -y^{(i)} )^{2} }{2\sigma^{2}}) \\
+& = -mlog\sqrt{2\pi }\sigma-\frac{1}{2\sigma^{2} }\sum_{i=1}^{m}( \theta^{T} x^{i} -y^{i}) ^{2} \\
+\Rightarrow  \hspace{1cm} & max(L(\theta)) \propto min( \frac{1}{2}\sum_{i=1}^{m} (\theta^{T} x^{i} -y^{i} )^{2} )
+\end{align}
+====
+
+====
+2、 再来看下第二个问题，其实可以简单解释为：过拟合是经验风险最小化策略带来泛化能力较差的问题，解决方法就常用的就是加正则化项，即
+
+* 采用结构风险最小化的模型选择策略
+* 除此之外，结合具体业务，可能还需要把精力放在训练样本的选择上，比如所选样本在某个特征上与真实数据的分布严重不一致，也可能会造成过拟合的问题
+* 交叉验证可以解决过拟合问题，这也是一种非常重要的模型选择策略
+* 具体到不同类型模型，还有提前终止、dropout、调整网络结构等.
+====
+
+====
+3、第三个问题可以参考第一章的思考题，这里我们可以简单给出结果形式 +
+
+* 首先什么是拉普拉斯分布，当先验概率满足拉普拉斯分布就是:
+
+[stem]
+++++
+p(w_{i}) = N(w_{i} \mid \mu , b) = \frac{1}{2b} e^{-\frac{|w_{i}-\mu|}{b}}
+++++
+
+损失函数取后验概率的负值，可以得到 +
+
+\begin{align}
+w^{*} & = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w)-log \hspace{0.1cm} p(w) \\
+& = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w)-\sum_{j=1}^{n}log \hspace{0.1cm} p(w_{j}) \\
+& = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w) + \sum_{j=1}^{n}\frac{1}{b}|w_{j} - \mu| \\
+& = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w) + \lambda \sum_{j=1}^{n}|w_{j}| \hspace{1cm} (\mu = 0, b = \frac{1}{\lambda})
+\end{align}
+
+我们看到目标函数的最后一样刚好就是 `L1` 正则化项，我们从假设参数先验分布为拉普拉斯分布，直接推出了 `L1` 正则化项，所以 `L1` 正则化等价于参数的先验分布满足拉普拉斯分布。
+同理，让我么看下参数先验分布为高斯分布的情况 +
+
+* 当参数的先验概率满足高斯分布时,相当于:
+
+[stem]
+++++
+p(w_{i}) = N(w_{i} \mid \mu, \sigma^{2})=\frac{1}{\sqrt{2\pi }\sigma}exp(-\frac{(w_{i}-\mu)^{2}}{2\sigma^{2}})
+++++
+所以，最优参数为 +
+
+\begin{align}
+w^{*} & = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w)-log \hspace{0.1cm} p(w) \\
+& = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w)-\sum_{j=1}^{n}log \hspace{0.1cm} p(w_{j}) \\
+& = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w) + \sum_{j=1}^{n} \frac{1}{\sigma^{2}}(w_{j} - \mu)^{2} \\
+& = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w) +\lambda \sum_{j=1}^{n} (w_{j})^{2} \hspace{1cm}  (\mu = 0, \sigma = \sqrt{\frac{1}{\lambda}})
+\end{align}
+
+对比下式 +
+
+[stem]
+++++
+w^{*} = \underset{w}{argmin}\sum_{i}L(y_{i}, f(x_{i}; w)) + \lambda\Omega (w)
+++++
+
+可以看出，似然函数部分对应损失函数(经验风险),而先验概率对应于正则化项，因此 `L2` 正则化等价于模型参数的先验概率满足正态分布。
+
+====
+
 === 逻辑回归
 ==== 揭开面纱
 
@@ -236,4 +344,63 @@ J(\theta) = -L(\theta) = -ylogh_{\theta}(x) - (1-y)log(1-h_{\theta}(x)) \hspace{
 * 最大似然估计和最小化损失函数、最大后验概率等是什么关系？
 
 * 如何用逻辑回归解决多分类问题？
+====
+
+==== 深度思考
+
+====
+1、 先来看下第一题，为什么叫 `逻辑回归` ? +
+
+* 简单点回答将 `logistic` 直译为中文就是了，其实这个模型的准确名字应该叫 `对数几率模型`，因为这个模型( `sigmoid函数`)可以由正负样本可能性比值的对数推出。
+
+\begin{align}
+f(x; \theta) & = ln\frac{p(y=1 \mid x)}{p(y=0 \mid x)} \\
+ & = ln\frac{p(y=1 \mid x)}{1- p(y=1 \mid x)} \\
+ & = \theta^{T} x
+\end{align}
+
+由上面公式可以推出 +
+
+\begin{align}
+\frac{p(y=1 \mid x)}{1- p(y=1 \mid x)} & = e^{ \theta^{T} x} \\
+p(y=1 \mid x) & = (1-p(y=1 \mid x)) e^{ \theta^{T} x} \\
+(1+e^{ \theta^{T} x}) p(y=1 \mid x) & = e^{ \theta^{T} x} \\
+p(y=1 \mid x) & = \frac{e^{ \theta^{T} x} }{ 1+e^{ \theta^{T} x}} \\
+& = \frac{1}{1 + e^{ -\theta^{T} x} }
+\end{align}
+
+====
+
+====
+2、逻辑回归的损失函数如果选择均方差损失会怎样呢 ？  +
+
+* 均方差损失的函数形式为
+
+[stem]
+++++
+J(\theta) = \frac{1}{m}\sum_{i=1}^{m} (h_{\theta}(x_{i})-y_{i}))^{2}
+++++
+
+在逻辑回归中我们的\(h_{\theta}(x)\)形式为: +
+[stem]
+++++
+h_{\theta}(x) = \frac{1}{1 + e^{-\theta^{T} x}}
+++++
+代入损失函数，我们可以得到如下图的损失函数。 +
+
+image::images/lr_mse.png[title="具有众多局部极小值的损失函数",width="50%", height="55%"]
+
+这样的损失函数，我们使用梯度下降，会很容易收敛到局部最小值，而不是全局最小值。
+====
+
+====
+3、为什么要选择 `sigmoid` 函数作为损失函数 ？ 关于这个问题，你会在网上搜到很多解释和答案，但大部分都在说 `sigmoid` 函数的数学特性有多好，可以给出预测结果的概率解释等，其实都是在说为什么可以用而没有解释为什么必须用的问题。 +
+
+* 说到底，源于指数分布簇所特有的最佳性质-最大熵理论，即指数分布簇的最大熵等价于其指数形式的最大似然界
+* 二项式的最大熵解等价于二项式指数形式(`sigmoid`)的最大似然，多项式分布的最大熵等价于多项式分布指数形式(`softmax`)的最大似然
+* 因此为什么要用 `sigmoid`，那是指数分布簇最大熵特性的必然性，这部分的解释，我们将在第7章 `EM` 模型给出。
+====
+
+====
+4、这道题很简单，人工智能也好，机器学习也好，原理都是人让它干啥，它就干啥，而决策边界其实就是模型，它是什么完全是由人定义的损失函数决定的。
 ====

@@ -578,6 +578,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_概念">2.1.1. 概念</a></li>
 <li><a href="#_梯度下降">2.1.2. 梯度下降</a></li>
 <li><a href="#_梯度下降的局限性">2.1.3. 梯度下降的局限性</a></li>
+<li><a href="#_深度思考_2">2.1.4. 深度思考</a></li>
 </ul>
 </li>
 <li><a href="#_逻辑回归">2.2. 逻辑回归</a>
@@ -585,6 +586,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_揭开面纱">2.2.1. 揭开面纱</a></li>
 <li><a href="#_sigmoid函数">2.2.2. Sigmoid函数</a></li>
 <li><a href="#_参数更新">2.2.3. 参数更新</a></li>
+<li><a href="#_深度思考_3">2.2.4. 深度思考</a></li>
 </ul>
 </li>
 </ul>
@@ -999,6 +1001,50 @@ p(y=female|x=beard) = p(x=beard|y=female)✖️p(y=female) <i class="conum" data
 </tr>
 </table>
 </div>
+<div class="colist arabic">
+<table>
+<tr>
+<td><i class="conum" data-value="1"></i><b>1</b></td>
+<td>当模型是条件概率分布时，例如逻辑回归，此时的参数估计常用最大似然估计，而很容易想到，损失函数应该取似然函数的负数。<br></td>
+</tr>
+</table>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\theta_{ML} &amp; = \underset{\theta}{argmax} \prod_{i=1}^{m} p( y^{i} \mid x^{i}; \theta) \hspace{4.2cm}(1) \\
+L(\theta) &amp; = \underset{\theta}{arg max}\sum_{i=1}^{m}log \hspace{0.1cm}p(y^{i} \mid x^{i}; \theta) \hspace{3.5cm}(2) \\
+loss(\theta) &amp; = \underset{\theta}{arg min}(-\sum_{i=1}^{m}log \hspace{0.1cm}p(y^{i} \mid x^{i}; \theta)) + L_{n}(\theta) \hspace{1cm}(3)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>上面公式(1)为最大似然估计，公式(2)为对数似然函数，公式(3)是损失函数。<br></p>
+</div>
+<div class="paragraph">
+<p>再来看下贝叶斯参数估计策略，贝叶斯方法的参数估计，就是通过最大化后验概率来估计模型的参数的。假定模型参数为\(w\),数据集为\(D\)，则：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[w = \underset{w}{arg max}p(w \mid D) = \underset{w}{argmax} \hspace{0.1cm} \frac{p(D \mid w) \cdot p(w)}{p(D)} \propto p(D \mid w) \cdot p(w)\]
+</div>
+</div>
+<div class="paragraph">
+<p>假定，样本独立不相关且模型参数独立不相关， 则<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+p(w)p(D \mid w) &amp; =  \prod_{i=1}^{m}p(D_{i} \mid w)\prod_{j=1}^{n}p(w_{j}) \\
+&amp; \propto\sum_{i=1}^{m}p(D_{i} \mid w) + \sum_{j=1}^{n}p(w_{j}) \hspace{1cm}(4)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>对比公式(4)和公式(3)，公式(3)为损失函数，因此越小越好；公式(4)为后验概率，因此越大越好，将公式(4)取负号，其实就可以对应到损失函数，再看看描述，
+模型是条件概率满足，损失函数为对数损失满足，如果模型复杂度由模型的先验概率表示，这句话可以对照公式(4)，其中先验概率就是\(p(w)\)累加项。那么这种情况下，
+结构风险最小化(就是加了正则化项的最大似然估计)就等价于最大后验概率(就是似然函数加先验概率)，没毛病，刚好对上。<br></p>
+</div>
+<div class="paragraph">
+<p><strong>第二个问题</strong>：可以直接使用上一个题的结论，既然要比较，可以将最大后验概率取负，让两种思考方式都变成最小化问题，那么先验概率取负号对应模型的复杂度，
+也就意味着复杂模型(值大)具有较小的先验概率(取负后值大)，反之亦然，证毕。<br></p>
+</div>
 </div>
 </div>
 </div>
@@ -1138,6 +1184,176 @@ p(y=female|x=beard) = p(x=beard|y=female)✖️p(y=female) <i class="conum" data
 <p>如何从贝叶斯角度深入理解正则化,为什么说L1正则化等价于参数的先验概率分布满足拉普拉斯分布？L2正则化等价于参数的先验概率分布满足高斯分布 ?</p>
 </li>
 </ul>
+</div>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_深度思考_2">2.1.4. 深度思考</h4>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>1、先来看下第一个问题：<code>最小二乘法的概率解释</code>，即为什么选择平方函数作为目标函数会使得效果比较好(并非一定是)!</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>假设1:对每一个样本\((x^{i}, y^{i})\)，模型预测结果和真实结果的关系可以写成：<br></p>
+</li>
+</ul>
+</div>
+<div class="stemblock">
+<div class="content">
+\[y^{i} = \theta^{T}x^{i} + \epsilon^{i} \hspace{2cm} (1)\]
+</div>
+</div>
+<div class="paragraph">
+<p>其中，\(\epsilon^{i}\)表示模型的误差。<br></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>假设2:误差\(\epsilon^{i}\)服从正态分布，即<br></p>
+</li>
+</ul>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\epsilon \sim N(0, \sigma^{2})  \hspace{2cm} (2)\]
+</div>
+</div>
+<div class="paragraph">
+<p>假设1只是一种表示形式，那么假设二为何会成立呢？这是因为影响误差的因素有很多，这些因素都是随机分布，根据中心极限定理，即 <code>许多随机变量的和趋向于正态分布</code> ，我们可以得到假设二，那么<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[p(\epsilon^{i}) = \frac{1}{\sqrt{2\pi }\sigma}exp(-\frac{(\epsilon^{i})^{2}}{2\sigma^{2}}) \hspace{1cm}(3)\]
+</div>
+</div>
+<div class="paragraph">
+<p>这也表示，当给定参数\(\theta\)和\(x\)时，目标值\(y\)也服从正态分布.<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[p(y^{(i)} \mid x^{(i)};\theta) = \frac{1}{\sqrt{2\pi }\sigma}exp(-\frac{(\theta^{T}x^{(i)}-y^{(i)})^{2}}{2\sigma^{2}}) \hspace{1cm} (4)\]
+</div>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>假设3:对于各个样本的误差\(\epsilon^{i}\)是独立同分布的随机变量，这样，我们可以得到似然函数<br></p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+l(\theta) &amp; = P(Y \mid X; \theta ) \\
+&amp; = \prod_{i=1}^{m} p(y^{(i)} \mid x^{(i)};\theta) =\prod_{i=1}^{m} \frac{1}{\sqrt{2\pi }\sigma}exp(-\frac{(\theta^{T} x^{(i)} -y^{(i)} )^{2} }{2\sigma^{2}})  \hspace{1cm} (5)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>似然函数什么意义呢？表示是在参数\(\theta\)下，数据集出现的概率，似然函数同概率的概念很相似，不同之处在于似然函数把\(\theta\)作为变量，找到使得数据集出现的概率最大时的参数，就是最大似然估计。<br></p>
+</div>
+<div class="paragraph">
+<p>对于公式(5)的右端取对数，我们发现可以将似然函数最大化的问题转化为使得平方和最小的问题：<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+L(\theta) &amp; = log \hspace{0.1cm} l(\theta) = log\prod_{i=1}^{m} \frac{1}{\sqrt{2\pi }\sigma}exp(-\frac{(\theta^{T} x^{(i)} -y^{(i)} )^{2} }{2\sigma^{2}}) \\
+&amp; = -mlog\sqrt{2\pi }\sigma-\frac{1}{2\sigma^{2} }\sum_{i=1}^{m}( \theta^{T} x^{i} -y^{i}) ^{2} \\
+\Rightarrow  \hspace{1cm} &amp; max(L(\theta)) \propto min( \frac{1}{2}\sum_{i=1}^{m} (\theta^{T} x^{i} -y^{i} )^{2} )
+\end{align}</p>
+</div>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>2、 再来看下第二个问题，其实可以简单解释为：过拟合是经验风险最小化策略带来泛化能力较差的问题，解决方法就常用的就是加正则化项，即</p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>采用结构风险最小化的模型选择策略</p>
+</li>
+<li>
+<p>除此之外，结合具体业务，可能还需要把精力放在训练样本的选择上，比如所选样本在某个特征上与真实数据的分布严重不一致，也可能会造成过拟合的问题</p>
+</li>
+<li>
+<p>交叉验证可以解决过拟合问题，这也是一种非常重要的模型选择策略</p>
+</li>
+<li>
+<p>具体到不同类型模型，还有提前终止、dropout、调整网络结构等.</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>3、第三个问题可以参考第一章的思考题，这里我们可以简单给出结果形式<br></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>首先什么是拉普拉斯分布，当先验概率满足拉普拉斯分布就是:</p>
+</li>
+</ul>
+</div>
+<div class="stemblock">
+<div class="content">
+\[p(w_{i}) = N(w_{i} \mid \mu , b) = \frac{1}{2b} e^{-\frac{|w_{i}-\mu|}{b}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>损失函数取后验概率的负值，可以得到<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+w^{*} &amp; = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w)-log \hspace{0.1cm} p(w) \\
+&amp; = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w)-\sum_{j=1}^{n}log \hspace{0.1cm} p(w_{j}) \\
+&amp; = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w) + \sum_{j=1}^{n}\frac{1}{b}|w_{j} - \mu| \\
+&amp; = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w) + \lambda \sum_{j=1}^{n}|w_{j}| \hspace{1cm} (\mu = 0, b = \frac{1}{\lambda})
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>我们看到目标函数的最后一样刚好就是 <code>L1</code> 正则化项，我们从假设参数先验分布为拉普拉斯分布，直接推出了 <code>L1</code> 正则化项，所以 <code>L1</code> 正则化等价于参数的先验分布满足拉普拉斯分布。
+同理，让我么看下参数先验分布为高斯分布的情况<br></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>当参数的先验概率满足高斯分布时,相当于:</p>
+</li>
+</ul>
+</div>
+<div class="stemblock">
+<div class="content">
+\[p(w_{i}) = N(w_{i} \mid \mu, \sigma^{2})=\frac{1}{\sqrt{2\pi }\sigma}exp(-\frac{(w_{i}-\mu)^{2}}{2\sigma^{2}})\]
+</div>
+</div>
+<div class="paragraph">
+<p>所以，最优参数为<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+w^{*} &amp; = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w)-log \hspace{0.1cm} p(w) \\
+&amp; = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w)-\sum_{j=1}^{n}log \hspace{0.1cm} p(w_{j}) \\
+&amp; = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w) + \sum_{j=1}^{n} \frac{1}{\sigma^{2}}(w_{j} - \mu)^{2} \\
+&amp; = \underset{w}{argmin}-log\sum_{i=1}^{m}p(D_{i} \mid w) +\lambda \sum_{j=1}^{n} (w_{j})^{2} \hspace{1cm}  (\mu = 0, \sigma = \sqrt{\frac{1}{\lambda}})
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>对比下式<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[w^{*} = \underset{w}{argmin}\sum_{i}L(y_{i}, f(x_{i}; w)) + \lambda\Omega (w)\]
+</div>
+</div>
+<div class="paragraph">
+<p>可以看出，似然函数部分对应损失函数(经验风险),而先验概率对应于正则化项，因此 <code>L2</code> 正则化等价于模型参数的先验概率满足正态分布。</p>
 </div>
 </div>
 </div>
@@ -1312,6 +1528,108 @@ l(\theta) &amp; = p(Y|X;\theta) \\
 </div>
 </div>
 </div>
+<div class="sect3">
+<h4 id="_深度思考_3">2.2.4. 深度思考</h4>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>1、 先来看下第一题，为什么叫 <code>逻辑回归</code> ?<br></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>简单点回答将 <code>logistic</code> 直译为中文就是了，其实这个模型的准确名字应该叫 <code>对数几率模型</code>，因为这个模型( <code>sigmoid函数</code>)可以由正负样本可能性比值的对数推出。</p>
+</li>
+</ul>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+f(x; \theta) &amp; = ln\frac{p(y=1 \mid x)}{p(y=0 \mid x)} \\
+ &amp; = ln\frac{p(y=1 \mid x)}{1- p(y=1 \mid x)} \\
+ &amp; = \theta^{T} x
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>由上面公式可以推出<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\frac{p(y=1 \mid x)}{1- p(y=1 \mid x)} &amp; = e^{ \theta^{T} x} \\
+p(y=1 \mid x) &amp; = (1-p(y=1 \mid x)) e^{ \theta^{T} x} \\
+(1+e^{ \theta^{T} x}) p(y=1 \mid x) &amp; = e^{ \theta^{T} x} \\
+p(y=1 \mid x) &amp; = \frac{e^{ \theta^{T} x} }{ 1+e^{ \theta^{T} x}} \\
+&amp; = \frac{1}{1 + e^{ -\theta^{T} x} }
+\end{align}</p>
+</div>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>2、逻辑回归的损失函数如果选择均方差损失会怎样呢 ？ <br></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>均方差损失的函数形式为</p>
+</li>
+</ul>
+</div>
+<div class="stemblock">
+<div class="content">
+\[J(\theta) = \frac{1}{m}\sum_{i=1}^{m} (h_{\theta}(x_{i})-y_{i}))^{2}\]
+</div>
+</div>
+<div class="paragraph">
+<p>在逻辑回归中我们的\(h_{\theta}(x)\)形式为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[h_{\theta}(x) = \frac{1}{1 + e^{-\theta^{T} x}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>代入损失函数，我们可以得到如下图的损失函数。<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/lr_mse.png" alt="lr mse" width="50%" height="55%">
+</div>
+<div class="title">图 1. 具有众多局部极小值的损失函数</div>
+</div>
+<div class="paragraph">
+<p>这样的损失函数，我们使用梯度下降，会很容易收敛到局部最小值，而不是全局最小值。</p>
+</div>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>3、为什么要选择 <code>sigmoid</code> 函数作为损失函数 ？ 关于这个问题，你会在网上搜到很多解释和答案，但大部分都在说 <code>sigmoid</code> 函数的数学特性有多好，可以给出预测结果的概率解释等，其实都是在说为什么可以用而没有解释为什么必须用的问题。<br></p>
+</div>
+<div class="ulist">
+<ul>
+<li>
+<p>说到底，源于指数分布簇所特有的最佳性质-最大熵理论，即指数分布簇的最大熵等价于其指数形式的最大似然界</p>
+</li>
+<li>
+<p>二项式的最大熵解等价于二项式指数形式(<code>sigmoid</code>)的最大似然，多项式分布的最大熵等价于多项式分布指数形式(<code>softmax</code>)的最大似然</p>
+</li>
+<li>
+<p>因此为什么要用 <code>sigmoid</code>，那是指数分布簇最大熵特性的必然性，这部分的解释，我们将在第7章 <code>EM</code> 模型给出。</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>4、这道题很简单，人工智能也好，机器学习也好，原理都是人让它干啥，它就干啥，而决策边界其实就是模型，它是什么完全是由人定义的损失函数决定的。</p>
+</div>
+</div>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -1327,7 +1645,7 @@ l(\theta) &amp; = p(Y|X;\theta) \\
 <div class="content">
 <img src="images/feature_scaling.png" alt="feature scaling" width="60%" height="45%">
 </div>
-<div class="title">图 1. 梯度下降</div>
+<div class="title">图 2. 梯度下降</div>
 </div>
 <div class="paragraph">
 <p>上图给出了两个损失函数的等高线，左图是一个很扁的等高线，右图是一个很规整的等高线，哪一个损失函数好？<br></p>
@@ -1348,7 +1666,7 @@ l(\theta) &amp; = p(Y|X;\theta) \\
 <div class="content">
 <img src="images/pipline.png" alt="pipline" width="60%" height="45%">
 </div>
-<div class="title">图 2. 工作流程</div>
+<div class="title">图 3. 工作流程</div>
 </div>
 <div class="paragraph">
 <p>这个 <code>pipline</code> 包括了数据预处理、模型学习、模型评估和新样本预测，每个过程的时间和收益比是按照流程越来越低的，也就是我们把更多的时间花在数据预处理上，获得的收益远大于模型算法的选择；换言之，如果数据处理有问题，后面的环节再完美，也无法得到不错的模型。<br></p>
@@ -1534,7 +1852,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/miss_topic.png" alt="miss topic" width="30%" height="35%">
 </div>
-<div class="title">图 3. 跑题</div>
+<div class="title">图 4. 跑题</div>
 </div>
 <div class="paragraph">
 <p>在继续阅读前，大家可以想一个问题，我们的模型是否真的可以学出来？我个人任务这个思考很有意义，而且我也认为一定是可以学的出来，大家可以想下：文章是如何产生的？
@@ -1570,7 +1888,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/topic_word_article.png" alt="topic word article" width="50%" height="55%">
 </div>
-<div class="title">图 4. 跑题</div>
+<div class="title">图 5. 跑题</div>
 </div>
 </div>
 <div class="sect3">
@@ -1626,13 +1944,13 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/article_topic_alloc.png" alt="article topic alloc" width="50%" height="55%">
 </div>
-<div class="title">图 5. 文章主题分布</div>
+<div class="title">图 6. 文章主题分布</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/article_topic_alloc_line.png" alt="article topic alloc line" width="50%" height="55%">
 </div>
-<div class="title">图 6. 文章主题分布-平滑</div>
+<div class="title">图 7. 文章主题分布-平滑</div>
 </div>
 <div class="paragraph">
 <p>统计的过程比较简单，对文章进行分词，然后按照主题进行统计，上图可以看出第一篇文章的主题是武侠，第二篇文章的主题是教育，对于平滑后的分布图，可以看出最高点就是文章对应的主题，这里假设每个文章只有一个主题。
@@ -1688,7 +2006,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/transfer_prob.png" alt="transfer prob" width="50%" height="55%">
 </div>
-<div class="title">图 7. 收入阶层的转换概率</div>
+<div class="title">图 8. 收入阶层的转换概率</div>
 </div>
 <div class="paragraph">
 <p>使用矩阵的表达方式，转换概率矩阵记为：</p>
@@ -1697,7 +2015,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/transfer_matrix.png" alt="transfer matrix" width="30%" height="35%">
 </div>
-<div class="title">图 8. 转换概率矩阵</div>
+<div class="title">图 9. 转换概率矩阵</div>
 </div>
 <div class="paragraph">
 <p>假定当前一代人处于下层、中层和上层的人的比例是概率分布向量\(\pi_{0}=[\pi_{0}(1),\pi_{0}(2),\pi_{0}(3)]\),那么他们子女的分布比例将是\(\pi_{1}=\pi_{0}P\),他们孙子代的分布比例将是\(\pi_{2}=\pi_{1}P=\pi_{0}P^{2},&#8230;&#8203;\),
@@ -1710,7 +2028,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/alloc_example.png" alt="alloc example" width="30%" height="35%">
 </div>
-<div class="title">图 9. 前n代人的分布状态</div>
+<div class="title">图 10. 前n代人的分布状态</div>
 </div>
 <div class="paragraph">
 <p>我们发现从第7代人开始，这个分布就稳定不变了，这个是偶然吗？我们换一个初始概率分布\(\pi_{0}=[0.75, 0.15, 0.1]\)试试看，继续计算前n代人的分布状况如下：<br></p>
@@ -1719,7 +2037,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/alloc_example2.png" alt="alloc example2" width="30%" height="35%">
 </div>
-<div class="title">图 10. 前n代人的分布状态</div>
+<div class="title">图 11. 前n代人的分布状态</div>
 </div>
 <div class="paragraph">
 <p>我们发现到第9代的时候，分布又收敛了。最奇怪的是，两次给定不同的初始概率分布，最终都收敛到概率分布\(\pi=[0.286, 0.489, 0.225]\)，也就是说 <code>收敛的行为和初始概率分布无关</code>。走到这一步，你一定会惊叹：<br>
@@ -1895,7 +2213,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/markov_transfer_accept.png" alt="markov transfer accept" width="50%" height="55%">
 </div>
-<div class="title">图 11. 马氏链转移和接受概率</div>
+<div class="title">图 12. 马氏链转移和接受概率</div>
 </div>
 <div class="paragraph">
 <p>把以上的过程整理一下，我们就可以得到如下的用于采样的概率分布\(p(x)\)的算法：<br></p>
@@ -1904,7 +2222,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/hastings_algorithm.png" alt="hastings algorithm" width="50%" height="55%">
 </div>
-<div class="title">图 12. MCMC采样算法</div>
+<div class="title">图 13. MCMC采样算法</div>
 </div>
 <div class="paragraph">
 <p>以上过程不仅适应于离散的情形，对于分布是连续的，以上算法仍然有效。以上的 <code>MCMC</code> 算法已经能很漂亮的工作了，不过它有一个小问题：马氏链在状态转移过程中的接受率\(\alpha(i,j)\)可能偏小，
@@ -1941,7 +2259,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/metropolis-hastings.png" alt="metropolis hastings" width="50%" height="55%">
 </div>
-<div class="title">图 13. Metropolis-Hastings算法</div>
+<div class="title">图 14. Metropolis-Hastings算法</div>
 </div>
 <div class="paragraph">
 <p><strong>至此，我们已经得到了一个解决方案，即不论我们给文档中的每个词初始化哪个主题编号，只要找到转移矩阵，我们都可以在迭代有限步后收敛到主题和词的稳定分布</strong>，伟大的 <code>Metropolis-Hastings</code> 算法就是我们的救世主，
@@ -2015,7 +2333,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/gibbs_algorithm.png" alt="gibbs algorithm" width="50%" height="55%">
 </div>
-<div class="title">图 14. Gibbs Sampling算法</div>
+<div class="title">图 15. Gibbs Sampling算法</div>
 </div>
 <div class="paragraph">
 <p>如图所示，马氏链的转移只是轮换的沿着坐标轴做转移，于是得到样本\((x_{0}, y_{0}), (x_{0},y_{1}), (x_{1}, y_{1}), (x_{1}, y_{2}), &#8230;&#8203;\)，
@@ -2047,7 +2365,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/nd_gibbs.png" alt="nd gibbs" width="50%" height="55%">
 </div>
-<div class="title">图 15. n维Gibbs Sampling算法</div>
+<div class="title">图 16. n维Gibbs Sampling算法</div>
 </div>
 </div>
 </div>
@@ -2154,7 +2472,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/plsa_holy.png" alt="plsa holy" width="50%" height="55%">
 </div>
-<div class="title">图 16. 游戏：PLSA主题模型</div>
+<div class="title">图 17. 游戏：PLSA主题模型</div>
 </div>
 <div class="paragraph">
 <p>以上 <code>PLSA</code> 模型的文档生成的过程可以图形化的表示为：<br></p>
@@ -2163,7 +2481,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/plsa_doc_gen.png" alt="plsa doc gen" width="50%" height="55%">
 </div>
-<div class="title">图 17. PLSA模型的文档生成过程</div>
+<div class="title">图 18. PLSA模型的文档生成过程</div>
 </div>
 <div class="paragraph">
 <p>我们可以发现，按照上面的游戏规则，文档和文档之间是独立可交换的，同一个文档内的词也是独立可交换的，这是一个典型的词袋 <code>bag-of-words</code> 模型。
@@ -2220,7 +2538,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/game_one.png" alt="game one" width="50%" height="55%">
 </div>
-<div class="title">图 18. 游戏1</div>
+<div class="title">图 19. 游戏1</div>
 </div>
 <div class="paragraph">
 <p>对于上面的游戏而言\(n=10, k=7\)，如果我们能求出\(X_{(7)}\)的分布的概率密度，那么用概率密度的极值点去做猜测就是最好的策略。那么对于一般的情形，\(X_{(k)}\)的分布是什么呢？
@@ -2239,7 +2557,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/thing_E.png" alt="thing E" width="50%" height="55%">
 </div>
-<div class="title">图 19. 事件E</div>
+<div class="title">图 20. 事件E</div>
 </div>
 <div class="paragraph">
 <p>则有：<br></p>
@@ -2372,7 +2690,7 @@ f(x) &amp; = \lim_{\Delta x \to0 }\frac{P(x\leq X_{(k)} \leq x+\Delta x)}{\Delta
 <div class="content">
 <img src="images/game2.png" alt="game2" width="50%" height="55%">
 </div>
-<div class="title">图 20. 游戏2</div>
+<div class="title">图 21. 游戏2</div>
 </div>
 <div class="paragraph">
 <p>我看网上很多人质疑 <code>Richjin</code> 给出的这几个例子，我觉得质疑者多半是没有看懂这些例子背后的含义。让我们仔细阅读上面的游戏规则，
@@ -2458,7 +2776,7 @@ P(p|m_{1}, m_{2}) &amp; = \frac{P(p)\cdot P(m_{1}, m_{2}|p)}{P(m_{1}, m_{2})} \\
 <div class="content">
 <img src="images/beta-alloc.png" alt="beta alloc" width="50%" height="55%">
 </div>
-<div class="title">图 21. 百变星君Beta分布</div>
+<div class="title">图 22. 百变星君Beta分布</div>
 </div>
 <div class="paragraph">
 <p><code>Beta</code> 分布的概率密度我们把它画成图，会发现它是百变星君，而均匀分布也是特殊的 <code>Beta</code> 分布，由于 <code>Beta</code> 分布能够拟合如此之多的形状，因此它在统计数据拟合和贝叶斯分析中被广泛使用。<br></p>
@@ -2770,7 +3088,7 @@ E(p) &amp; = \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha) \Gamma(\beta)} \cdot \
 <div class="content">
 <img src="images/lda-graph-model.png" alt="lda graph model" width="30%" height="35%">
 </div>
-<div class="title">图 22. LDA概率图模型表示</div>
+<div class="title">图 23. LDA概率图模型表示</div>
 </div>
 <div class="paragraph">
 <p>这个概率图模型可以分解为两个主要的物理过程：<br></p>
@@ -2879,7 +3197,7 @@ p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) &amp; \propto p(z_{i}=k, w_{i}=t \m
 <div class="content">
 <img src="images/gibbs_path.png" alt="gibbs path" width="50%" height="55%">
 </div>
-<div class="title">图 23. Gibbs采样路径概率</div>
+<div class="title">图 24. Gibbs采样路径概率</div>
 </div>
 </div>
 <div class="sect4">
@@ -2912,7 +3230,7 @@ p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) &amp; \propto p(z_{i}=k, w_{i}=t \m
 <div class="content">
 <img src="images/train.png" alt="train" width="50%" height="55%">
 </div>
-<div class="title">图 24. LDA训练过程</div>
+<div class="title">图 25. LDA训练过程</div>
 </div>
 <div class="paragraph">
 <p>由这个 <code>topic-word</code> 频率矩阵我们可以计算每一个\(p(word|topic)\)概率，从而算出模型的参数，通常在 <code>LDA</code> 模型训练的过程中，我们是取 <code>Gibbs Sampling</code> 收敛之后的\(n\)个迭代的结果进行平均来做参数估计，这样模型质量更高。<br></p>
@@ -2925,7 +3243,7 @@ p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) &amp; \propto p(z_{i}=k, w_{i}=t \m
 <div class="content">
 <img src="images/inference.png" alt="inference" width="50%" height="55%">
 </div>
-<div class="title">图 25. LDA推演过程</div>
+<div class="title">图 26. LDA推演过程</div>
 </div>
 </div>
 </div>
@@ -3021,7 +3339,7 @@ Q_{i}(z^{i}) &amp; = \frac{p(x^{i} , z^{i} ; \theta)}{ \sum_{i=0}^{m} p(x^{i} , 
 <div class="content">
 <img src="images/em.png" alt="em" width="50%" height="55%">
 </div>
-<div class="title">图 26. EM算法伪代码</div>
+<div class="title">图 27. EM算法伪代码</div>
 </div>
 </div>
 <div class="sect4">
