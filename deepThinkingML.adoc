@@ -98,11 +98,14 @@ include::dl_gan.adoc[]
 //第二十二章：迁移学习
 include::dl_transfer_learning.adoc[]
 
-//第二十三章：数学之美
+//第二十三章：强化学习
+include::dl_reinforcement_learning.adoc[]
+
+//第二十四章：数学之美
 include::math_beauty.adoc[]
 
-//第二十四章：深度学习框架
+//第二十五章：深度学习框架
 include::dl_frameworks.adoc[]
 
-//第二十五章：走进互联网
+//第二十六章：走进互联网
 include::deep_in_internet_corp.adoc[]

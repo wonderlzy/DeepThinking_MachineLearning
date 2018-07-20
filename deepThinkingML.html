@@ -530,7 +530,7 @@ table.CodeRay td.code>pre{padding:0}
 <h1>深度思考之机器学习系列</h1>
 <div class="details">
 <span id="author" class="author">xjtu-zhongyingLi</span><br>
-<span id="revdate">2018-07-18</span>
+<span id="revdate">2018-07-20</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">目录</div>
@@ -612,7 +612,29 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 </ul>
 </li>
-<li><a href="#_支持向量机">4. 支持向量机</a></li>
+<li><a href="#_支持向量机">4. 支持向量机</a>
+<ul class="sectlevel2">
+<li><a href="#_开门见山">4.1. 开门见山</a></li>
+<li><a href="#_高维空间">4.2. 高维空间</a>
+<ul class="sectlevel3">
+<li><a href="#_超平面的表示">4.2.1. 超平面的表示</a></li>
+<li><a href="#_点到平面距离">4.2.2. 点到平面距离</a></li>
+</ul>
+</li>
+<li><a href="#_问题优化">4.3. 问题优化</a>
+<ul class="sectlevel3">
+<li><a href="#_理解对偶问题">4.3.1. 理解对偶问题</a></li>
+<li><a href="#_等价性证明">4.3.2. 等价性证明</a></li>
+</ul>
+</li>
+<li><a href="#_对偶问题求解">4.4. 对偶问题求解</a>
+<ul class="sectlevel3">
+<li><a href="#_推导和结论">4.4.1. 推导和结论</a></li>
+<li><a href="#_smo算法">4.4.2. SMO算法</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a href="#_主题模型">5. 主题模型</a>
 <ul class="sectlevel2">
 <li><a href="#_解决什么问题">5.1. 解决什么问题</a></li>
@@ -673,9 +695,10 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_神经网络番外篇">20. 神经网络番外篇</a></li>
 <li><a href="#_生成对抗网络">21. 生成对抗网络</a></li>
 <li><a href="#_迁移学习">22. 迁移学习</a></li>
-<li><a href="#_数学之美">23. 数学之美</a></li>
-<li><a href="#_深度学习框架">24. 深度学习框架</a></li>
-<li><a href="#_走进互联网">25. 走进互联网</a></li>
+<li><a href="#_强化学习">23. 强化学习</a></li>
+<li><a href="#_数学之美">24. 数学之美</a></li>
+<li><a href="#_深度学习框架">25. 深度学习框架</a></li>
+<li><a href="#_走进互联网">26. 走进互联网</a></li>
 </ul>
 </div>
 </div>
@@ -1880,7 +1903,403 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="sect1">
 <h2 id="_支持向量机">4. 支持向量机</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_开门见山">4.1. 开门见山</h3>
+<div class="paragraph">
+<p>首先，支持向量机是一个二分类问题，说到二分类大家一定会想到我们之前提过的逻辑回归，其实二分类的方法还有很多，机器学习的目的就是为了找到一个决策边界，
+使得样本数据可以很好地按照其类别被决策边界划分到两侧，来看个二维空间的分类图示:<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/svm_seperate.png" alt="svm seperate" width="30%" height="35%">
+</div>
+<div class="title">图 4. 二维空间的分类问题</div>
+</div>
+<div class="paragraph">
+<p>图上的 <code>H1,H2,H3</code> 都是决策边界，大家可以直观的感觉到这三个决策边界中最好的一个是 <code>H3</code>，为什么？ 因为 <code>H1</code> 不能将两类样本点很好的分开， <code>H2</code> 可以很好的分开，
+但是这个分割线离某些样本点太近了，差点不能分开。<br></p>
+</div>
+<div class="paragraph">
+<p>上述的描述，都是很直观的判断，没有任何理论假设。那么我们重点看下 <code>H2</code> 和 <code>H3</code> 这两条决策边界，假设给出的样本就是我们全部的训练集，那么两条决策边界都可以达到0%损失，
+也就是全部正确分类，大家想想逻辑回归迭代收敛的条件，是不是就意味着我们找到了最优解，走到了梦寐以求的山谷！没错，这两条决策边界都满足逻辑回归最优解的要求。也就是说，
+如果逻辑回归最后收敛在了 <code>H2</code> 这条决策边界上，算法就会停止迭代，我们找到了最优模型。但是很显然，这个仍然不是最佳的，因为直觉告诉我们，它真的是差点就分错，这个差点其实就有很大的概率，
+当预测一个新样本时，被错误分类的概率会更大，其实这句话描述的就是模型的 <code>泛化能力</code> 差。<br></p>
+</div>
+<div class="paragraph">
+<p>而 <code>H3</code> 我们直观的认为，当它预测一个新样本时，被错误分类的概率会小些，即 <code>泛化能力</code> 好！这就是支持向量机(SVM)和其他分类模型最本质的差异，SVM的目标是找到像 <code>H3</code> 这样，
+人为感觉泛化能力最强的分类器，为什么加个 <code>人为</code> ,因为我们无法获取真实样本的分布，所以一切都是近似！ 好了，下面就让我们来将这个目标进行数学化描述:<br></p>
+</div>
+<div class="paragraph">
+<p>很容易发现，这个人为感觉泛化能力最强的分类器，具有这样的特点：这个决策边界和离它最近的样本的距离最大，白话说就是尽可能的将两类样本分的越开越好。因此SVM就是间隔最大的线性分类器！
+所以它牛哄哄了那么多年，因为它是最优分类器。<br></p>
+</div>
+<div class="paragraph">
+<p>越火研究的人就越多，越容易发展到新的高度，SVM不仅可以解决线性可分的问题，也可以通过引入惩罚因子解决近似线性可分的问题，当然将核技术应用于SVM，使得SVM可以解决线性不可分的问题，
+谈到SVM一个经常被说到的话：高斯核可以将样本点映射到无穷维！这个后面我们会详细说明为什么，这里就感受下它的牛气就行了。<br></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_高维空间">4.2. 高维空间</h3>
+<div class="paragraph">
+<p>这个题目有点大，其实这里只是想介绍高维空间的少许基本概念，为后面SVM的推导做基础储备。<br></p>
+</div>
+<div class="sect3">
+<h4 id="_超平面的表示">4.2.1. 超平面的表示</h4>
+<div class="paragraph">
+<p>首先，为什么要研究高维空间，其实这个问题很容易理解。机器学习的核心是数据，而数据都是由特征向量表示，如果我们将数据想象成空间中的点，那么特征的总数就是这个高维空间的总数，
+一个特征代表了高维空间的一个维度。<br></p>
+</div>
+<div class="paragraph">
+<p>在二维平面上，一个线性分类器的决策边界是一条直线，在高维空间上就是个超平面。那么如何表示这个超平面呢？先来研究下二维平面的情况，我们都知道二维平面上的线性决策面就是直线，
+假设二维平面上的两个维度分别为\(x\)和\(y\),那么任意一条直线可以表示为如下形势:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[ax + by + c = 0\]
+</div>
+</div>
+<div class="paragraph">
+<p>也许上面的形势你不太习惯，那再变换下形势就可以写成<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[y = -\frac{a}{b}x -\frac{c}{b}\]
+</div>
+</div>
+<div class="paragraph">
+<p>这个形式是我们初中所学的基本形式，其中\(-\frac{a}{b}\)为直线的斜率，而\(-\frac{c}{b}\)为直线的截距。聪明的你，一定会想办法把这条直线和我们的机器学习模型对比结合起来，
+比如，你会想到变量\(x\)和\(y\)就相当于数据中的两个特征，而\(a\)和\(b\)相当于特征对应的权重，初中学习的数学告诉我们\(x\)和\(y\)是变量，而\(a\)和\(b\)一般为常量，
+而机器学习刚好相反，机器学习的目的是为了学到这条直线，因此未知数就是\(a\)和\(b\)，我们把未知数用向量表示，令\(\vec{w} = (\vec{a}, \vec{b})\)，向量\(\vec{w}\)叫做法向量。
+来看下法向量和斜率之间的关系，下图假设a=1, b=-1, c=0，于是得到一条斜率为1的直线。<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/2D_w.png" alt="2D w" width="30%" height="35%">
+</div>
+<div class="title">图 5. 二维空间直线和法向量的关系</div>
+</div>
+<div class="paragraph">
+<p>很容易发现，斜率的方向是和直线平行的，而法向量刚好和直线垂直，这个结论同样适应于高维空间，即高维空间的超平面的法向量和平面也是垂直的，如果我们将\(x\)和\(y\)也统一成一个变量的不同下标，
+则直线可以写成\(\vec{w} \cdot \vec{x} + c = 0\)，为了方便向量的箭头省略掉，将截距\(c\)换成\(b\)，则得到超平面的法向量表示。<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[w \cdot x + b = 0\]
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_点到平面距离">4.2.2. 点到平面距离</h4>
+<div class="paragraph">
+<p>因为SVM是间隔最大的线形分类器，中间涉及到间隔的概念，因此势必会计算样本点到决策超平面的距离计算，这里我们利用向量点积运算的定义，给出点到平面的距离,向量的点积定义为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\vec{a} \cdot \vec{b} = |\vec{a}| \cdot |\vec{b}| \cdot cos\theta\]
+</div>
+</div>
+<div class="paragraph">
+<p>其中，\theta为两个向量的夹角，为了求解空间中的任意一点\(x_{0}\)到超平面的距离，我们可以在超平面上任取一点\(x_{1}\)，则向量\(\vec{x_{0} - x_{1}}\)在法向量上的投影就是点\(x_{0}\)到超平面的距离，
+如下图所示，其实比较直观。<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/distance.png" alt="distance" width="30%" height="35%">
+</div>
+<div class="title">图 6. 点到平面的距离</div>
+</div>
+<div class="paragraph">
+<p>由上图，我们可以看到点到平面的距离\(L\)其实就是线段\(x_{0}x_{1}\)乘以\(cos\theta\)，刚好是向量点积的两项。于是得到点到平面的距离公式:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+w \cdot (x_{0} - x_{1}) &amp; = |w| \dot |x_{0} - x_{1} | \cdot cos\theta \\
+&amp; = L \cdot | w | \\
+\Leftrightarrow  L &amp; = \frac{w \cdot (x_{0} - x_{1})}{|w|} \\
+&amp; = \frac{w\cdot x_{0} - w\cdot x_{1}}{|w|} \\
+&amp; = \frac{w x_{0}  + b}{|w|}
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>因为\(x_{1}\)是平面\(w\cdot x + b = 0\)上的点，所以\(-w \cdot x_{1} = b\)，记录下我们的成果，点到平面的距离为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L = \frac{w\cdot x_{0} + b}{|w|} \hspace{2cm} (4.1)\]
+</div>
+</div>
+<div class="paragraph">
+<p>根据公式(4.1)，我们发现一个很有趣的地方，SVM的目的就是要求解超平面，也就是参数\(w\)和\(b\)，方法涉及优化点到平面的距离，但是上面的距离公式却告诉我们，
+不管你的参数求的结果是多少，比如\(w=\)10,\(b=\)15，假设此时计算的\(L=\)100(为了简化问题,这里假设了维度为1),那么我们都可以等比例放大\(w\)和\(b\)使得距离同比例变大，放大10倍，则距离变为1000，
+距离虽然等比里变大了，超平面却没有发生变化，因为放大倍数可以约掉。<br></p>
+</div>
+<div class="paragraph">
+<p>上面的问题其实在告诉我们，同一个平面其法向量和截距的结果可以有无数多个，等比例缩放的解都是可行解。换句话说，因为这个特性使得点到平面的距离可以取任意值(除了0),那不妨我们就固定距离，
+这这种约束条件下求得的参数将会是唯一的，想缩放已经不可能了，距离约束了，有点像结果的归一化问题，为了简化计算，后面我们就将这个可以取任意值的距离设为1，即:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[w \cdot {x_{0}} + b = 1 \hspace{2cm} (4.2) \\
+L = \frac{1}{||w||} \hspace{3cm} (4.3)\]
+</div>
+</div>
+<div class="paragraph">
+<p>刚距离中维度为1，所以绝对值和二范式相等，高维空间一般都用二范式表示向量的模(所有分量的平方和再开根号)，我们的优化目标就是最大化间隔，即<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\underset{w,b}{max}\frac{1}{||w||}\]
+</div>
+</div>
+<div class="paragraph">
+<p>再来看下约束条件有哪些，我们假设二分类的结果\(y_{i}\)取值为1和-1，假设正样本为1，负样本为-1，我们希望所有正样本都满足\(w\cdot x_{i+} + b \geqslant 1\),所有负样本都满足\(w\cdot x_{i-} + b \leq -1\),
+这两个约束条件可以写成如下一个约束条件：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[s.t. \hspace{1cm} y_{i}(w\cdot x_{i} + b)  - 1 \geq 0\]
+</div>
+</div>
+<div class="paragraph">
+<p>我们将最大化问题转为最小化问题，就变为凸优化问题，于是我们得到了下面的线形可分支持向量机学习的最优化问题:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+&amp; \underset{w,b}{min} \hspace{1cm} \frac{1}{2}||w||^{2}  \hspace{4cm} (4.4) \\
+&amp; s.t. \hspace{1cm} y_{i}(w\cdot x_{i} + b)  - 1 \geq 0 \hspace{1cm} (4.5)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>这是个典型的凸二次优化问题，凸优化问题是指约束最优化问题，这种问题一般会通过引入拉格朗日乘子，转为一个优化函数的形式。<br></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_问题优化">4.3. 问题优化</h3>
+<div class="sect3">
+<h4 id="_理解对偶问题">4.3.1. 理解对偶问题</h4>
+<div class="paragraph">
+<p>凸优化问题的约束条件一般限定包括\(=0\)和\(\leq 0\)，因为\(geq 0\)可以很容易转换为\(\leq 0\)的问题，所以上节的支持向量机学习的最优化问题应该写成:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+&amp; \underset{w,b}{min} \hspace{1cm} \frac{1}{2}||w||^{2}  \hspace{4cm} (4.6) \\
+&amp; s.t. \hspace{1cm} 1 - y_{i}(w\cdot x_{i} + b) \leq 0 \hspace{1cm} (4.7)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>根据上述约束条件，对每一个不等式约束引入拉格朗日乘子\(\alpha_{i} \geq 0\)，得到拉格朗日函数:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L(w, b, \alpha) = \frac{1}{2}||w||^{2}+\sum_{i=1}^{N}\alpha_{i}[1-y_{i}(w\cdot x_{i} + b)]  \hspace{1cm} (4.8)\]
+</div>
+</div>
+<div class="paragraph">
+<p>先不考虑我们原问题是最大问题还是最小化问题，首先这种变换必须是等价的才有意义，也就是公式(4.8)必须满足公式(4.6)和(4.7)的约束条件，先来看下(4.7)的不等式约束<br></p>
+</div>
+<div class="paragraph">
+<p><strong>分析:</strong>公式(4.7)的约束是小于等于0，我们假设给拉格朗日函数附加最小化约束，即\(min \hspace{0.1cm} L(w, b, \alpha)\),显然\(1-y_{i}(w\cdot x_{i} + b)\)为负时会使得无最小值存在，
+因此不能满足(4.7)的要求，那么反过来，如果给拉格朗日函数附加最大化约束呢，即\(max \hspace{0.1cm} L(w, b, \alpha)\),我们发现当\(1-y_{i}(w\cdot x_{i} + b)\)想要大于0时(即违背公式(4.7)约束),我们可以取\(\alpha_{i} = 0\),
+而当\(1-y_{i}(w\cdot x_{i} + b)\)小于0时，取\(\alpha_{i} &gt; 0\)即可，刚好满足公式(4.7)的约束条件。<br></p>
+</div>
+<div class="paragraph">
+<p>因此为了满足公式(4.7)的约束条件，拉格朗日函数必须附加最小化约束条件，即:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[max \hspace{1cm} L(w, b, \alpha)\]
+</div>
+</div>
+<div class="paragraph">
+<p>再考虑公式(4.6)的约束，这个比较简单，因为是等式约束，所以将最小化约束条件加在朗格朗日函数前就可以了，即得到朗格朗日与原问题完全等价的函数约束形式:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\underset{\alpha}{max} \hspace{0.1cm}\underset{w, b}{min} L(w, b, \alpha) \hspace{1cm} (4.9)\]
+</div>
+</div>
+<div class="paragraph">
+<p>通过朗格朗日变换，我们发现原始问题是一个最小最大值问题，这个问题不好直接求解，是否转换为对偶问题后方便求解呢？<br></p>
+</div>
+<div class="paragraph">
+<p>这里先简单说下什么是对偶问题，比如这里原问题是一个最小最大值问题，对偶问题就是最大最小值问题，因此公式(4.9)的对偶问题形式就是:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\underset{\alpha}{min} \hspace{0.1cm}\underset{w, b}{max} L(w, b, \alpha) \hspace{1cm} (4.10)\]
+</div>
+</div>
+<div class="paragraph">
+<p>假设原问题的最优解为\(p^{*} \)，对偶问题的最优解为\( q^{ * } \)，那么一个很显然的结论是: \(q^{ * } \leq p^{ * }\),这个结论不需要什么证明，看下这两个问题的负号关系就知道了，
+一个是最大值里取最小的，另一个是在最小值里取最大的，显然这个不等式是成立的。但是，问题来了，什么情况下取等号呢？ 取不到等号，显然对偶问题和原始问题不等价！<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_等价性证明">4.3.2. 等价性证明</h4>
+<div class="paragraph">
+<p>由上节可知，对偶问题和原始问题的关系<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[d^{ * } \leq q^{ * }\]
+</div>
+</div>
+<div class="paragraph">
+<p>我们把上面的不等式约束叫做 <code>弱对偶性质</code>,顺其自然，我们可以引入一个重要的概念：<code>对偶间隔</code>，即\(q^{ * } - d^{ * }\),因此对偶间隔肯定大于或等于0，那么有没有可能在某种情况下，对偶间隔消失呢？
+也就是对偶问题的最优解与原始问题的最优解相等呢？<br></p>
+</div>
+<div class="paragraph">
+<p>下面介绍一个让对偶间隔消失的充分条件，<code>Slater条件</code>:<br></p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="paragraph">
+<p>存在\(x\)满足：<br>
+\(g_{i}(x) &lt; 0, i=1, 2, .., m\)<br>
+\(h_{i}(x) = 0, i=1, 2, &#8230;&#8203;,p\)<br></p>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>\(h_{i}(x)\)大家暂时可以不用管，这是一个等式约束问题，SVM问题中，只有不等式约束，所以第二个条件可以认为已满足，<code>Slater条件</code> 即是说存在\(x\)，使不等式约束中的"小于等于号"要严格取到"小于号"。<br></p>
+</div>
+<div class="paragraph">
+<p>可以证明对于凸优化问题(QP问题)，如果 <code>Slater条件</code> 满足，则<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[d^{ * } = p^{ * }\]
+</div>
+</div>
+<div class="paragraph">
+<p>这种情况称为"强对偶性质",如果对偶问题存在最优点\(\alpha^{*}\)，并且对应的最优值 \(d^{ * } = \theta(\alpha^{ * })\)等于\(p^{ * }\),这时会发生什么？来看下对偶问题的推导过程:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\theta(\theta(\alpha)) &amp; = \underset{x}{inf} (L(x, \alpha)) \\
+&amp; = \underset{x}{inf} (f(x) + \sum_{i=1}^{N}\alpha_{i}g_{i}(x)) \\
+&amp; \leq f(x^{*}) + \sum_{i=1}^{N} \alpha_{i} g_{i}( x^{ * } ) \\
+&amp; \leq f( x^{ * } ) \\
+&amp; = p^{ * }
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>在对偶间隔消失的情况下，上面的所有不等式都严格取等号，根据上面两个不等式处取等号，我们可以得出下面两个结论<br></p>
+</div>
+<div class="exampleblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>第一个不等式处取等，会使得原始问题的最优点\(x^{*}\)是使\(L(x, \alpha^{ * })\)取最小值的点。</p>
+</li>
+<li>
+<p>第二个不等式处取等，说明</p>
+</li>
+</ul>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\sum_{i=1}^{N}\alpha_{i}g_{i}( x^{ * } ) = 0\]
+</div>
+</div>
+<div class="paragraph">
+<p>由于我们限制了每个\(\alpha_{i} \geq 0\),所以上式每一项都是非负的，这样我们又可以得到一个结论<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\alpha_{i} g_{i}(x^{ * }) = 0, \hspace{0.5cm} \forall i\]
+</div>
+</div>
+<div class="paragraph">
+<p>因为\(g_{i}(x)\)为我们的不等式约束，所以也就是说，要么拉格朗日乘子为0，要么不等式为0；这句话再往深里说就是，不等式约束不为0的样本点对应的朗格朗日乘子都为0，
+也就是不等式约束不起作用，对训练模型没有帮助，而不等式为0的点，不等式约束才成立。而使得不等式为0的点都是满足下式的点:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[y_{i}(w \cdot x_{i} + b) = 1·\]
+</div>
+</div>
+<div class="paragraph">
+<p>而满足上面等式的点都是 <code>支持向量</code> ，因此在模型训练是我们只需要关注那些支持向量就可以了，这也是支持向量机名称的由来。</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_对偶问题求解">4.4. 对偶问题求解</h3>
+<div class="paragraph">
+<p>根据拉格朗日对偶性，原始问题的对偶问题是极大极小值问题:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\underset{\alpha}{max} \underset{w, b}{min} L(w, b, \alpha)\]
+</div>
+</div>
+<div class="paragraph">
+<p>所以为了得到对偶问题的解，我们需要先求\(L(w,b,\alpha)\)对\(w, b\)的极小值，再求对\(\alpha\)的极大值。<br></p>
+</div>
+<div class="sect3">
+<h4 id="_推导和结论">4.4.1. 推导和结论</h4>
+<div class="paragraph">
+<p><strong>(1).求\(\underset{w,b}{ min }L(w,b,\alpha) \)</strong><br></p>
+</div>
+<div class="paragraph">
+<p>将拉格朗日函数分别对\(w,b\)求导，令导数为0.<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\frac{\partial }{\partial w}L(w,b,\alpha) &amp; = w - \sum_{i=1}^{N}\alpha_{i}y_{i}x_{i} = 0 \\
+\frac{\partial}{\partial b} L(w, b, \alpha) &amp; = \sum_{i=1}^{N}\alpha_{i}y_{i} = 0 \\
+等价于 \hspace{2cm} \\
+w &amp; = \sum_{i=1}^{N}\alpha_{i}y_{i}x_{i} \hspace{1cm}(4.11) \\
+\sum_{i=1}^{N}\alpha_{i}y_{i} &amp; = 0 \hspace{3cm}(4.12)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>将公式(4.11)代入拉格朗日函数，并利用公式(4.12)可以得到:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+L(w, b, \alpha) &amp; = \frac{1}{2} ||w||^{2} + \sum_{i=1}^{N} \alpha_{i} [1-y_{i} (w \cdot x_{i} + b) ] \\
+&amp; = \frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) - \sum_{i=1}^{N}[ 1 - y_{i}( (\sum_{j=1}^{N} \alpha_{j}y_{j}x_{j} ) \cdot x_{j} +b )  \\
+&amp; = -\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) + \sum_{i=1}^{N}\alpha_{i}
+\end{align}
+即<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\underset{w, b}{min} L(w, b, \alpha) = -\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) + \sum_{i=1}^{N}\alpha_{i}\]
+</div>
+</div>
+<div class="paragraph">
+<p><strong>(2)求\(\underset{w, b}{min} L(w, b, \alpha)\)对\(\alpha\)的极大值，即是对偶问题</strong><br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+&amp; \underset{\alpha}{max} \hspace{0.1cm} -\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) + \sum_{i=1}^{N}\alpha_{i} \hspace{1cm} (4.13) \\
+&amp; s.t. \hspace{0.5cm} \sum_{i=1}^{N} \alpha_{i} y_{i} = 0 \\
+&amp; \hspace{1.5cm} \alpha_{i} \geq 0, \hspace{1cm} i=1,2,&#8230;&#8203;,N
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>将公式(4.13)的极大值问题转换为极小值，就得到下面与之等价的对偶最优化问题:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+&amp; \underset{\alpha}{min} \hspace{0.1cm} \frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) - \sum_{i=1}^{N}\alpha_{i} \hspace{1cm} (4.14) \\
+&amp; s.t. \hspace{0.5cm} \sum_{i=1}^{N} \alpha_{i} y_{i} = 0 \hspace{5.4cm} (4.15) \\
+&amp; \hspace{1.5cm} \alpha_{i} \geq 0, \hspace{1cm} i=1,2,&#8230;&#8203;,N \hspace{1.9cm} (4.16)
+\end{align}</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_smo算法">4.4.2. SMO算法</h4>
 
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -1924,7 +2343,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/miss_topic.png" alt="miss topic" width="30%" height="35%">
 </div>
-<div class="title">图 4. 跑题</div>
+<div class="title">图 7. 跑题</div>
 </div>
 <div class="paragraph">
 <p>在继续阅读前，大家可以想一个问题，我们的模型是否真的可以学出来？我个人任务这个思考很有意义，而且我也认为一定是可以学的出来，大家可以想下：文章是如何产生的？
@@ -1960,7 +2379,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/topic_word_article.png" alt="topic word article" width="50%" height="55%">
 </div>
-<div class="title">图 5. 跑题</div>
+<div class="title">图 8. 跑题</div>
 </div>
 </div>
 <div class="sect3">
@@ -2016,13 +2435,13 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/article_topic_alloc.png" alt="article topic alloc" width="50%" height="55%">
 </div>
-<div class="title">图 6. 文章主题分布</div>
+<div class="title">图 9. 文章主题分布</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/article_topic_alloc_line.png" alt="article topic alloc line" width="50%" height="55%">
 </div>
-<div class="title">图 7. 文章主题分布-平滑</div>
+<div class="title">图 10. 文章主题分布-平滑</div>
 </div>
 <div class="paragraph">
 <p>统计的过程比较简单，对文章进行分词，然后按照主题进行统计，上图可以看出第一篇文章的主题是武侠，第二篇文章的主题是教育，对于平滑后的分布图，可以看出最高点就是文章对应的主题，这里假设每个文章只有一个主题。
@@ -2078,7 +2497,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/transfer_prob.png" alt="transfer prob" width="50%" height="55%">
 </div>
-<div class="title">图 8. 收入阶层的转换概率</div>
+<div class="title">图 11. 收入阶层的转换概率</div>
 </div>
 <div class="paragraph">
 <p>使用矩阵的表达方式，转换概率矩阵记为：</p>
@@ -2087,7 +2506,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/transfer_matrix.png" alt="transfer matrix" width="30%" height="35%">
 </div>
-<div class="title">图 9. 转换概率矩阵</div>
+<div class="title">图 12. 转换概率矩阵</div>
 </div>
 <div class="paragraph">
 <p>假定当前一代人处于下层、中层和上层的人的比例是概率分布向量\(\pi_{0}=[\pi_{0}(1),\pi_{0}(2),\pi_{0}(3)]\),那么他们子女的分布比例将是\(\pi_{1}=\pi_{0}P\),他们孙子代的分布比例将是\(\pi_{2}=\pi_{1}P=\pi_{0}P^{2},&#8230;&#8203;\),
@@ -2100,7 +2519,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/alloc_example.png" alt="alloc example" width="30%" height="35%">
 </div>
-<div class="title">图 10. 前n代人的分布状态</div>
+<div class="title">图 13. 前n代人的分布状态</div>
 </div>
 <div class="paragraph">
 <p>我们发现从第7代人开始，这个分布就稳定不变了，这个是偶然吗？我们换一个初始概率分布\(\pi_{0}=[0.75, 0.15, 0.1]\)试试看，继续计算前n代人的分布状况如下：<br></p>
@@ -2109,7 +2528,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/alloc_example2.png" alt="alloc example2" width="30%" height="35%">
 </div>
-<div class="title">图 11. 前n代人的分布状态</div>
+<div class="title">图 14. 前n代人的分布状态</div>
 </div>
 <div class="paragraph">
 <p>我们发现到第9代的时候，分布又收敛了。最奇怪的是，两次给定不同的初始概率分布，最终都收敛到概率分布\(\pi=[0.286, 0.489, 0.225]\)，也就是说 <code>收敛的行为和初始概率分布无关</code>。走到这一步，你一定会惊叹：<br>
@@ -2285,7 +2704,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/markov_transfer_accept.png" alt="markov transfer accept" width="50%" height="55%">
 </div>
-<div class="title">图 12. 马氏链转移和接受概率</div>
+<div class="title">图 15. 马氏链转移和接受概率</div>
 </div>
 <div class="paragraph">
 <p>把以上的过程整理一下，我们就可以得到如下的用于采样的概率分布\(p(x)\)的算法：<br></p>
@@ -2294,7 +2713,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/hastings_algorithm.png" alt="hastings algorithm" width="50%" height="55%">
 </div>
-<div class="title">图 13. MCMC采样算法</div>
+<div class="title">图 16. MCMC采样算法</div>
 </div>
 <div class="paragraph">
 <p>以上过程不仅适应于离散的情形，对于分布是连续的，以上算法仍然有效。以上的 <code>MCMC</code> 算法已经能很漂亮的工作了，不过它有一个小问题：马氏链在状态转移过程中的接受率\(\alpha(i,j)\)可能偏小，
@@ -2331,7 +2750,7 @@ IDF(t) = ln(总文档数/ 含t的文档数)<br></p>
 <div class="content">
 <img src="images/metropolis-hastings.png" alt="metropolis hastings" width="50%" height="55%">
 </div>
-<div class="title">图 14. Metropolis-Hastings算法</div>
+<div class="title">图 17. Metropolis-Hastings算法</div>
 </div>
 <div class="paragraph">
 <p><strong>至此，我们已经得到了一个解决方案，即不论我们给文档中的每个词初始化哪个主题编号，只要找到转移矩阵，我们都可以在迭代有限步后收敛到主题和词的稳定分布</strong>，伟大的 <code>Metropolis-Hastings</code> 算法就是我们的救世主，
@@ -2405,7 +2824,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/gibbs_algorithm.png" alt="gibbs algorithm" width="50%" height="55%">
 </div>
-<div class="title">图 15. Gibbs Sampling算法</div>
+<div class="title">图 18. Gibbs Sampling算法</div>
 </div>
 <div class="paragraph">
 <p>如图所示，马氏链的转移只是轮换的沿着坐标轴做转移，于是得到样本\((x_{0}, y_{0}), (x_{0},y_{1}), (x_{1}, y_{1}), (x_{1}, y_{2}), &#8230;&#8203;\)，
@@ -2437,7 +2856,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/nd_gibbs.png" alt="nd gibbs" width="50%" height="55%">
 </div>
-<div class="title">图 16. n维Gibbs Sampling算法</div>
+<div class="title">图 19. n维Gibbs Sampling算法</div>
 </div>
 </div>
 </div>
@@ -2544,7 +2963,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/plsa_holy.png" alt="plsa holy" width="50%" height="55%">
 </div>
-<div class="title">图 17. 游戏：PLSA主题模型</div>
+<div class="title">图 20. 游戏：PLSA主题模型</div>
 </div>
 <div class="paragraph">
 <p>以上 <code>PLSA</code> 模型的文档生成的过程可以图形化的表示为：<br></p>
@@ -2553,7 +2972,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/plsa_doc_gen.png" alt="plsa doc gen" width="50%" height="55%">
 </div>
-<div class="title">图 18. PLSA模型的文档生成过程</div>
+<div class="title">图 21. PLSA模型的文档生成过程</div>
 </div>
 <div class="paragraph">
 <p>我们可以发现，按照上面的游戏规则，文档和文档之间是独立可交换的，同一个文档内的词也是独立可交换的，这是一个典型的词袋 <code>bag-of-words</code> 模型。
@@ -2610,7 +3029,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/game_one.png" alt="game one" width="50%" height="55%">
 </div>
-<div class="title">图 19. 游戏1</div>
+<div class="title">图 22. 游戏1</div>
 </div>
 <div class="paragraph">
 <p>对于上面的游戏而言\(n=10, k=7\)，如果我们能求出\(X_{(7)}\)的分布的概率密度，那么用概率密度的极值点去做猜测就是最好的策略。那么对于一般的情形，\(X_{(k)}\)的分布是什么呢？
@@ -2629,7 +3048,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/thing_E.png" alt="thing E" width="50%" height="55%">
 </div>
-<div class="title">图 20. 事件E</div>
+<div class="title">图 23. 事件E</div>
 </div>
 <div class="paragraph">
 <p>则有：<br></p>
@@ -2762,7 +3181,7 @@ f(x) &amp; = \lim_{\Delta x \to0 }\frac{P(x\leq X_{(k)} \leq x+\Delta x)}{\Delta
 <div class="content">
 <img src="images/game2.png" alt="game2" width="50%" height="55%">
 </div>
-<div class="title">图 21. 游戏2</div>
+<div class="title">图 24. 游戏2</div>
 </div>
 <div class="paragraph">
 <p>我看网上很多人质疑 <code>Richjin</code> 给出的这几个例子，我觉得质疑者多半是没有看懂这些例子背后的含义。让我们仔细阅读上面的游戏规则，
@@ -2848,7 +3267,7 @@ P(p|m_{1}, m_{2}) &amp; = \frac{P(p)\cdot P(m_{1}, m_{2}|p)}{P(m_{1}, m_{2})} \\
 <div class="content">
 <img src="images/beta-alloc.png" alt="beta alloc" width="50%" height="55%">
 </div>
-<div class="title">图 22. 百变星君Beta分布</div>
+<div class="title">图 25. 百变星君Beta分布</div>
 </div>
 <div class="paragraph">
 <p><code>Beta</code> 分布的概率密度我们把它画成图，会发现它是百变星君，而均匀分布也是特殊的 <code>Beta</code> 分布，由于 <code>Beta</code> 分布能够拟合如此之多的形状，因此它在统计数据拟合和贝叶斯分析中被广泛使用。<br></p>
@@ -3160,7 +3579,7 @@ E(p) &amp; = \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha) \Gamma(\beta)} \cdot \
 <div class="content">
 <img src="images/lda-graph-model.png" alt="lda graph model" width="30%" height="35%">
 </div>
-<div class="title">图 23. LDA概率图模型表示</div>
+<div class="title">图 26. LDA概率图模型表示</div>
 </div>
 <div class="paragraph">
 <p>这个概率图模型可以分解为两个主要的物理过程：<br></p>
@@ -3269,7 +3688,7 @@ p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) &amp; \propto p(z_{i}=k, w_{i}=t \m
 <div class="content">
 <img src="images/gibbs_path.png" alt="gibbs path" width="50%" height="55%">
 </div>
-<div class="title">图 24. Gibbs采样路径概率</div>
+<div class="title">图 27. Gibbs采样路径概率</div>
 </div>
 </div>
 <div class="sect4">
@@ -3302,7 +3721,7 @@ p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) &amp; \propto p(z_{i}=k, w_{i}=t \m
 <div class="content">
 <img src="images/train.png" alt="train" width="50%" height="55%">
 </div>
-<div class="title">图 25. LDA训练过程</div>
+<div class="title">图 28. LDA训练过程</div>
 </div>
 <div class="paragraph">
 <p>由这个 <code>topic-word</code> 频率矩阵我们可以计算每一个\(p(word|topic)\)概率，从而算出模型的参数，通常在 <code>LDA</code> 模型训练的过程中，我们是取 <code>Gibbs Sampling</code> 收敛之后的\(n\)个迭代的结果进行平均来做参数估计，这样模型质量更高。<br></p>
@@ -3315,7 +3734,7 @@ p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) &amp; \propto p(z_{i}=k, w_{i}=t \m
 <div class="content">
 <img src="images/inference.png" alt="inference" width="50%" height="55%">
 </div>
-<div class="title">图 26. LDA推演过程</div>
+<div class="title">图 29. LDA推演过程</div>
 </div>
 </div>
 </div>
@@ -3411,7 +3830,7 @@ Q_{i}(z^{i}) &amp; = \frac{p(x^{i} , z^{i} ; \theta)}{ \sum_{i=0}^{m} p(x^{i} , 
 <div class="content">
 <img src="images/em.png" alt="em" width="50%" height="55%">
 </div>
-<div class="title">图 27. EM算法伪代码</div>
+<div class="title">图 30. EM算法伪代码</div>
 </div>
 </div>
 <div class="sect4">
@@ -3641,19 +4060,25 @@ p(z_{k} \mid d_{i}, w_{j}) &amp; = \frac{p(z_{k}, d_{i}, w_{j})}{\sum_{l=1}^{K} 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_数学之美">23. 数学之美</h2>
+<h2 id="_强化学习">23. 强化学习</h2>
 <div class="sectionbody">
 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_深度学习框架">24. 深度学习框架</h2>
+<h2 id="_数学之美">24. 数学之美</h2>
 <div class="sectionbody">
 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_走进互联网">25. 走进互联网</h2>
+<h2 id="_深度学习框架">25. 深度学习框架</h2>
+<div class="sectionbody">
+
+</div>
+</div>
+<div class="sect1">
+<h2 id="_走进互联网">26. 走进互联网</h2>
 <div class="sectionbody">
 
 </div>
@@ -3661,7 +4086,7 @@ p(z_{k} \mid d_{i}, w_{j}) &amp; = \frac{p(z_{k}, d_{i}, w_{j})}{\sum_{l=1}^{K} 
 </div>
 <div id="footer">
 <div id="footer-text">
-最后更新时间 2018-07-18 12:01:57 CST
+最后更新时间 2018-07-20 14:02:51 CST
 </div>
 </div>
 <script type="text/x-mathjax-config">
