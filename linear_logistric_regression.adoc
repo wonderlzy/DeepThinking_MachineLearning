@@ -258,7 +258,7 @@ p(y|x;\theta) = [h_{\theta}(x)]^{y} [1-h_{\theta}(x)]^{1-y} \hspace{2cm} (2.12)
 \begin{align}
 l(\theta) & = p(Y|X;\theta) \\
 & = \prod_{i=1}^{m} p(y^{i}; x^{i}; \theta ) \\
-& = \prod_{i=1}^{m} [p_{\theta} (x^{i}) ]^{ y^{i} } [(1-h_{\theta} (x^{i})) ]^{1- y^{i} }\hspace{1cm}(2.13)
+& = \prod_{i=1}^{m} [h_{\theta} (x^{i}) ]^{ y^{i} } [(1-h_{\theta} (x^{i})) ]^{1- y^{i} }\hspace{1cm}(2.13)
 \end{align}
 
 对似然函数取对数，可以得到： +
@@ -296,8 +296,8 @@ J(\theta) = -L(\theta) = -ylogh_{\theta}(x) - (1-y)log(1-h_{\theta}(x)) \hspace{
 \frac{\partial}{\partial h_{\theta}(x_{j})} & = (\frac{1}{1+e^{-{ \theta^{T} } x}})^{'} \\
 & = [(1 + e^{- \theta^{T} x})^{-1} ]^{'} \\
 & = (-1) (1 + e^{- \theta^{T} x})^{-2} e^{- \theta^{T} x} (- x^{j} ) \\
-& = x_{j} ·\frac{ e^{ \theta^{T} } x}{ (1 + e^{ \theta^{T} x} )^{2} } \\
-& = x_{j} ·\frac{ 1+ e^{ \theta^{T} x} -1}{ (1 + e^{ \theta^{T} x} )^{2} } \\
+& = x_{j} ·\frac{ e^{- \theta^{T} } x}{ (1 + e^{- \theta^{T} x} )^{2} } \\
+& = x_{j} ·\frac{ 1+ e^{- \theta^{T} x} -1}{ (1 + e^{- \theta^{T} x} )^{2} } \\
 & = x_{j}· [( h_{\theta}(x) )^{2} - h_{\theta}(x)] \\
 & = x_{j}· h_{\theta}(x)(1 - h_{\theta}(x) ) \hspace{3cm} (2.18)
 \end{align}

@@ -1415,7 +1415,7 @@ p(y=0|x;\theta) &amp; = 1 - h_{\theta}(x)
 <p>\begin{align}
 l(\theta) &amp; = p(Y|X;\theta) \\
 &amp; = \prod_{i=1}^{m} p(y^{i}; x^{i}; \theta ) \\
-&amp; = \prod_{i=1}^{m} [p_{\theta} (x^{i}) ]^{ y^{i} } [(1-h_{\theta} (x^{i})) ]^{1- y^{i} }\hspace{1cm}(2.13)
+&amp; = \prod_{i=1}^{m} [h_{\theta} (x^{i}) ]^{ y^{i} } [(1-h_{\theta} (x^{i})) ]^{1- y^{i} }\hspace{1cm}(2.13)
 \end{align}</p>
 </div>
 <div class="paragraph">
@@ -1461,8 +1461,8 @@ l(\theta) &amp; = p(Y|X;\theta) \\
 \frac{\partial}{\partial h_{\theta}(x_{j})} &amp; = (\frac{1}{1+e^{-{ \theta^{T} } x}})^{'} \\
 &amp; = [(1 + e^{- \theta^{T} x})^{-1} ]^{'} \\
 &amp; = (-1) (1 + e^{- \theta^{T} x})^{-2} e^{- \theta^{T} x} (- x^{j} ) \\
-&amp; = x_{j} ·\frac{ e^{ \theta^{T} } x}{ (1 + e^{ \theta^{T} x} )^{2} } \\
-&amp; = x_{j} ·\frac{ 1+ e^{ \theta^{T} x} -1}{ (1 + e^{ \theta^{T} x} )^{2} } \\
+&amp; = x_{j} ·\frac{ e^{- \theta^{T} } x}{ (1 + e^{- \theta^{T} x} )^{2} } \\
+&amp; = x_{j} ·\frac{ 1+ e^{- \theta^{T} x} -1}{ (1 + e^{- \theta^{T} x} )^{2} } \\
 &amp; = x_{j}· [( h_{\theta}(x) )^{2} - h_{\theta}(x)] \\
 &amp; = x_{j}· h_{\theta}(x)(1 - h_{\theta}(x) ) \hspace{3cm} (2.18)
 \end{align}</p>
