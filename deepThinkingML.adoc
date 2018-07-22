@@ -62,8 +62,8 @@ include::recommendation.adoc[]
 //第十章：聚类和近邻算法
 include::clustering_nn.adoc[]
 
-//第十一章：神经网络
-include::neural_network.adoc[]
+//第十一章：贝叶斯理论
+include::bayes.adoc[]
 
 //第十二章：隐马尔可夫模型
 include::hmm.adoc[]

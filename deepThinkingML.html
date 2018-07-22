@@ -530,7 +530,7 @@ table.CodeRay td.code>pre{padding:0}
 <h1>深度思考之机器学习系列</h1>
 <div class="details">
 <span id="author" class="author">xjtu-zhongyingLi</span><br>
-<span id="revdate">2018-07-20</span>
+<span id="revdate">2018-07-22</span>
 </div>
 <div id="toc" class="toc2">
 <div id="toctitle">目录</div>
@@ -640,8 +640,25 @@ table.CodeRay td.code>pre{padding:0}
 </li>
 </ul>
 </li>
-<li><a href="#_软间隔分类器">4.5. 软间隔分类器</a></li>
-<li><a href="#_非线性支持向量机">4.6. 非线性支持向量机</a></li>
+<li><a href="#_软间隔分类器">4.5. 软间隔分类器</a>
+<ul class="sectlevel3">
+<li><a href="#_优化问题">4.5.1. 优化问题</a></li>
+<li><a href="#_合页损失">4.5.2. 合页损失</a></li>
+</ul>
+</li>
+<li><a href="#_核技巧">4.6. 核技巧</a></li>
+<li><a href="#_深度思考_4">4.7. 深度思考</a>
+<ul class="sectlevel3">
+<li><a href="#_深入理解kkt条件">4.7.1. 深入理解KKT条件</a>
+<ul class="sectlevel4">
+<li><a href="#_什么是kkt条件">4.7.1.1. 什么是KKT条件</a></li>
+<li><a href="#_等式约束优化问题">4.7.1.2. 等式约束优化问题</a></li>
+<li><a href="#_不等式约束优化问题">4.7.1.3. 不等式约束优化问题</a></li>
+</ul>
+</li>
+<li><a href="#_如何理解高斯核映射至无穷维">4.7.2. 如何理解高斯核映射至无穷维</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li><a href="#_主题模型">5. 主题模型</a>
@@ -692,7 +709,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_决策树和集成学习">8. 决策树和集成学习</a></li>
 <li><a href="#_推荐系统">9. 推荐系统</a></li>
 <li><a href="#_聚类和近邻算法">10. 聚类和近邻算法</a></li>
-<li><a href="#_神经网络">11. 神经网络</a></li>
+<li><a href="#_贝叶斯理论_2">11. 贝叶斯理论</a></li>
 <li><a href="#_隐马尔可夫模型">12. 隐马尔可夫模型</a></li>
 <li><a href="#_条件随机场">13. 条件随机场</a></li>
 <li><a href="#_深度学习概论">14. 深度学习概论</a></li>
@@ -705,7 +722,16 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_生成对抗网络">21. 生成对抗网络</a></li>
 <li><a href="#_迁移学习">22. 迁移学习</a></li>
 <li><a href="#_强化学习">23. 强化学习</a></li>
-<li><a href="#_数学之美">24. 数学之美</a></li>
+<li><a href="#_数学之美">24. 数学之美</a>
+<ul class="sectlevel2">
+<li><a href="#_数学中的空间">24.1. 数学中的空间</a>
+<ul class="sectlevel3">
+<li><a href="#_空间关系">24.1.1. 空间关系</a></li>
+<li><a href="#_希尔伯特空间">24.1.2. 希尔伯特空间</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a href="#_深度学习框架">25. 深度学习框架</a></li>
 <li><a href="#_走进互联网">26. 走进互联网</a></li>
 </ul>
@@ -2699,11 +2725,337 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 </div>
 <div class="sect2">
 <h3 id="_软间隔分类器">4.5. 软间隔分类器</h3>
-
+<div class="sect3">
+<h4 id="_优化问题">4.5.1. 优化问题</h4>
+<div class="paragraph">
+<p>上节我们讲解了线性可分问题的支持向量机学习方法，而在实际中，这种完全线性可分的情况很少，因此不适用于对线性不可分训练的情况，
+如何才能将上节结论推广到线性不可分的问题呢？<br></p>
+</div>
+<div class="paragraph">
+<p>这就需要修改硬间隔最大化，使其成为软间隔最大化，当然这种情况，我们需要假设训练数据中有少量特异点，将这些特异点去掉后，
+剩下的大部分的样本点组成的集合是线性可分的。<br></p>
+</div>
+<div class="paragraph">
+<p>线性不可分意味着某些样本点\((X_{i}, y_{i})\)不能满足间隔大于等于1的约束条件。为了解决这个问题，可以给每个样本引入一个松弛因子，
+\(\xi \geq 0\)，使得函数间隔加上松弛变量大于等于1，这样约束条件就变味：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[y_{i}( w \cdot x_{i} + b) \geq 1 - \xi\]
+</div>
+</div>
+<div class="paragraph">
+<p>同时，对每个松弛变量，支持一个代价，则目标函数变成：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{1}{2}||w||^{2} + C \sum_{i=1}^{N} \xi_{i}\]
+</div>
+</div>
+<div class="paragraph">
+<p>其中，\(C &gt; 0\)称为惩罚参数，一般由应用问题决定，属于超参数，取值大时，意味着对误分类的惩罚增大，目标函数包含两层含义：使得间隔
+尽量大，同时使误分类点的个数尽量小。<br></p>
+</div>
+<div class="paragraph">
+<p>根据上面的思路就可以解决训练数据集线性不可分(近似可分)的问题，线性不可分的线性支持向量机的学习问题就变成了如下的凸二次规划问题:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\underset{w,b, \xi}{min} \hspace{1cm} &amp; \frac{1}{2}||w||^{2}+C \sum_{i=1}^{N}\xi_{i} \\
+s.t. \hspace{1cm} &amp; y_{i}(w \cdot x_{i} + b) \geq 1-\xi_{i}, \hspace{0.2cm}i=1,2,&#8230;&#8203;,N \\
+&amp; \xi_{i} \geq 0, \hspace{0.2cm} i=1,2,&#8230;&#8203;,N
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>上述的优化问题基本等同于上节优化问题，具体的推导这里不再赘述，可以参考上节推导过程，或者直接参考李航博士的 <code>统计学习方法</code> 一书。<br></p>
+</div>
+<div class="paragraph">
+<p>上节我们已经了解到了线性可分的问题，支持向量都在间隔边界上，但是线性不可分的情况稍微复杂，这些支持向量可以位于间隔边界上，间隔边界内甚至是误分类的一侧。</p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_合页损失">4.5.2. 合页损失</h4>
+<div class="paragraph">
+<p>其实线性支持向量机还有另一种解释，就是利用前面讲到的损失函数的概念进行描述，相当于最小化以下目标函数:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\sum_{i=1}^{N}[1- y_{i} (w \cdot x_{i} + b)]_{+} + \lambda ||w||^{2}\]
+</div>
+</div>
+<div class="paragraph">
+<p>其中第一项对应经验损失，而函数<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L(y(w \cdot x + b )) = [ 1- y(w \cdot x + b)]_{+}\]
+</div>
+</div>
+<div class="paragraph">
+<p>称为合页损失，下标表示以下取正值得函数:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[[z]_{+} = \left\{\begin{matrix}
+z, &amp;  z &gt; 0\\
+0, &amp;  z \leq 0
+\end{matrix}\right.\]
+</div>
+</div>
+</div>
 </div>
 <div class="sect2">
-<h3 id="_非线性支持向量机">4.6. 非线性支持向量机</h3>
-
+<h3 id="_核技巧">4.6. 核技巧</h3>
+<div class="paragraph">
+<p>关于 <code>核技巧</code> 实际同支持向量机模型没有必然的联系，是一个完全独立的方向，只是为了使用支持向量机处理线性不可分的训练样本时，
+通过引入核技巧可以完美解决问题。本节我们也不打算详细讲解核技巧，只说其在支持向量机中的应用，但是其实也是比较简单。<br></p>
+</div>
+<div class="paragraph">
+<p>首先，用线性分类方法求解非线性分类问题分为两步：首先使用变换将原空间的数据映射到新空间；然后在新空间里使用线性分类学习方法从训练数据中学习分类模型，
+而核技巧就是属于这样的方法。<br></p>
+</div>
+<div class="paragraph">
+<p>核技巧应用于支持向量机的基本思路就是：通过一个非线性变换将输入空间对应于一个特殊空间(希尔伯特空间)，使得在输入空间中的超曲面模型对应于特征空间中的超平面模型，
+说白了就是在输入空间只能通过非线性的曲面分割的问题可以在特征空间线性分割。这样分类模型的学习任务通过在特征空间中求解线性支持向量机就可以完成。<br></p>
+</div>
+<div class="paragraph">
+<p>由于支持向量机的特殊性，我们其实可以不需要显示地将输入空间的训练数据分别映射到特征空间，即寻找这个转换函数，我们其实只需要求得输入数据在特征空间中的内积就可以，
+这是由于我们的优化目标，见公式(4.17)中仅涉及输入数据的内积运算。这个内积运算\(x_{i} \cdot x_{j}\)，可以直接用核函数来\(K(x_{i}, x_{j})\)代替，此时对偶问题的目标函数就变为了:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[W(\alpha) = \frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} K(x_{i}, x_{j}) - \sum_{i=1}^{N} \alpha_{i}\]
+</div>
+</div>
+<div class="paragraph">
+<p>这等价于经过映射函数将原来的输入空间变换到一个新的特征空间，将输入空间的内积变换为特征空间的内积，在新的特征空间中学习线性支持向量机，当映射函数是非线性函数时，
+学习到的含有核函数的支持向量机就是非线性分类模型。<br></p>
+</div>
+<div class="paragraph">
+<p>也就是说，在核函数给定的条件下，可以利用解线性分类问题的方法求解非线性分类问题的支持向量机。而学习是隐式地在特征空间进行的，不需要显示的定义特征空间和映射函数，
+这样的技巧就称为 <code>核技巧</code>.</p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_深度思考_4">4.7. 深度思考</h3>
+<div class="paragraph">
+<p>本章主要涉及的思考题包括:<br></p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>如何理解KKT条件</p>
+</li>
+<li>
+<p>为什么说高斯核可以将数据映射到无穷维</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_深入理解kkt条件">4.7.1. 深入理解KKT条件</h4>
+<div class="sect4">
+<h5 id="_什么是kkt条件">4.7.1.1. 什么是KKT条件</h5>
+<div class="paragraph">
+<p>对于具有等式和不等式约束条件的一般优化问题<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+&amp; min, \hspace{0.2cm} f(x) \\
+&amp; s.t. \hspace{0.2cm}  g_{j}(x) \leq 0, \hspace{0.2cm}(j=1,2,&#8230;&#8203;,m) \\
+&amp; h_{k}(x)=0, \hspace{0.2cm} (k=1,2, &#8230;&#8203;,l)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p><code>KKT</code> 条件给出了判断\(x^{*}\)是否为最优解得必要条件，即:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\left\{\begin{matrix}
+&amp; \frac{\partial f}{\partial x_{i}} + \sum_{j=1}^{m} \mu_{j} \frac{\partial g_{j}}{\partial x_{i}} + \sum_{k=1}^{l} \lambda_{k} \frac{\partial h_{k}}{\partial x_{i}} = 0\\
+&amp; h_{k}(x) = 0, (k = 1, 2, &#8230;&#8203;, l)\\
+&amp; \mu_{j} g_{j}(x) = 0, (j=1,2,&#8230;&#8203;,m) \\
+&amp; \mu_{j} \leq 0
+\end{matrix}\right.
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>注意不等式的约束条件，必要条件里已经转换为了严格成立，即\(\mu_{j} g_{j}(x) = 0\)，这也就意味者不等式约束函数和拉格朗日乘子至少有一个为0，这也是支持向量的由来。<br></p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_等式约束优化问题">4.7.1.2. 等式约束优化问题</h5>
+<div class="paragraph">
+<p>约束条件共分为两类，首先讨论较为简单的等式约束条件，对于等式约束条件的优化问题，常用的方法就是拉格朗日法，即把等式约束gi(x)用一个系数与f(x)写为一个式子，称为拉格朗日函数，而系数称为拉格朗日乘子。
+通过拉格朗日函数对各个变量求导，令其为零，可以求得候选值集合，然后验证求得最优值。为什么可以这样呢？接下来我们给予证明:<br></p>
+</div>
+<div class="paragraph">
+<p>我们考虑下面的问题:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\left\{\begin{matrix}
+min &amp; f(x,y)\\
+s.t.&amp;g(x,y)=0
+\end{matrix}\right.
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>我们首先画出\(f(x,y)\)的等高线，然后画出\(g(x,y)=0\)这条曲线，如下图所示:<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/equeal.png" alt="equeal" width="30%" height="35%">
+</div>
+<div class="title">图 8. 等式约束</div>
+</div>
+<div class="paragraph">
+<p><strong>我们的目标是在曲线\(g(x,y)=0\)上找到一点使\(f(x,y)\)最小</strong>，我们先看等高线\(f(x,y)=2\)，发现它与\(g(x,y)=0\)有两个交点，
+我们想象当\(f(x,y)\)的值不断变小，\(g(x,y)=0\)与与等高线从有两个交点到若即若离的状态（一个交点，相切），最后没有交点。
+相切得那个点一定比之前的两个交点值更小，因此只有等高线和曲线相切的时候，才可能取到最优值。<br></p>
+</div>
+<div class="paragraph">
+<p>如上图所示，即等高线和曲线在切点的法向量必须有相同方向，这个点就是我们的目标点，我们知道这个目标点的切线与函数和曲线在该点的法线都垂直，
+然后我们知道法线可以用该点的梯度表示，因此，我们可以得到目标点处满足:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+&amp; \nabla f(x^{ * }, y^{ * }) = \lambda \nabla g(x^{ * }, y^{ * }) \\
+&amp; \nabla L(x^{ * }, y^{ * }, \lambda) = 0
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>于是我们构造函数:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L(x,y,\lambda) = f(x,y) - \lambda g(x,y)\]
+</div>
+</div>
+<div class="paragraph">
+<p>求解它的最优解就等价于求原带约束的优化问题的最优解。<br></p>
+</div>
+</div>
+<div class="sect4">
+<h5 id="_不等式约束优化问题">4.7.1.3. 不等式约束优化问题</h5>
+<div class="paragraph">
+<p>KKT条件可以看成是拉格朗日乘子法的进一步推广，即对于不等式约束条件，如何求最优值问题，常用的方法是 <code>KKT条件</code>.首先看下这类问题:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\left\{\begin{matrix}
+min &amp; f(x,y)\\
+s.t.&amp;g_{i}(x) \leq 0
+\end{matrix}\right.
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>我们的目标是在下图中阴影去或者边界找到一个点使得目标函数值最小。 <br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/nequal.png" alt="nequal" width="50%" height="55%">
+</div>
+<div class="title">图 9. 不等式约束</div>
+</div>
+<div class="paragraph">
+<p>要求是\(g(x) \leq 0\)也就是是说图中的阴影区我们是要在阴影区或者边界上找一个点，使得\(f(x,y)\)最小，我们把他分成两种情况：<br></p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>如果最优解恰好在这条边界上，等价于前面讲到的等式约束，那么这个就可以通过拉格朗日来求解</p>
+</li>
+<li>
+<p>如果最优解在阴影区内部，我们是要找最优解，这个最优解不在边界上，在他内部，如果在内部那这个解一定是单纯考虑\(f(x,y)\)的最优解，也就是直接求\(\nabla f(x,y)= 0\)的解</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>关于第二点，其实也很好理解，因为约束条件内包含了原始问题的最优解，也就是约束条件下的最优解等于原来问题的最优解，换句话说约束条件没用，那就可以让其对应的拉格朗日乘子为0就好了。<br></p>
+</div>
+<div class="paragraph">
+<p>我们写出拉格朗日的函数如下:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L(x, \lambda) = f(x) - \sum_{i=1}^{m} \lambda_{i} g_{i}(x)\]
+</div>
+</div>
+<div class="paragraph">
+<p>综合上述两种情况，我们可以得到在最优解\(x=x^{*}\)处，应满足以下条件:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+&amp; \nabla_{x} L(x^{ * }, \mu^{ * }, \lambda^{ * }) = 0 \\
+&amp; \nabla_{\mu} L(x^{ * }, \mu^{ * }, \lambda^{ * }) = 0 \\
+&amp; \nabla_{\lambda} L(x^{ * }, \mu^{ * }, \lambda^{ * }) = 0 \\
+&amp; \mu_{j}^{ * } g_{j}(x^{ * }) = 0, &amp; \hspace{1cm} j=1,2,&#8230;&#8203;,m \\
+&amp; g_{j}(x^{ * }) \leq 0, &amp; \hspace{1cm} j=1,2,&#8230;&#8203;,m \\
+&amp; h_{i}(x^{ * } = 0), &amp; \hspace{1cm} i=1,2,&#8230;&#8203;,l\\
+&amp; \lambda_{i}^{ * } \geq 0, &amp; \hspace{1cm} i=1,2,&#8230;&#8203;,m
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>我们直接从约束条件推出了 <code>KKT条件</code>,这个例子中的有些函数符号有点乱，不过倒是不影响理解，这里没有修订，是因为图片懒得自己画了，谅解.<br></p>
+</div>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_如何理解高斯核映射至无穷维">4.7.2. 如何理解高斯核映射至无穷维</h4>
+<div class="paragraph">
+<p>假设我们的核函数为\(k(x,y)=(x^{T} y)^{2}\)，输入数据的维度为2，两个数据分别为\(X=(x_{1}, y_{1})\), \(Y=(x_{2}, y_{2})\)，则<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[k(x,y) = (x_{1} y_{1} + x_{2}y_{2})^{2}=x_{1}^{2} x_{2}^{2} + 2x_{1} x_{2} y_{1} y_{2} + x_{2}^{2} y_{2}^{2}\]
+</div>
+</div>
+<div class="paragraph">
+<p>找到特征映射\(\Phi\)，因为\(k(x,y) = \Phi (x) \Phi (y)\)，所以: \(\Phi = (x_{1}^{2}, \sqrt{2} x_{1}^{2} x_{2}^{2} , x_{2}^{2})\) 将数据从两维空间 \(R^{2}\) 映射到三维空间\(R^{3}\).<br>
+刚才的核函数为一般的多项式核，再来看下高斯核：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[k(x,y) = exp(-||x-y||^{2})\]
+</div>
+</div>
+<div class="paragraph">
+<p>同样每个向量的维度为2,两向量\(X=(x_{1}, y_{1})\), \(Y=(x_{2}, y_{2})\)，则<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[k(x,y) = exp( -||x_{1} - y_{1}||^{2} - ||x_{2} - y_{2}||^{2} ) = exp(-||x||^{2})exp(-||y||^{2})exp(2xy)\]
+</div>
+</div>
+<div class="paragraph">
+<p>根据泰勒展开式:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[e^{x} = \sum_{n=0}^{\infty} \frac{x^{n}}{n!}\]
+</div>
+</div>
+<div class="paragraph">
+<p>带入上式，得到:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[k(x,y) = exp(-||x||^{2})exp(-||y||^{2}) \sum_{n=0}^{\infty} \frac{(2x^{T} y)^{n}}{n!}\]
+</div>
+</div>
+<div class="paragraph">
+<p>可以看出公式中的的泰勒展开式其实是0-n维的多项式核函数的和,我们知道多项式核函数将低维数据映射到高维(维度是有限的)，那么对于无限个不同维的多项式核函数之和的高斯核，其中也包括无穷维度的多项式核函数,
+因此高斯核可以将输入维度从低维空间映射到无穷维。<br></p>
+</div>
+</div>
 </div>
 </div>
 </div>
@@ -2748,7 +3100,7 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 <div class="content">
 <img src="images/miss_topic.png" alt="miss topic" width="30%" height="35%">
 </div>
-<div class="title">图 8. 跑题</div>
+<div class="title">图 10. 跑题</div>
 </div>
 <div class="paragraph">
 <p>在继续阅读前，大家可以想一个问题，我们的模型是否真的可以学出来？我个人任务这个思考很有意义，而且我也认为一定是可以学的出来，大家可以想下：文章是如何产生的？
@@ -2784,7 +3136,7 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 <div class="content">
 <img src="images/topic_word_article.png" alt="topic word article" width="50%" height="55%">
 </div>
-<div class="title">图 9. 跑题</div>
+<div class="title">图 11. 跑题</div>
 </div>
 </div>
 <div class="sect3">
@@ -2840,13 +3192,13 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 <div class="content">
 <img src="images/article_topic_alloc.png" alt="article topic alloc" width="50%" height="55%">
 </div>
-<div class="title">图 10. 文章主题分布</div>
+<div class="title">图 12. 文章主题分布</div>
 </div>
 <div class="imageblock">
 <div class="content">
 <img src="images/article_topic_alloc_line.png" alt="article topic alloc line" width="50%" height="55%">
 </div>
-<div class="title">图 11. 文章主题分布-平滑</div>
+<div class="title">图 13. 文章主题分布-平滑</div>
 </div>
 <div class="paragraph">
 <p>统计的过程比较简单，对文章进行分词，然后按照主题进行统计，上图可以看出第一篇文章的主题是武侠，第二篇文章的主题是教育，对于平滑后的分布图，可以看出最高点就是文章对应的主题，这里假设每个文章只有一个主题。
@@ -2902,7 +3254,7 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 <div class="content">
 <img src="images/transfer_prob.png" alt="transfer prob" width="50%" height="55%">
 </div>
-<div class="title">图 12. 收入阶层的转换概率</div>
+<div class="title">图 14. 收入阶层的转换概率</div>
 </div>
 <div class="paragraph">
 <p>使用矩阵的表达方式，转换概率矩阵记为：</p>
@@ -2911,7 +3263,7 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 <div class="content">
 <img src="images/transfer_matrix.png" alt="transfer matrix" width="30%" height="35%">
 </div>
-<div class="title">图 13. 转换概率矩阵</div>
+<div class="title">图 15. 转换概率矩阵</div>
 </div>
 <div class="paragraph">
 <p>假定当前一代人处于下层、中层和上层的人的比例是概率分布向量\(\pi_{0}=[\pi_{0}(1),\pi_{0}(2),\pi_{0}(3)]\),那么他们子女的分布比例将是\(\pi_{1}=\pi_{0}P\),他们孙子代的分布比例将是\(\pi_{2}=\pi_{1}P=\pi_{0}P^{2},&#8230;&#8203;\),
@@ -2924,7 +3276,7 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 <div class="content">
 <img src="images/alloc_example.png" alt="alloc example" width="30%" height="35%">
 </div>
-<div class="title">图 14. 前n代人的分布状态</div>
+<div class="title">图 16. 前n代人的分布状态</div>
 </div>
 <div class="paragraph">
 <p>我们发现从第7代人开始，这个分布就稳定不变了，这个是偶然吗？我们换一个初始概率分布\(\pi_{0}=[0.75, 0.15, 0.1]\)试试看，继续计算前n代人的分布状况如下：<br></p>
@@ -2933,7 +3285,7 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 <div class="content">
 <img src="images/alloc_example2.png" alt="alloc example2" width="30%" height="35%">
 </div>
-<div class="title">图 15. 前n代人的分布状态</div>
+<div class="title">图 17. 前n代人的分布状态</div>
 </div>
 <div class="paragraph">
 <p>我们发现到第9代的时候，分布又收敛了。最奇怪的是，两次给定不同的初始概率分布，最终都收敛到概率分布\(\pi=[0.286, 0.489, 0.225]\)，也就是说 <code>收敛的行为和初始概率分布无关</code>。走到这一步，你一定会惊叹：<br>
@@ -3109,7 +3461,7 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 <div class="content">
 <img src="images/markov_transfer_accept.png" alt="markov transfer accept" width="50%" height="55%">
 </div>
-<div class="title">图 16. 马氏链转移和接受概率</div>
+<div class="title">图 18. 马氏链转移和接受概率</div>
 </div>
 <div class="paragraph">
 <p>把以上的过程整理一下，我们就可以得到如下的用于采样的概率分布\(p(x)\)的算法：<br></p>
@@ -3118,7 +3470,7 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 <div class="content">
 <img src="images/hastings_algorithm.png" alt="hastings algorithm" width="50%" height="55%">
 </div>
-<div class="title">图 17. MCMC采样算法</div>
+<div class="title">图 19. MCMC采样算法</div>
 </div>
 <div class="paragraph">
 <p>以上过程不仅适应于离散的情形，对于分布是连续的，以上算法仍然有效。以上的 <code>MCMC</code> 算法已经能很漂亮的工作了，不过它有一个小问题：马氏链在状态转移过程中的接受率\(\alpha(i,j)\)可能偏小，
@@ -3155,7 +3507,7 @@ b2,&amp;if \hspace{0.3cm} 0 \leq \alpha_{2}^{new} \leq C \\
 <div class="content">
 <img src="images/metropolis-hastings.png" alt="metropolis hastings" width="50%" height="55%">
 </div>
-<div class="title">图 18. Metropolis-Hastings算法</div>
+<div class="title">图 20. Metropolis-Hastings算法</div>
 </div>
 <div class="paragraph">
 <p><strong>至此，我们已经得到了一个解决方案，即不论我们给文档中的每个词初始化哪个主题编号，只要找到转移矩阵，我们都可以在迭代有限步后收敛到主题和词的稳定分布</strong>，伟大的 <code>Metropolis-Hastings</code> 算法就是我们的救世主，
@@ -3229,7 +3581,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/gibbs_algorithm.png" alt="gibbs algorithm" width="50%" height="55%">
 </div>
-<div class="title">图 19. Gibbs Sampling算法</div>
+<div class="title">图 21. Gibbs Sampling算法</div>
 </div>
 <div class="paragraph">
 <p>如图所示，马氏链的转移只是轮换的沿着坐标轴做转移，于是得到样本\((x_{0}, y_{0}), (x_{0},y_{1}), (x_{1}, y_{1}), (x_{1}, y_{2}), &#8230;&#8203;\)，
@@ -3261,7 +3613,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/nd_gibbs.png" alt="nd gibbs" width="50%" height="55%">
 </div>
-<div class="title">图 20. n维Gibbs Sampling算法</div>
+<div class="title">图 22. n维Gibbs Sampling算法</div>
 </div>
 </div>
 </div>
@@ -3368,7 +3720,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/plsa_holy.png" alt="plsa holy" width="50%" height="55%">
 </div>
-<div class="title">图 21. 游戏：PLSA主题模型</div>
+<div class="title">图 23. 游戏：PLSA主题模型</div>
 </div>
 <div class="paragraph">
 <p>以上 <code>PLSA</code> 模型的文档生成的过程可以图形化的表示为：<br></p>
@@ -3377,7 +3729,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/plsa_doc_gen.png" alt="plsa doc gen" width="50%" height="55%">
 </div>
-<div class="title">图 22. PLSA模型的文档生成过程</div>
+<div class="title">图 24. PLSA模型的文档生成过程</div>
 </div>
 <div class="paragraph">
 <p>我们可以发现，按照上面的游戏规则，文档和文档之间是独立可交换的，同一个文档内的词也是独立可交换的，这是一个典型的词袋 <code>bag-of-words</code> 模型。
@@ -3434,7 +3786,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/game_one.png" alt="game one" width="50%" height="55%">
 </div>
-<div class="title">图 23. 游戏1</div>
+<div class="title">图 25. 游戏1</div>
 </div>
 <div class="paragraph">
 <p>对于上面的游戏而言\(n=10, k=7\)，如果我们能求出\(X_{(7)}\)的分布的概率密度，那么用概率密度的极值点去做猜测就是最好的策略。那么对于一般的情形，\(X_{(k)}\)的分布是什么呢？
@@ -3453,7 +3805,7 @@ Q(A \rightarrow D) = 0 \hspace{5cm} other\]
 <div class="content">
 <img src="images/thing_E.png" alt="thing E" width="50%" height="55%">
 </div>
-<div class="title">图 24. 事件E</div>
+<div class="title">图 26. 事件E</div>
 </div>
 <div class="paragraph">
 <p>则有：<br></p>
@@ -3586,7 +3938,7 @@ f(x) &amp; = \lim_{\Delta x \to0 }\frac{P(x\leq X_{(k)} \leq x+\Delta x)}{\Delta
 <div class="content">
 <img src="images/game2.png" alt="game2" width="50%" height="55%">
 </div>
-<div class="title">图 25. 游戏2</div>
+<div class="title">图 27. 游戏2</div>
 </div>
 <div class="paragraph">
 <p>我看网上很多人质疑 <code>Richjin</code> 给出的这几个例子，我觉得质疑者多半是没有看懂这些例子背后的含义。让我们仔细阅读上面的游戏规则，
@@ -3672,7 +4024,7 @@ P(p|m_{1}, m_{2}) &amp; = \frac{P(p)\cdot P(m_{1}, m_{2}|p)}{P(m_{1}, m_{2})} \\
 <div class="content">
 <img src="images/beta-alloc.png" alt="beta alloc" width="50%" height="55%">
 </div>
-<div class="title">图 26. 百变星君Beta分布</div>
+<div class="title">图 28. 百变星君Beta分布</div>
 </div>
 <div class="paragraph">
 <p><code>Beta</code> 分布的概率密度我们把它画成图，会发现它是百变星君，而均匀分布也是特殊的 <code>Beta</code> 分布，由于 <code>Beta</code> 分布能够拟合如此之多的形状，因此它在统计数据拟合和贝叶斯分析中被广泛使用。<br></p>
@@ -3984,7 +4336,7 @@ E(p) &amp; = \frac{\Gamma(\alpha + \beta)}{\Gamma(\alpha) \Gamma(\beta)} \cdot \
 <div class="content">
 <img src="images/lda-graph-model.png" alt="lda graph model" width="30%" height="35%">
 </div>
-<div class="title">图 27. LDA概率图模型表示</div>
+<div class="title">图 29. LDA概率图模型表示</div>
 </div>
 <div class="paragraph">
 <p>这个概率图模型可以分解为两个主要的物理过程：<br></p>
@@ -4093,7 +4445,7 @@ p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) &amp; \propto p(z_{i}=k, w_{i}=t \m
 <div class="content">
 <img src="images/gibbs_path.png" alt="gibbs path" width="50%" height="55%">
 </div>
-<div class="title">图 28. Gibbs采样路径概率</div>
+<div class="title">图 30. Gibbs采样路径概率</div>
 </div>
 </div>
 <div class="sect4">
@@ -4126,7 +4478,7 @@ p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) &amp; \propto p(z_{i}=k, w_{i}=t \m
 <div class="content">
 <img src="images/train.png" alt="train" width="50%" height="55%">
 </div>
-<div class="title">图 29. LDA训练过程</div>
+<div class="title">图 31. LDA训练过程</div>
 </div>
 <div class="paragraph">
 <p>由这个 <code>topic-word</code> 频率矩阵我们可以计算每一个\(p(word|topic)\)概率，从而算出模型的参数，通常在 <code>LDA</code> 模型训练的过程中，我们是取 <code>Gibbs Sampling</code> 收敛之后的\(n\)个迭代的结果进行平均来做参数估计，这样模型质量更高。<br></p>
@@ -4139,7 +4491,7 @@ p(z_{i} = k \mid \vec{z_{\neg i }}, \vec{w}) &amp; \propto p(z_{i}=k, w_{i}=t \m
 <div class="content">
 <img src="images/inference.png" alt="inference" width="50%" height="55%">
 </div>
-<div class="title">图 30. LDA推演过程</div>
+<div class="title">图 32. LDA推演过程</div>
 </div>
 </div>
 </div>
@@ -4235,7 +4587,7 @@ Q_{i}(z^{i}) &amp; = \frac{p(x^{i} , z^{i} ; \theta)}{ \sum_{i=0}^{m} p(x^{i} , 
 <div class="content">
 <img src="images/em.png" alt="em" width="50%" height="55%">
 </div>
-<div class="title">图 31. EM算法伪代码</div>
+<div class="title">图 33. EM算法伪代码</div>
 </div>
 </div>
 <div class="sect4">
@@ -4393,7 +4745,7 @@ p(z_{k} \mid d_{i}, w_{j}) &amp; = \frac{p(z_{k}, d_{i}, w_{j})}{\sum_{l=1}^{K} 
 </div>
 </div>
 <div class="sect1">
-<h2 id="_神经网络">11. 神经网络</h2>
+<h2 id="_贝叶斯理论_2">11. 贝叶斯理论</h2>
 <div class="sectionbody">
 
 </div>
@@ -4473,7 +4825,53 @@ p(z_{k} \mid d_{i}, w_{j}) &amp; = \frac{p(z_{k}, d_{i}, w_{j})}{\sum_{l=1}^{K} 
 <div class="sect1">
 <h2 id="_数学之美">24. 数学之美</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="_数学中的空间">24.1. 数学中的空间</h3>
+<div class="sect3">
+<h4 id="_空间关系">24.1.1. 空间关系</h4>
+<div class="paragraph">
+<p>研究数学的学者对各种空间完全可以驾轻就熟，但是对于计算机专业又是刚开始搞机器学习的同学来说，未必能很好的掌握。<br>
+比如：什么是赋范线性空间、内积空间，度量空间，希尔伯特空间 ？<br></p>
+</div>
+<div class="paragraph">
+<p>现代数学的一个特点就是以集合为研究对象，这样的好处就是可以将很多不同问题的本质抽象出来，变成同一个问题，当然这样的坏处就是描述起来比较抽象，很多人就难以理解了。<br></p>
+</div>
+<div class="paragraph">
+<p>既然是研究集合，每个人感兴趣的角度不同，研究的方向也就不同。为了能有效地研究集合，必须给集合赋予一些“结构”（从一些具体问题抽象出来的结构）。
+从数学的本质来看，最基本的集合有两类：线性空间（有线性结构的集合）、度量空间（有度量结构的集合）。<br></p>
+</div>
+<div class="paragraph">
+<p>对线性空间而言，主要研究集合的描述，直观地说就是如何清楚地告诉地别人这个集合是什么样子。为了描述清楚，就引入了基（相当于三维空间中的坐标系）的概念，
+所以对于一个线性空间来说，只要知道其基即可，集合中的元素只要知道其在给定基下的坐标即可。但线性空间中的元素没有“长度”（相当于三维空间中线段的长度），
+为了量化线性空间中的元素，所以又在线性空间引入特殊的“长度”，即范数。赋予了范数的线性空间即称为赋犯线性空间。但赋范线性空间中两个元素之间没有角度的概念，
+为了解决该问题，所以在线性空间中又引入了内积的概念。因为有度量，所以可以在度量空间、赋范线性空间以及内积空间中引入极限，但抽象空间中的极限与实数上的极限有一个很大的不同就是，
+极限点可能不在原来给定的集合中，所以又引入了完备的概念，完备的内积空间就称为Hilbert空间。<br></p>
+</div>
+<div class="paragraph">
+<p>这几个空间之间的关系是：线性空间与度量空间是两个不同的概念，没有交集。赋范线性空间就是赋予了范数的线性空间，也是度量空间（具有线性结构的度量空间）内积空间是赋范线性空间希尔伯特空间就是完备的内积空间。<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_希尔伯特空间">24.1.2. 希尔伯特空间</h4>
+<div class="paragraph">
+<p>做个类比,一般的3D矢量空间(我们最常见的)和Hilbert空间.在3D的矢量空间中, 基底是i,j,k. 维度是3(有限维). 这三个基本的基矢量是完备的(矢量空间中任何一个元素都可以用这3个基底展开,系数唯一), 正交的(不同的基底做点积为0.). <br></p>
+</div>
+<div class="paragraph">
+<p>矢量空间中的任意两个元素之间可以定义算符F, 也就是操作. 我们常常对保持元素A长度(自己和自己点积,A*A)不变的操作感兴趣, 这样的操作形象上讲是转动, 抽象些讲是满足\(F^{2}=1\)的操作,或者叫变换.<br></p>
+</div>
+<div class="paragraph">
+<p>好了, 再看看Hilbert空间, 基底一般是函数,常见的是含有各种频率的平面波函数,一种频率对应一个基底 维度是无穷.这些基底, 即平面波函数是完备的(Hilbert空间中的任何元素都可以用平面波函数展开, 其实就是指傅里叶变换),
+正交(平面波函数做"点积"为delta函数). <br></p>
+</div>
+<div class="paragraph">
+<p>Hilbert空间中任意两元素也可以定义算符G, 也就是操作. 我们常常对保持元素"长度"(自己和自己"点积")不变的操作感兴趣. 由于Hilbert空间是复数域上的,常见的3D矢量空间是实数域上的, 所以\(G^{2}=1\) 的G 和F 是不同的, 虽然表达式相同.<br></p>
+</div>
+<div class="paragraph">
+<p>建立Hilbert空间的目的是为量子力学中的计算提供强有力的数学基础, 也方便了抽象出其中更本质的运算.包括之后进行的关于对称性的讨论, 都是定义在Hilbert空间上的.注意上面的论述中并没有涉及到矩阵.
+因为矩阵其实只是抽象定义的一种表现, 或者说是抽象的定义的一种表示(representation)而已. 这是群论的思想.所有这些后面发展起来的表示理论, 在Hilbert空间中表示后,(尤其是算符的表示)显得非常重要.</p>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -4491,7 +4889,7 @@ p(z_{k} \mid d_{i}, w_{j}) &amp; = \frac{p(z_{k}, d_{i}, w_{j})}{\sum_{l=1}^{K} 
 </div>
 <div id="footer">
 <div id="footer-text">
-最后更新时间 2018-07-20 14:02:51 CST
+最后更新时间 2018-07-22 16:02:56 CST
 </div>
 </div>
 <script type="text/x-mathjax-config">
