@@ -704,7 +704,20 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_终篇">5.4. 终篇</a></li>
 </ul>
 </li>
-<li><a href="#_最大熵理论和多分类器">6. 最大熵理论和多分类器</a></li>
+<li><a href="#_最大熵理论和多分类器">6. 最大熵理论和多分类器</a>
+<ul class="sectlevel2">
+<li><a href="#_最大熵原理">6.1. 最大熵原理</a>
+<ul class="sectlevel3">
+<li><a href="#_最大熵模型的定义">6.1.1. 最大熵模型的定义</a></li>
+<li><a href="#_最大熵模型的推导">6.1.2. 最大熵模型的推导</a></li>
+<li><a href="#_多分类器">6.1.3. 多分类器</a></li>
+</ul>
+</li>
+<li><a href="#_指数分布簇">6.2. 指数分布簇</a></li>
+<li><a href="#_广义线形模型">6.3. 广义线形模型</a></li>
+<li><a href="#_广义线形模型应用_多项式分布">6.4. 广义线形模型应用-多项式分布</a></li>
+</ul>
+</li>
 <li><a href="#_em_算法">7. <code>EM</code> 算法</a></li>
 <li><a href="#_决策树和集成学习">8. 决策树和集成学习</a>
 <ul class="sectlevel2">
@@ -4753,7 +4766,554 @@ p(z_{k} \mid d_{i}, w_{j}) &amp; = \frac{p(z_{k}, d_{i}, w_{j})}{\sum_{l=1}^{K} 
 <div class="sect1">
 <h2 id="_最大熵理论和多分类器">6. 最大熵理论和多分类器</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="_最大熵原理">6.1. 最大熵原理</h3>
+<div class="paragraph">
+<p>最大熵原理是概率学习的一个准则。最大熵原理认为：学习概率模型时，在所有可能的概率模型中，<code>熵最大的模型是最好的模型</code>.<br></p>
+</div>
+<div class="paragraph">
+<p>假设离散随机变量\(X\)的概率分布为\(P(X)\)，则其熵为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[H(P) = - \sum_{x} P(x) log \hspace{0.2cm} P(x)\]
+</div>
+</div>
+<div class="paragraph">
+<p>同时熵满足下列等式:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[ 0 \leq H(P) \leq log |X|\]
+</div>
+</div>
+<div class="paragraph">
+<p>其中\(|X|\)为\(X\)取值个数，当且仅当\(X\)的分布是均匀分布时右边的等号成立，也就是说 <code>\(X\)服从均匀分布是，熵最大</code>。<br></p>
+</div>
+<div class="sect3">
+<h4 id="_最大熵模型的定义">6.1.1. 最大熵模型的定义</h4>
+<div class="paragraph">
+<p>假设分类模型为一个条件概率模型\(P(Y|X)\),\(X,Y\)分别为输入和输出的集合，给定一个训练数据集:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[T = {(x_{1}, y_{1}), (x_{2}, y_{2}), ..., (x_{N}, y_{N})}\]
+</div>
+</div>
+<div class="paragraph">
+<p>学习的目标就是用最大熵原理选择最好的分类模型。<br>
+首先考虑模型应该满足的条件，给定数据集我们可以计算其联合分布\(P(X,Y)\)的经验分布和边缘分布\(P(X)\)的经验分布，分别定义为:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\tilde{P}(X=x, Y=y) &amp; = \frac{v(X=x, Y=y)}{N} \\
+\tilde{P}(X=x) &amp; = \frac{v(X=x)}{N}
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>其中\(v(&#8230;&#8203;)\)表示出现次数，用特征函数\(f(x,y)\)表示输入\(x\)和输出\(y\)之间满足某一个事实。则可定义为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f(x,y) = \left\{\begin{matrix}
+1, &amp; x与y满足某一个事实\\
+0, &amp; 否则
+\end{matrix}\right.\]
+</div>
+</div>
+<div class="paragraph">
+<p>特征函数关于联合经验分布的期望，用\(E_{\tilde{p}}(f)\)表示:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[E_{\tilde{p}}(f) = \sum_{x,y} \tilde{P} (x,y) f(x,y)\]
+</div>
+</div>
+<div class="paragraph">
+<p>特征函数关于边缘经验分布的期望，用\(E_{p}(f)\)表示:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[E_{p}(f) = \sum_{x,y} \tilde{P} (x) P(y | x) f(x,y)\]
+</div>
+</div>
+<div class="paragraph">
+<p>如果模型能够获得训练数据中的信息，那么就可以假设这两个期望值相等，即:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[E_{p}(f) = E_{\tilde{p}}(f)\]
+</div>
+</div>
+<div class="paragraph">
+<p>或者<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\sum_{x,y} \tilde{P}(x) P(y|x) f(x,y) = \sum_{x,y}\tilde{P}(x,y)f(x,y) \hspace{1cm} (6.1)\]
+</div>
+</div>
+<div class="paragraph">
+<p>我们将公式(6.1)作为模型学习的约束条件，下面给出最大熵模型的定义<br>
+<strong>最大熵模型</strong>: 假定满足所有约束条件的模型集合为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L = \left \{P \in p | E_{P}(f_{i}) = E_{\tilde{P}}(f_{i}) \hspace{0.4cm} i=1,2,...,n \right \}\]
+</div>
+</div>
+<div class="paragraph">
+<p>定义在条件概率\(P(Y|X)\)上的条件熵为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[H(P) = -\sum_{x,y} \tilde{P}(x) P(y|x) log \hspace{0.1cm}p(y|x)\]
+</div>
+</div>
+<div class="paragraph">
+<p>则模型集合\(L\)中条件熵最大的模型就是最大熵模型，其中对数为自然对数。<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_最大熵模型的推导">6.1.2. 最大熵模型的推导</h4>
+<div class="paragraph">
+<p>最大熵模型的学习可以形式化为约束最优化问题，等价于如下约束:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\underset{p \in C}{max} \hspace{0.4cm} H(P) &amp; = -\sum_{x,y}\tilde{P}(x) p(y|x) log \hspace{0.1cm}P(y|x) \\
+s.t. \hspace{0.5cm} E_{p}(f_{i}) &amp; = E_{\tilde{p}}(f_{i}), \hspace{0.4cm}i=1,2,&#8230;&#8203;,N \\
+\sum_{y} P(y|x) &amp; = 1
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>求解上述最优化问题，所得到的解就是最大熵模型学习的解。这里将原始问题转换为对偶问题进行求解，推导如下:<br>
+首先定义拉格朗日函数,\(L(P, w)\):<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+L(P,w) &amp; = -H(P) + w_{0} (1-\sum_{y} P(y|x)) + \sum_{i=1}^{n} w_{i}(E_{\tilde{p}}(f_{i}) - E_{p}(f_{i})) \\
+&amp; = =\sum_{x,y}\tilde{P}(x)P(y|x)log \hspace{0.1cm} p(y|x) + w_{0}(1-\sum_{y} P(y|x)) \\
+&amp; + \sum_{i=1}^{n} w_{i} ( \sum_{x,y} \tilde{P}(x,y) f_{i}(x,y) - \sum_{x,y} \tilde{P}(x)P(y|x) f_{i}(x,y))
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>由于拉格朗日函数是关于\(P\)的凸函数，所以原始问题的解和对偶问题的解相同。 原始问题是最小最大问题，对偶问题是最大最小问题。<br>
+<strong>(1)</strong>首先求内部最小问题<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L(P_{w}, w) = \underset{p \in C}{min} L(P,w)\]
+</div>
+</div>
+<div class="paragraph">
+<p>求\(L(P, w)\)对\(P(y|x)\)的偏导数<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\frac{\partial L(P, w)}{\partial P(y | x)} &amp; = \sum_{x,y} \tilde{P}(x)(log\hspace{0.1cm}P(y|x) +1) - \sum_{y}w_{0} -sum_{x,y}(\tilde{P}(x) \sum_{i=1}^{n} w_{i}f_{i}(x,y)) \\
+&amp; = \sum_{x,y} \tilde{P}(x)(log\hspace{0.1cm}P(y|x) +1 -w_{0} - \sum_{i=1}^{n} w_{i} f_{i}(x,y))
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>令偏导为0，在\(\tilde{p}(x) &gt; 0\)的情况下，解得:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[P_{w}(y|x) = exp(\sum_{i=1}^{n} w_{i} f_{i}(x,y) + w_{0} - 1) = \frac{exp(\sum_{i=1}^{n} w_{i}f_{i}(x,y))}{exp(1-w_{0})}\]
+</div>
+</div>
+<div class="paragraph">
+<p>又因为\(\sum_{y} P(y|x) = 1\)，得:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[P_{w}(y|x) = \frac{1}{Z_{w}(x)} exp(\sum_{i=1}^{n} w_{i}f_{i}(x,y))\]
+</div>
+</div>
+<div class="paragraph">
+<p>其中，<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[Z_{w}(x) =\sum_{y} exp(\sum_{i=1}^{n} w_{i}f_{i}(x,y))\]
+</div>
+</div>
+<div class="paragraph">
+<p>被成为归一化因子.<br>
+<strong>(2)</strong>最外层应用最优化算法求解，得到最优解\(w^{ * }\).<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_多分类器">6.1.3. 多分类器</h4>
+<div class="paragraph">
+<p>应用最大熵模型解决多分类问题，此时的模型就是多分类模型，假设数据的分类种类共有\(K\)个，则模型为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[P(y=k|x) = \frac{ e^{ \theta_{k}^{T} x } }{1 + \sum_{i=1}^{K-1} e^{\theta_{i}^{T} x}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>上面的公式非常好理解，你可以认为先分别计算结果为\(y=i\)类的概率，不管每个类别输出的概率是什么，都给它归一化，然后就出来累加和为1的概率，而这个概率就是对应类型的概率。<br></p>
+</div>
+<div class="paragraph">
+<p>由此可见，当逻辑回归是多分类器的一种特殊情况，其对应\(y=0\)的参数\(\theta\)为零向量。<br></p>
+</div>
+<div class="paragraph">
+<p><strong>注意</strong><br>
+相信大家已经注意到，为何有的时候归一化因子里就是个求和，而有的里面多了个1，其实这两种情况是等价的，首先大家考虑我们的问题是\(K\)分类问题，要求的是\(P(y = i| x\)),
+我们真的需要求出\(K\)个概率值吗？ 其实不需要，因为这\(K\)个概率值和为1，所以我们其实只有\(K-1\)个概率值需要计算，对应着\(K-1\)个模型或者说\(K-1\)个参数向量，
+但是我们仍然可以写成连加的形式，此时\(P(y=k |x\))这个模型的参数默认为零向量，即不需要学习这个模型，有了这个假设，不论我们要考虑的预测结果属于哪种类型，形式是一致的。<br></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_指数分布簇">6.2. 指数分布簇</h3>
+<div class="paragraph">
+<p>指数分布簇是指可以表示为指数形式的概率分布，指数分布的形式如下:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[p(y; \eta) = b(y) exp(\eta^{T} T(y) - a(\eta))  \hspace{1cm}(6.2)\]
+</div>
+</div>
+<div class="paragraph">
+<p>其中，\(\eta \)为分布的自然参数；\(T(y)\)为充分统计量，通常\(T(y) = y\),当参数\(a, b, T\)都固定的时候，就定义了一个以\(\eta \)为参数的函数簇。<br></p>
+</div>
+<div class="paragraph">
+<p>实际上，大多数概率分布都可以表示为公式(6.2)的形式，比如:<br></p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>伯努利分布：对0、1问题建模</p>
+</li>
+<li>
+<p>多项式分布：对\(K\)个离散结果的事件建模</p>
+</li>
+<li>
+<p>泊松分布：对计数过程进行建模，比如网站访问量的计数问题，商店顾客数量等问题</p>
+</li>
+<li>
+<p>伽马分布与指数分布：对有间隔的正数进行建模，比如公交车的到站时间问题</p>
+</li>
+<li>
+<p>\(\beta\)分布：对小数建模</p>
+</li>
+<li>
+<p>\(Dirichlet\)分布：对概率分布建模</p>
+</li>
+<li>
+<p>\(Wishart\)分布：协方差矩阵的分布</p>
+</li>
+<li>
+<p>高斯分布</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>现在我们将高斯分布和伯努利分布表示为指数分布簇的形式.<br></p>
+</div>
+<div class="paragraph">
+<p><strong>(1).伯努利分布</strong><br>
+伯努利分布是对0、1问题进行建模的分布，它可以用如下形式表示：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[P(y; \varphi) = \varphi^{y} (1-\varphi)^{1-y}, \hspace{0.2cm} y \in {0,1}\]
+</div>
+</div>
+<div class="paragraph">
+<p>这个形式，是不是很想逻辑回归，因为逻辑回归解决的问题就是0、1问题，所以形式是一样的。<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+p(y; \varphi) &amp; = \varphi^{y} (1-\varphi)^{1-y} \\
+&amp; = exp(log \hspace{0.1cm} \varphi^{y} (1-\varphi)^{1-y}) \\
+&amp; = exp(y\cdot log \hspace{0.1cm} \varphi + (1-y)\cdot log (1-\varphi)) \\
+&amp; = exp(y log \frac{\varphi}{1-\varphi} + log (1- \varphi))  \hspace{1cm} (6.3)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>由公式(6.3)，我们将伯努利分布表示为公式(6.2)的形式:  其中:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+b(y) &amp; = 1 \\
+T(y) &amp; = y \\
+\eta = log \frac{\varphi}{1-\varphi} &amp; \Rightarrow \varphi = \frac{1}{1+e^{-\eta}} \\
+a(\eta) &amp; = -log(1-\varphi) = 1+e^{-\eta}
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>可以看出，\(\eta\)的形式跟逻辑回归的sigmoid函数一致，这里因为logistic模型对问题的前置概率估计是伯努利分布的缘故。<br></p>
+</div>
+<div class="paragraph">
+<p><strong>(2).高斯分布</strong><br>
+由高斯分布可以推导出线形模型，由线形模型的假设函数可知，高斯分布的方差与假设函数无关，因而为了简化计算，我们将方差设为1，即便不这样做，最后的结果也是方差作为一个系数而已，
+高斯分布转换为指数分布簇形式的推导如下:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+N(\mu, 1) &amp; = \frac{1}{\sqrt{2\pi }}exp(-\frac{1}{2} (y-\mu)^{2}) \\
+&amp; = \frac{1}{\sqrt{2\pi }} exp(-\frac{1}{2} y^{2} -\frac{1}{2} \mu^{2} + \mu y ) \\
+&amp; = \frac{1}{\sqrt{2\pi }} exp(-\frac{1}{2} y^{2}) exp(\mu y - \frac{1}{2} \mu^{2}) \hspace{1cm} (6.4)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>由公式(6.4)可知:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+b(y) &amp; = \frac{1}{\sqrt{2\pi }}exp(-\frac{1}{2} y^{2}) \\
+T(y) &amp; = y \\
+\eta &amp; = \mu \\
+a(\eta) &amp; = \frac{1}{2} \eta^{2}
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>推导的关键在于将指数内部的纯\(y\)项移到外面，纯非\(y\)项作为函数\(a\)，混杂项为\(\mu^{T} T(y)\).<br></p>
+</div>
+<div class="paragraph">
+<p>说到这里，聪明的你应该发现了一些规律，一些很不错的想法，想总结下看看到底发生了什么，其实您想到的就是指数分布簇的性质，想让我们看看 <code>广义线形模型</code> 吧。<br></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_广义线形模型">6.3. 广义线形模型</h3>
+<div class="paragraph">
+<p>定义了指数分布簇后有什么用？我们可以通过指数分布簇引出 <code>广义线形模型</code> (Generalized Linear Model, GLM)。注意公式(6.3)和(6.4)中的\(\eta\)变量，在公式(6.3)中，
+\(\eta\)与伯努利分布中的参数\(\varphi\)的关系是logistic函数，再通过推导可以得到逻辑回归；在公式(6.4)中,\(\eta\)与正态分布的参数\(\mu\)的关系是相等，我们可以推出最小二乘模型。<br></p>
+</div>
+<div class="paragraph">
+<p>通过上节的两个例子，我们大致可以得出如下结论: <em><strong>\(\eta\)以不同形式的映射函数与其他概率分布函数中的参数发生联系，从而得到不同的模型.</strong></em><br></p>
+</div>
+<div class="paragraph">
+<p>广义线形模型正式将指数分布簇中的所有成员都作为线形模型的扩展，通过各种非线形的连接函数将线形函数映射到其他空间，从而大大扩大了线形模型可解决的问题。<br></p>
+</div>
+<div class="paragraph">
+<p>下面看GLM的形式化定义，GLM有三个假设:<br></p>
+</div>
+<div class="openblock">
+<div class="content">
+<div class="ulist">
+<ul>
+<li>
+<p>\(y|x;\theta ~ ExpFamily(\eta)\): 给定样本\(x\)与参数\(\theta\)，样本分类\(y\)服从指数分布簇中的某个分布；</p>
+</li>
+<li>
+<p>给定一个\(x\)，我们需要的目标函数为\(h_{\theta}(x) = E[T(y) |x]\)</p>
+</li>
+<li>
+<p>\(\eta = \theta^{T}x\)</p>
+</li>
+</ul>
+</div>
+</div>
+</div>
+<div class="paragraph">
+<p>依据上面三个假设，我们可以推导出logistic模型与最小二乘模型。logistic模型的推导过程如下:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+h_{\theta}(x) &amp; = E[T(y) | x] \\
+&amp; = E[y|x] \\
+&amp; = p(y=1|x; \theta) \\
+&amp; = \varphi \\
+&amp; = \frac{1}{1 + e^{-\eta}} \\
+&amp; = \frac{1}{1 + e^{ -\theta^{T} x}}  \hspace{1cm} (6.5)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>公式(6.5)就是逻辑回归模型，同样的对于最小二乘模型，推导过程如下:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+h_{\theta}(x) &amp; = E[T(y) | x] \\
+&amp; = E[y| x] \\
+&amp; = \mu \\
+&amp; = \eta \\
+&amp; = \theta^{T} x
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>其中，将\(\eta\)与原始概率分布中的参数联系起来的函数称为正则响应函数(canonical response function)，如\(\varphi = \frac{1}{1+ e^{-\eta}}\)和\(\mu = \eta\)都是正则响应函数，
+正则响应函数的逆称为正则关联函数.<br></p>
+</div>
+<div class="paragraph">
+<p><em><strong>所以，对于广义线性模型，需要决策的是选用什么样的分布，当选择高斯分布时，我们就得到了最小二乘法；当选择伯努利分布时，我们就得到了逻辑回归，这里所说的模型就是假设函数。</strong></em><br></p>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_广义线形模型应用_多项式分布">6.4. 广义线形模型应用-多项式分布</h3>
+<div class="paragraph">
+<p>多项式分布推导出的GLM可以解决多分类的问题，是logistic模型的扩展，应用的问题比如邮件分类，预测病人疾病等。<br>
+多项式分布的目标值\(y \in {1,2,3,&#8230;&#8203;,k}\)；其概率分布为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[P(y=i) = \varphi_{i}\]
+</div>
+</div>
+<div class="paragraph">
+<p>因为\(\sum_{i} \varphi_{i} = 1\)，所以我们可以只保留\(k-1\)个参数，使得:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\varphi_{k} = 1 - \sum_{i=1}^{k-1} \varphi_{i}\]
+</div>
+</div>
+<div class="paragraph">
+<p>为了使多项式分布能够写成指数分布簇的形式，我们首先定义\(T(y)\)，如下形式:<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/glm_tx.png" alt="glm tx" width="60%" height="65%">
+</div>
+<div class="title">图 34. T(i)的定义</div>
+</div>
+<div class="paragraph">
+<p>这里我们引入指示函数\(I\)，使得:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[I(true) = 1, \hspace{0.4cm} I(false) = 0\]
+</div>
+</div>
+<div class="paragraph">
+<p>这样，\(T(y)\)向量中的某个元素还可以写成:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[T(y)_{i} = I(y=i)\]
+</div>
+</div>
+<div class="paragraph">
+<p>这个公式，可以理解为上图对应的0、1映射函数，只有\(y=i\)时为1，其他都为0，比如上图中的每个\(T(y)\)都有\(k-1\)个值，其中只有一个为1，其余全为0，而那个为1的位置刚好为\(y\)。
+于是我们可以得到:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+E[ T(y)_ {i} ] &amp; = \sum_{y=1}^{k} T(y)_ {i} \varphi_{i} \\
+&amp; = \sum_{y=1}^{k} I(y=i) \varphi_{i} \\
+&amp; = \varphi_{i} \\
+\sum_{i=1}^{k} I(y=i) &amp; = 1
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>于是多项式分布转为指数分布簇的推导如下:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+P(y; \varphi) &amp; = \varphi_{1}^{ I{y=1} } \varphi_{2}^{ I(y=2) } &#8230;&#8203;\varphi_{k-1}^{ I(y=k-1)} \varphi_{k}^{ I(y=k)} \\
+&amp; = \varphi_{1}^{ I{y=1} } \varphi_{2}^{ I(y=2) } &#8230;&#8203;\varphi_{k-1}^{ I(y=k-1)} \varphi_{k}^{ 1 - \sum_{i=1}^{k-1} I(y=i) } \\
+&amp; = exp( log \varphi_{1}^{ I{y=1} } \varphi_{2}^{ I(y=2) } &#8230;&#8203;\varphi_{k-1}^{ I(y=k-1)} \varphi_{k}^{ 1 - \sum_{i=1}^{k-1} I(y=i) } ) \\
+&amp; = exp (\sum_{i=1}^{k-1} I(y=i) log \varphi_{i} + (1- \sum_{i=1}^{k-1} I(y=i)) log \varphi_{k}) \\
+&amp; = exp( \sum_{i=1}^{k-1} I(y=i) log (\frac{\varphi_{i}}{\varphi_{k}}) + log \varphi_{k} ) \\
+&amp; = exp( \sum_{i=1}^{k-1} T(y)_ {i} log (\frac{\varphi_{i}}{\varphi_{k}}) + log \varphi_{k} ) \\
+&amp; = exp( \eta^{T} T(y) - a(\eta) )  \hspace{2cm} (6.6)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>我们发现，此时的\(T(y)\)已经不在等于\(y\)了，而是一个向量。公式(6.6)中最后一步的各个变量分别为:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\eta &amp; = \begin{bmatrix}
+log \hspace{0.1cm} \varphi_{1} / \varphi_{k}\\
+log \hspace{0.1cm} \varphi_{2} / \varphi_{k}\\
+\vdots \\
+log \hspace{0.1cm} \varphi_{k-1} / \varphi_{k}
+\end{bmatrix} \\
+b(y) &amp; = 1 \\
+a(\eta) &amp; = -log\varphi_{k}
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>由\(\eta\)表达式可知:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\eta_{i}  = log \frac{\varphi_{i}}{\varphi_{k}}  \Rightarrow \varphi_{i} = \varphi_{k} \cdot e^{\eta_{i}} \hspace{1cm} (6.7)\]
+</div>
+</div>
+<div class="paragraph">
+<p>为了方便表示，再定义:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\eta_{k} = log \hspace{0.1cm} \frac{\varphi_{k}}{\varphi_{k}} = 0\]
+</div>
+</div>
+<div class="paragraph">
+<p>于是，我们可以得到:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\sum_{j=1}^{k} \varphi_{i} = \sum_{j=1}^{k} \varphi_{k} e^{\eta_{i}} = 1 \Rightarrow \varphi_{k} = \frac{1}{\sum_{j=1}^{k} e^{\eta_{i}}} \hspace{1cm} (6.8)\]
+</div>
+</div>
+<div class="paragraph">
+<p>代入公式(6.7)得到:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\varphi_{i} = \frac{e^{\eta_{i}}}{\sum_{j=1}^{k} e^{\eta_{i}} } =  \frac{e^{\eta_{i}}}{1+\sum_{j=1}^{k-1} e^{\eta_{i}} }  \hspace{1cm}(6.9)\]
+</div>
+</div>
+<div class="paragraph">
+<p>从而我们就得到了连接函数，有了连接函数后，就可以把多项式分布的概率表达出来，即将公式(6.8)代入公式\(P(y=i) = \varphi_{i}\):<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[P(y=i) = \varphi_{i} = \frac{e^{\eta_{i}}}{1+\sum_{j=1}^{k} e^{\eta_{j}}} = \frac{e^{\theta_{i}^{T} x}}{1+\sum_{j=1}^{k} e^{ \theta_{j}^{T}x}} \hspace{1cm}(6.9)\]
+</div>
+</div>
+<div class="paragraph">
+<p>注意，上式中的每个参数\(\eta_{i}\)都是一个可用线形向量\(\theta_{i}^{T} x\)表示出来的，因而这里的\(\theta\)其实是一个二维矩阵。<br>
+于是，我们可以得到假设函数\(h\)如下:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[h_{\theta}(x) = E[T(y) | x; \theta] = E\begin{bmatrix}
+I(y=1) &amp; \\
+I(y=2) &amp; |x; \theta \\
+\vdots  &amp;  \\
+I(y=k-1) &amp;
+\end{bmatrix}
+= \begin{bmatrix}
+\varphi_{1}\\
+\varphi_{2}\\
+\vdots \\
+\varphi_{k-1}
+\end{bmatrix} \hspace{1cm} (6.10)\]
+</div>
+</div>
+<div class="paragraph">
+<p>将公式(6.10)代入公式(6.9)即可。那么如何根据假设函数求参数\(\theta\)，当然还是最大似然估计的方法，最大化似然函数:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[l(\theta) = \prod_{i=1}^{m} p(y^{i} | x^{i}; \theta) = \prod_{i=1}^{m} \prod_{j=1}^{k} \varphi_{j}^{ I(y^{i} = j)} \hspace{1cm} (6.11)\]
+</div>
+</div>
+<div class="paragraph">
+<p>对公式(6.11)取对数，得到如下最大似然函数:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L(\theta) = \sum_{i=1}^{m} \sum_{j=1}^{k} I(y^{i} = j) log \hspace{0.1cm}\varphi_{j} \hspace{1cm} (6.12)\]
+</div>
+</div>
+<div class="paragraph">
+<p>然后将公式(6.9)代入公式(6.12)即可得到最大似然函数的对数，然后使用梯度下降或者牛顿迭代法就可以求解参数\(\theta\)。使用假设函数对新的样例进行预测，即可完成多分类任务。
+这种多分类问题的解法被称为 <code>Softmax Regression</code>。<br></p>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -4781,7 +5341,7 @@ p(z_{k} \mid d_{i}, w_{j}) &amp; = \frac{p(z_{k}, d_{i}, w_{j})}{\sum_{l=1}^{K} 
 <div class="content">
 <img src="images/cart.png" alt="cart" width="50%" height="55%">
 </div>
-<div class="title">图 34. 分类回归决策树</div>
+<div class="title">图 35. 分类回归决策树</div>
 </div>
 <div class="paragraph">
 <p>这是一颗 <code>CART</code> 树，关于什么是 <code>CART</code> 树，后面会单独讲，你可以认为这就是一个决策树，图中给出的是预测样本中的每个人是不是喜欢计算机游戏，这是一个典型的二分类问题，
@@ -4796,7 +5356,7 @@ p(z_{k} \mid d_{i}, w_{j}) &amp; = \frac{p(z_{k}, d_{i}, w_{j})}{\sum_{l=1}^{K} 
 <div class="content">
 <img src="images/random_forest.png" alt="random forest" width="50%" height="55%">
 </div>
-<div class="title">图 35. 随机森林</div>
+<div class="title">图 36. 随机森林</div>
 </div>
 <div class="paragraph">
 <p>最后的结果我们可以通过利用两棵树投票加权来决定谁更喜欢玩计算机游戏，很显然小明非常喜欢玩。<br></p>
@@ -5068,7 +5628,7 @@ H(D | A) &amp; = - \sum_{ik}p(D_{k}, A_{i})log \hspace{0.1cm} p(D_{k} | A_{i}) \
 <div class="content">
 <img src="images/mse_tree.png" alt="mse tree" width="50%" height="55%">
 </div>
-<div class="title">图 36. 回归树的生成算法</div>
+<div class="title">图 37. 回归树的生成算法</div>
 </div>
 <div class="paragraph">
 <p>实在是懒得敲了，毕竟这个算法比较简单，浪费时间没那个必要了，大家可以直接看 <code>统计学习方法</code> 一书的相关介绍，但是要记住一点，上面的过程都是基于我们选择了平方误差作为损失函数的前提下，
@@ -5439,7 +5999,7 @@ GBDT与AdBoost最大的不同是：AdBoost利用前一轮弱学习器的误差�
 <div class="content">
 <img src="images/gbdt_base.png" alt="gbdt base" width="50%" height="55%">
 </div>
-<div class="title">图 37. 基本GBDT算法</div>
+<div class="title">图 38. 基本GBDT算法</div>
 </div>
 <div class="paragraph">
 <p>下面对基本的GBDT算法步骤进行解释。<br></p>
@@ -5594,7 +6154,7 @@ L_{k} &amp; = \sum_{i=1}^{N} L(y_{i}, F_{k-1}(x_{i}) + f_{k}(x_{i})) + \Omega (f
 <div class="content">
 <img src="images/tree_split.png" alt="tree split" width="50%" height="55%">
 </div>
-<div class="title">图 38. 树分裂算法</div>
+<div class="title">图 39. 树分裂算法</div>
 </div>
 </div>
 <div class="sect4">
@@ -5675,7 +6235,7 @@ L_{k} &amp; = \sum_{i=1}^{N} L(y_{i}, F_{k-1}(x_{i}) + f_{k}(x_{i})) + \Omega (f
 <div class="content">
 <img src="images/xgb_opti.png" alt="xgb opti" width="50%" height="55%">
 </div>
-<div class="title">图 39. XGBoost 优化点</div>
+<div class="title">图 40. XGBoost 优化点</div>
 </div>
 </div>
 </div>
