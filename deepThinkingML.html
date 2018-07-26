@@ -718,7 +718,22 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_广义线形模型应用_多项式分布">6.4. 广义线形模型应用-多项式分布</a></li>
 </ul>
 </li>
-<li><a href="#_em_算法">7. <code>EM</code> 算法</a></li>
+<li><a href="#_em_算法">7. <code>EM</code> 算法</a>
+<ul class="sectlevel2">
+<li><a href="#_前置知识点">7.1. 前置知识点</a>
+<ul class="sectlevel3">
+<li><a href="#_jensen不等式">7.1.1. Jensen不等式</a></li>
+<li><a href="#_最大似然估计">7.1.2. 最大似然估计</a></li>
+</ul>
+</li>
+<li><a href="#_em算法_2">7.2. EM算法</a>
+<ul class="sectlevel3">
+<li><a href="#_直通结论">7.2.1. 直通结论</a></li>
+<li><a href="#_em推导">7.2.2. EM推导</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li><a href="#_决策树和集成学习">8. 决策树和集成学习</a>
 <ul class="sectlevel2">
 <li><a href="#_决策树模型">8.1. 决策树模型</a>
@@ -779,6 +794,7 @@ table.CodeRay td.code>pre{padding:0}
 <li><a href="#_希尔伯特空间">24.1.2. 希尔伯特空间</a></li>
 </ul>
 </li>
+<li><a href="#_似然函数">24.2. 似然函数</a></li>
 </ul>
 </li>
 <li><a href="#_深度学习框架">25. 深度学习框架</a></li>
@@ -4961,8 +4977,7 @@ L(P,w) &amp; = -H(P) + w_{0} (1-\sum_{y} P(y|x)) + \sum_{i=1}^{n} w_{i}(E_{\tild
 <p>由此可见，当逻辑回归是多分类器的一种特殊情况，其对应\(y=0\)的参数\(\theta\)为零向量。<br></p>
 </div>
 <div class="paragraph">
-<p><strong>注意</strong><br>
-相信大家已经注意到，为何有的时候归一化因子里就是个求和，而有的里面多了个1，其实这两种情况是等价的，首先大家考虑我们的问题是\(K\)分类问题，要求的是\(P(y = i| x\)),
+<p><strong>注意</strong> 相信大家已经注意到，为何有的时候归一化因子里就是个求和，而有的里面多了个1，其实这两种情况是等价的，首先大家考虑我们的问题是\(K\)分类问题，要求的是\(P(y = i| x\)),
 我们真的需要求出\(K\)个概率值吗？ 其实不需要，因为这\(K\)个概率值和为1，所以我们其实只有\(K-1\)个概率值需要计算，对应着\(K-1\)个模型或者说\(K-1\)个参数向量，
 但是我们仍然可以写成连加的形式，此时\(P(y=k |x\))这个模型的参数默认为零向量，即不需要学习这个模型，有了这个假设，不论我们要考虑的预测结果属于哪种类型，形式是一致的。<br></p>
 </div>
@@ -5319,7 +5334,370 @@ I(y=k-1) &amp;
 <div class="sect1">
 <h2 id="_em_算法">7. <code>EM</code> 算法</h2>
 <div class="sectionbody">
-
+<div class="sect2">
+<h3 id="_前置知识点">7.1. 前置知识点</h3>
+<div class="sect3">
+<h4 id="_jensen不等式">7.1.1. Jensen不等式</h4>
+<div class="paragraph">
+<p>虽然可能很多人都已经对这个著名的不等式有了很深的认识，但是这里我们还是要再啰嗦一边，了解的同学可以略过。<br></p>
+</div>
+<div class="paragraph">
+<p>首先，我们先来形象的看下 <code>Jensen不等式</code> 到底在说个什么事，公式如下。<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f( \theta x + (1- \theta y)) \leq \theta f(x) + (1-\theta) f(y)  \hspace{1cm} (7.1)\]
+</div>
+</div>
+<div class="paragraph">
+<p>其中，对于任意的参数，都满足\(\theta_{i} \leq 0 \)且\(\sum_{i=1}^{k} \theta_{i} = 1\)，这个公式的理解可以参考下图。<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/jensen.png" alt="jensen" width="50%" height="55%">
+</div>
+<div class="title">图 35. Jensen不等式示意图</div>
+</div>
+<div class="paragraph">
+<p>上图是一个凸函数(我一直认为是个凹函数，因为图像和凹更像点.)，那么任意一条与图像相交(两个交点)的直线上，两交点间的直线段内的任意一个点的横坐标对应的凹函数上的函数值一定小于直线段上的函数值。
+看图说话，这是显而易见的，而且只有两个交点的横坐标在两个函数上的函数值才相等。<br></p>
+</div>
+<div class="paragraph">
+<p>那么公式(7.1)中的\(\theta\)用来干什么的呢？在左边的公式中是用来控制选取交点间凹函数上的哪个函数值，右边的公式中是用来控制选取交点间直线段上的哪个函数值。那么根据图就可以直接得出，公式(7.1)一定成立。<br></p>
+</div>
+<div class="paragraph">
+<p>上面的等式推广到\(k\)维空间仍然成立，即:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f(\theta_{1} x_{1} + ... + \theta_{k} x_{k}) \leq \theta_{1} f(x_{1}) + ... + \theta_{k} f(x_{k})\]
+</div>
+</div>
+<div class="paragraph">
+<p>再继续推广，我们可以将参数变成连续值，因为其具有累加和为1的特点，所以可以把它变成概率，设为\(p(x)\)，则等式依旧成立:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f\left ( \int_{S} p(x) x dx \right ) \leq \int_{S} f(x) p(x) dx \hspace{1cm} (7.2)\]
+</div>
+</div>
+<div class="paragraph">
+<p>熟悉概率与统计分析的同学，应该一眼看出公式(7.2)实际就是在说:\(x\)的期望的函数值小于等于\(x\)函数值的期望.<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f(E x) \leq E f(x)\]
+</div>
+</div>
+<div class="paragraph">
+<p><code>Jensen不等式</code> 很重要，机器学习中的很多模型的推导都用到了这个不等式，务必掌握。<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_最大似然估计">7.1.2. 最大似然估计</h4>
+<div class="paragraph">
+<p>讲解这么老套的概念，还是来点不一样的感觉吧，直接上例子。<br></p>
+</div>
+<div class="paragraph">
+<p><strong>例1:</strong> 二项分布<br>
+10次抛硬币的结果为:正正反正正正反反正正,假设\(p\)是每次抛硬币结果为正的概率，问题是找到与样本的分布最接近的概率分布模型。<br></p>
+</div>
+<div class="paragraph">
+<p>毫无疑问这是个二项分布，那么要求的是二项分布的参数，因为参数决定了这个分布到底是啥样，假定试验结果的概率为\(P\)，则：<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[P = pp(1-p)ppp(1-p)(1-p)pp = p^{7} (1-p)^{3}\]
+</div>
+</div>
+<div class="paragraph">
+<p>这个最优解为\(p=0.7\)，可以将上面的例子抽象成如下数学问题:抛硬币试验中，进行\(N\)次独立试验，有\(n\)次朝上，\(N-n\)次朝下，假定朝上的概率为\(p\)，
+使用对数似然函数作为目标函数:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+f( n | p) &amp; = log (p^{n} (1-p)^{N-p}) = n log p + (N-n) log (1-p) = h(p) \\
+\frac{\partial h(p)}{\partial p} &amp; = \frac{n}{p} - \frac{N-n}{1-p} = 0 \\
+p &amp;= \frac{n}{N}
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>上面的例子说明：有限次伯努利试验中，对参数的最大估计就是其发生的频率。<br></p>
+</div>
+<div class="paragraph">
+<p><strong>例2:</strong> 高斯分布<br></p>
+</div>
+<div class="paragraph">
+<p>若给定一组样本\(x_{1}, x_{2}, &#8230;&#8203;, x_{n}\)，若已知它们都来自高斯分布\(N(\mu, \sigma)\)，试估计参数\(\mu , \sigma \)<br></p>
+</div>
+<div class="paragraph">
+<p>首先看下高斯分布的概率密度:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[f(x) = \frac{1}{\sqrt{2\pi}} e^{ - \frac{ (x-\mu)^{2} }{2 \sigma^{2}} }\]
+</div>
+</div>
+<div class="paragraph">
+<p>同样，我们求对数似然，则似然函数为:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+l(x) &amp; = log \prod_{i} \frac{1}{ \sqrt{2\pi} \sigma} e^{ - \frac{ (x_{i}-\mu)^{2} }{2 \sigma^{2}} } \\
+&amp; = \sum_{i} log \frac{1}{ \sqrt{2\pi} \sigma} e^{ - \frac{ (x_{i}-\mu)^{2} }{2 \sigma^{2}} } \\
+&amp; = l(x) =\sum_{i} log \frac{1}{ \sqrt{2\pi} \sigma} + \sum_{i}(- \frac{ (x_{i}-\mu)^{2} }{2 \sigma^{2}})  \\
+&amp; = -\frac{n}{2}log(2\pi \sigma^{2}) - \frac{1}{2\sigma^{2}} \sum_{i}(x_{i}-\mu)^{2} \hspace{1cm} (7.3)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>公式(7.3)对参数\(\mu, \sigma\)分别求偏导，容易得到:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\left\{\begin{matrix}
+\mu &amp;= \frac{1}{n} \sum_{i} x_{i}\\
+\sigma^{2} &amp;= \frac{1}{n} \sum_{i} (x_{i} - \mu )^{2}
+\end{matrix}\right.
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>总结：上述结论和矩估计的结果是一致的，并且意义非常直观，样本的均值即为高斯分布的均值，样本的伪方差即为高斯分布的方差。<br>
+好了，再来一个问题，让我们进入正题吧，比如上面的高斯分布的例子，如果假定样本是来自多个高斯分的样本，让求每个高斯分布的参数，要怎样求解呢？<br></p>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_em算法_2">7.2. EM算法</h3>
+<div class="paragraph">
+<p>上节最后留了个扩展思考题，即假定我们给的样本数据是来自多个，比如\(K\)个高斯分布，那么如何根据样本来估计每个高斯分布的参数呢？让我们先将这个问题数学化：<br>
+假定变量\(X\)是由\(k\)高斯分布混合而成，取各个高斯分布的概率为\(\pi_{1}, \pi_{2},&#8230;&#8203;, \pi_{K}\)，第\(i\)个高斯分布的均值为\(\mu_{i}\)，方差为\(\Sigma_{i}\),
+若观察到随机变量\(X\)的一系列样本\(x_{1}, x_{2}, &#8230;&#8203;, x_{n}\)，试估计参数\(\pi, \mu, \Sigma\).<br></p>
+</div>
+<div class="sect3">
+<h4 id="_直通结论">7.2.1. 直通结论</h4>
+<div class="paragraph">
+<p>对于上面的混合高斯模型问题，首先给出目标函数:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[l_{\pi, \mu, \Sigma} (x) = \sum_{i}^{N} log\left ( \sum_{k=1}^{K} \pi_{k}N(x_{i} | \mu_{k}, \Sigma_{k}) \right )\]
+</div>
+</div>
+<div class="paragraph">
+<p>由于在对数函数里面又有加和，我们没法直接用求导解方程的办法直接求得最大值。为了解决这个问题，我们分为两部。<br></p>
+</div>
+<div class="paragraph">
+<p><strong>(1).</strong> 估计数据来自哪个组份<br></p>
+</div>
+<div class="paragraph">
+<p>首先来看数据来自每个组份的概率:对于每个样本\(x_{i}\)，它由第\(k\)个组份生成的概率为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\gamma(i,k) =  \frac{ \pi_{k} N(x_{i} | \mu_{k}, \Sigma_{k}) }{\sum_{j=1}^{K} \pi_{j} N(x_{i} | \mu_{j}, \Sigma_{j})}\]
+</div>
+</div>
+<div class="paragraph">
+<p>在上式中，我们需要先假定\(\mu, \Sigma\)，即给定初始值<br></p>
+</div>
+<div class="paragraph">
+<p><strong>(2).</strong> 估计每个组份的参数<br></p>
+</div>
+<div class="paragraph">
+<p>对于所有的样本点，对于组份\(k\)而言，可以看作生成了\(\gamma (i,k) x_{i}\)这些点，组份\(k\)是一个标准的高斯分布，因此可以直接使用上节例子的结论，得到:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\left\{\begin{matrix}
+ N_{k}= &amp;\sum_{i=1}^{N} \gamma(i,k)\\
+\pi_{k}= &amp; \frac{N_{k}}{N}  = \frac{1}{N} \sum_{i=1}^{N} \gamma(i,k)\\
+\mu_{k} = &amp; \frac{1}{N_{k}} \sum_{i=1}^{N} \gamma(i,k) x_{i} \\
+\Sigma_{k} = &amp;  \frac{1}{N_{k}} \sum_{i=1}^{N} \gamma(i,k) (x_{i} - \mu) (x_{i} - \mu)^{T}
+\end{matrix}\right.
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>然后根据新的分布参数，再计算每个样本属于每个组份的概率，再继续迭代每个组份高斯分布的参数，一直迭代到收敛或满足迭代次数为止，上述这个过程就叫做 <code>EM算法</code>。<br></p>
+</div>
+</div>
+<div class="sect3">
+<h4 id="_em推导">7.2.2. EM推导</h4>
+<div class="paragraph">
+<p>前面的例子是在假定样本符合多个高斯分布的情况下，进行了模拟EM迭代过程的介绍，下面正式介绍该算法。<br></p>
+</div>
+<div class="paragraph">
+<p>假定有训练数据集： \({x^{(1)}, x^{(2)}, &#8230;&#8203;, x^{(m)}}\)，包含\(m\)个独立样本，我们希望从中找到改组数据的模型\(p(x,z)\)的参数.<br></p>
+</div>
+<div class="paragraph">
+<p>首先还是构建对数似然函数:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+l(\theta) &amp; = \sum_{i=1}^{m} log \hspace{0.1cm} p(x | \theta) \\
+&amp; = \sum_{i=1}^{m} log \sum_{z} p(x, z; \theta)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>其中，\(z\)是隐含随机变量，不方便直接找到参数估计，策略：计算\(l(\theta)\)的下界，求该下界的最大值，重复该过程知道收敛到局部最大值。<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/em_approx.png" alt="em approx" width="50%" height="55%">
+</div>
+<div class="title">图 36. EM算法逼近示意图</div>
+</div>
+<div class="paragraph">
+<p>如上图所示，我们每一步逼近的时候都希望，逼近点刚好等于曲线上的对应点，并且逼近曲线的最大值如果小于对应的曲线上的值，则继续在该点构建逼近函数进行近似，
+如果一直都可以使得近似点和曲线上的点相同，就可以求得曲线的局部最大值点。<br></p>
+</div>
+<div class="paragraph">
+<p>我们假设\(Q_{i}\)是\(z\)的某一个分布，\(Q_{i} \geq 0\), 有：<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+l(\theta) &amp; = \sum_{i=1}^{m} log \sum_{z} p(x^{i}, z | \theta) \\
+&amp; = \sum_{i=1}^{m} log \sum_{ z^{i} } p(x^{i}, z^{i} | \theta) \\
+&amp; = \sum_{i=1}^{m} log \sum_{ z^{i} } Q_{i}(z^{i}) \frac{p(x^{i}, z^{i} | \theta)}{ Q_{i}(z^{i})} \\
+&amp; = \geq \sum_{i=1}^{m} \sum_{ z^{i} } Q_{i}(z^{i})  log \frac{p(x^{i}, z^{i} | \theta)}{ Q_{i}(z^{i})} \hspace{1cm} (7.4)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>上面公式的关键一步在(7.4)的不等式变换，实际使用的就是 <code>Jensen不等式</code>,\(Q_{i}\)刚好是某个分布，所以对应的值就是概率，同时log函数是凹函数，所以结论刚好和凸函数相反。
+在说到Jensen不等式的时候我们已经提到了，要想让等式成立，必须让两个交点重合，两个交点重合就意味着是一个点，是常数值:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\frac{p(x^{i}, z^{i}; \theta)}{Q_{i}(z^{i})} = C\]
+</div>
+</div>
+<div class="paragraph">
+<p>也就是分子和分母成比例相关，又因为\(\sum_{z} Q_{i}(z^{i}) = 1\)，因此<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+Q_{i}(z^{i}) &amp; = \frac{p(x^{i}, z^{i} ; \theta)}{\sum_{z} p( x^{i}, z^{i} ; \theta)} \\
+&amp; = \frac{p(x^{i}, z^{i} ; \theta)}{\sum_{z} p( x^{i} ; \theta)} \\
+&amp; = p(z^{i} | x^{i} ; \theta) \hspace{1cm} (7.5)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>根据公式(7.5)，代入似然函数即公式(7.4)，可以求出参数\(\theta\). EM算法的整体框架如下:<br></p>
+</div>
+<div class="imageblock">
+<div class="content">
+<img src="images/em_algori.png" alt="em algori" width="50%" height="55%">
+</div>
+<div class="title">图 37. EM算法逻辑</div>
+</div>
+<div class="paragraph">
+<p><em><strong>下面给出GMM理论推导过程</strong></em><br></p>
+</div>
+<div class="paragraph">
+<p>(1). E-step<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[w_{j}^{(i)} = Q_{i}(Z^{(i)} = j) = P(z^{(i)} = j | x^{(i); \varphi, \mu, \Sigma})\]
+</div>
+</div>
+<div class="paragraph">
+<p>这一步非常简单，就是对每个样本\(x^{(i)}\)求它属于第\(j\)个高斯分布的概率，将样本值直接代入高斯分布函数中即可，这里高斯分布的参数是上一轮的结果，初始时我们会根据经验指定。<br></p>
+</div>
+<div class="paragraph">
+<p>(2). M-step<br></p>
+</div>
+<div class="paragraph">
+<p>将高斯分布和多项式分布的参数代入公式(7.4)<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+l(\theta) &amp; = \sum_{i=1}^{m} \sum_{z^{(i)}} Q_{i}(z^{i}) log \frac{p(x^{(i)}, z^{(i)} | \phi , \mu, \Sigma)}{Q_{i}(z^{(i)})} \\
+&amp; = \sum_{i=1}^{m} \sum_{j=1}^{k} Q_{i}(z^{(i)} = j) log \frac{ p(x^{(i)} | z^{(i)}=j; \mu, \Sigma) p(z^{(i)} = j ; \phi ) }{Q_{i}(z^{(i)} = j)} \\
+&amp; = \sum_{i=1}^{m} \sum_{j=1}^{k} w_{j}^{(i)} log \frac{ \frac{1}{ (2\pi)^{n/2} |\Sigma_{j}|^{1/2}}exp(-\frac{1}{2} (x^{(i)} - \mu_{j})^{T} \Sigma_{j}^{-1} (x^{(i)} - \mu_{j})) \cdot \phi_{j} }{w_{j}^{(i)}} \hspace{1cm} (7.6)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>对公式(7.6)的损失函数求参数的偏导，分别求出参数\(\mu_{l}\)和\(\Sigma_{j}\)，推导如下:<br></p>
+</div>
+<div class="paragraph">
+<p>对均值求偏导<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\nabla_{\mu_{l}} &amp; \sum_{i=1}^{m} \sum_{j=1}^{k} w_{j}^{(i)} log \frac{ \frac{1}{ (2\pi)^{n/2} |\Sigma_{j}|^{1/2}}exp(-\frac{1}{2} (x^{(i)} - \mu_{j})^{T} \Sigma_{j}^{-1} (x^{(i)} - \mu_{j})) \cdot \phi_{j} }{w_{j}^{(i)}} \\
+&amp; = -\nabla_{\mu_{l}} \sum_{i=1}^{m} \sum_{j=1}^{k} w_{j}^{(i)} \frac{1}{2} (x^{(i)} - \mu_{j})^{T} \Sigma_{j}^{-1} (x^{(i)} - \mu_{j}) \hspace{1cm} (7.7) \\
+&amp; = \frac{1}{2}\sum_{i=1}^{m} w_{l}^{(i)} \nabla_{\mu_{l}} 2[ \mu_{l}^{T} \Sigma_{l}^{-1} x^{(i)} - \mu_{l}^{T} \Sigma_{l}^{-1} \mu_{l}] \hspace{1cm} (7.8) \\
+&amp; = \sum_{i=1}^{m} w_{l}^{(i)} (\Sigma_{l}^{-1} x^{(i)} -\Sigma_{l}^{-1} \mu_{l}) \hspace{1cm} (7.9)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>令公式(7.9)等于0，得到:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\mu_{l} = \frac{\sum_{i=1}^{m} w_{l}^{(i)} x^{(i)}}{\sum_{i=1}^{m} w_{l}^{(i)}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>同理，可求得方差为:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\Sigma_{j} = \frac{\sum_{i=1}^{m} w_{j}^{(i)} (x^{(i)} - \mu_{j}) (x^{(i)} - \mu_{j})^{T} }{\sum_{i=1}^{m} w_{j}^{(i)}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>最后求解多项式分布的参数\(\phi\)，稍微麻烦点，我们先看下损失函数 :<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\sum_{i=1}^{m} \sum_{j=1}^{k} w_{j}^{(i)} log \frac{ \frac{1}{ (2\pi)^{n/2} |\Sigma_{j}|^{1/2}}exp(-\frac{1}{2} (x^{(i)} - \mu_{j})^{T} \Sigma_{j}^{-1} (x^{(i)} - \mu_{j})) \cdot \phi_{j} }{w_{j}^{(i)}}\]
+</div>
+</div>
+<div class="paragraph">
+<p>删除和\(\phi\)无关的常熟项，可得到:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[\sum_{i=1}^{m} \sum_{j=1}^{k} w_{j}^{(i)} log \hspace{0.1cm} \phi_{j}\]
+</div>
+</div>
+<div class="paragraph">
+<p>上式无解，为了求解多项式分布的参数，我们用拉格朗日乘子法，由于多项式分布的概率和为1，所以得到下面的拉格朗日函数:<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[l(\phi) = \sum_{i=1}^{m} \sum_{j=1}^{k} w_{j}^{(i)}log \hspace{0.1cm} \phi_{j} + \beta(\sum_{j=1}^{k} \phi_{j} - 1) \hspace{1cm} (7.10)\]
+</div>
+</div>
+<div class="paragraph">
+<p>因为有\(log\)函数的限制，所以\(\phi\)一定非负，所以不用考虑其大于等于0的限制条件了。求偏导，令偏导为0， 得到:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\frac{\partial}{\partial \phi_{j}} l(\phi) &amp; = \sum_{i=1}^{m} \frac{w_{j}^{(i)}}{\phi_{j}} + \beta \\
+-\beta &amp; = \sum_{i=1}^{m} \sum_{j=1}^{k} w_{j}^{(i)}  = \sum_{i=1}^{m} 1 = m \\
+\phi_{j} &amp; = \frac{1}{m} \sum_{i=1}^{m} w_{j}^{(i)}  \hspace{1cm} (7.11)
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p><strong>总结:</strong> 对于所有的数据点，可以看作组份\(k\)生成了这些点，组份\(k\)是一个标准的高斯分布，则根据上面的推导得出:<br></p>
+</div>
+<div class="paragraph">
+<p>\begin{align}
+\left\{\begin{matrix}
+\pi_{k} = &amp; \frac{1}{N} \sum_{i=1}^{N} w_{j}^{(i)}\\
+N_{k} =  &amp; N \cdot \pi_{k} = \sum_{i=1}^{N} w_{j}^{(i)} \\
+\mu_{k} = &amp; \frac{1}{N_{k}} \sum_{i=1}^{N} w_{j}^{(i)} x^{(i)}\\
+\Sigma_{k} = &amp; \frac{1}{N_{k}} \sum_{i=1}^{N} w_{j}^{(i)} (x^{(i)} - \mu_{k})(x^{(i)} -\mu_{k})^{T}
+\end{matrix}\right.
+\end{align}</p>
+</div>
+<div class="paragraph">
+<p>关于高斯混合模型的EM推导过程结束。EM还有很多应用场景，比如 <code>pLSA模型</code> 的参数求解中也用到了EM算法，这部分内容，有时间了再补充上。<br></p>
+</div>
+</div>
+</div>
 </div>
 </div>
 <div class="sect1">
@@ -5341,7 +5719,7 @@ I(y=k-1) &amp;
 <div class="content">
 <img src="images/cart.png" alt="cart" width="50%" height="55%">
 </div>
-<div class="title">图 35. 分类回归决策树</div>
+<div class="title">图 38. 分类回归决策树</div>
 </div>
 <div class="paragraph">
 <p>这是一颗 <code>CART</code> 树，关于什么是 <code>CART</code> 树，后面会单独讲，你可以认为这就是一个决策树，图中给出的是预测样本中的每个人是不是喜欢计算机游戏，这是一个典型的二分类问题，
@@ -5356,7 +5734,7 @@ I(y=k-1) &amp;
 <div class="content">
 <img src="images/random_forest.png" alt="random forest" width="50%" height="55%">
 </div>
-<div class="title">图 36. 随机森林</div>
+<div class="title">图 39. 随机森林</div>
 </div>
 <div class="paragraph">
 <p>最后的结果我们可以通过利用两棵树投票加权来决定谁更喜欢玩计算机游戏，很显然小明非常喜欢玩。<br></p>
@@ -5628,7 +6006,7 @@ H(D | A) &amp; = - \sum_{ik}p(D_{k}, A_{i})log \hspace{0.1cm} p(D_{k} | A_{i}) \
 <div class="content">
 <img src="images/mse_tree.png" alt="mse tree" width="50%" height="55%">
 </div>
-<div class="title">图 37. 回归树的生成算法</div>
+<div class="title">图 40. 回归树的生成算法</div>
 </div>
 <div class="paragraph">
 <p>实在是懒得敲了，毕竟这个算法比较简单，浪费时间没那个必要了，大家可以直接看 <code>统计学习方法</code> 一书的相关介绍，但是要记住一点，上面的过程都是基于我们选择了平方误差作为损失函数的前提下，
@@ -5999,7 +6377,7 @@ GBDT与AdBoost最大的不同是：AdBoost利用前一轮弱学习器的误差�
 <div class="content">
 <img src="images/gbdt_base.png" alt="gbdt base" width="50%" height="55%">
 </div>
-<div class="title">图 38. 基本GBDT算法</div>
+<div class="title">图 41. 基本GBDT算法</div>
 </div>
 <div class="paragraph">
 <p>下面对基本的GBDT算法步骤进行解释。<br></p>
@@ -6043,6 +6421,9 @@ GBDT很健壮，对初始值并不敏感，但是更好的初始值能够获得�
 <p>总体来说，GBDT就是一个不断拟合响应(残差)并叠加到\(F\)上的过程，在这个过程中，Loss不断接近最小值。<br></p>
 </div>
 </div>
+</div>
+<div class="paragraph">
+<p>GBDT每次迭代都对伪残差样本采用无放回的降采样，用部分样本训练基模型的参数，能增强随机性，防止过拟合，并且收敛快。<br></p>
 </div>
 </div>
 <div class="sect4">
@@ -6154,7 +6535,7 @@ L_{k} &amp; = \sum_{i=1}^{N} L(y_{i}, F_{k-1}(x_{i}) + f_{k}(x_{i})) + \Omega (f
 <div class="content">
 <img src="images/tree_split.png" alt="tree split" width="50%" height="55%">
 </div>
-<div class="title">图 39. 树分裂算法</div>
+<div class="title">图 42. 树分裂算法</div>
 </div>
 </div>
 <div class="sect4">
@@ -6173,7 +6554,7 @@ L_{k} &amp; = \sum_{i=1}^{N} L(y_{i}, F_{k-1}(x_{i}) + f_{k}(x_{i})) + \Omega (f
 <p>除了以上提到了正则项以外，我们还有shrinkage与列采样技术来避免过拟合的出现。所谓shrinkage就是在每个迭代中树中，对叶子结点乘以一个缩减权重eta。该操作的作用就是减少每颗树的影响力，留更多的空间给后来的树提升。</p>
 </li>
 <li>
-<p>另一个技术则是采样的技术，按层随机抽样的意思就是，之前每次分裂一个结点的时候，我们都要遍历所有的特征和分割点，从而确定最优的分割点，那么如果加入了列采样，我们会在对同一层内每个结点分裂之前，先随机选择一部分特征，于是我们只需要遍历这部分的特征，来确定最优的分割点。</p>
+<p>另一个技术则是采样的技术，包括行采样和列采样，其中列采样的实现一般有两种方式，一种是按层随机colsample_bylevel（一般来讲这种效果会好一点），另一种是建树前就随机选择特征colsample_bytree。按层随机抽样的意思就是，之前每次分裂一个结点的时候，我们都要遍历所有的特征和分割点，从而确定最优的分割点，那么如果加入了列采样，我们会在对同一层内每个结点分裂之前，先随机选择一部分特征，于是我们只需要遍历这部分的特征，来确定最优的分割点。</p>
 </li>
 <li>
 <p>而行采样则是bagging的思想，每次只抽取部分的样本进行训练，而不使用全部的样本，从而增加树的多样性。</p>
@@ -6235,7 +6616,7 @@ L_{k} &amp; = \sum_{i=1}^{N} L(y_{i}, F_{k-1}(x_{i}) + f_{k}(x_{i})) + \Omega (f
 <div class="content">
 <img src="images/xgb_opti.png" alt="xgb opti" width="50%" height="55%">
 </div>
-<div class="title">图 40. XGBoost 优化点</div>
+<div class="title">图 43. XGBoost 优化点</div>
 </div>
 </div>
 </div>
@@ -6380,6 +6761,66 @@ L_{k} &amp; = \sum_{i=1}^{N} L(y_{i}, F_{k-1}(x_{i}) + f_{k}(x_{i})) + \Omega (f
 <p>建立Hilbert空间的目的是为量子力学中的计算提供强有力的数学基础, 也方便了抽象出其中更本质的运算.包括之后进行的关于对称性的讨论, 都是定义在Hilbert空间上的.注意上面的论述中并没有涉及到矩阵.
 因为矩阵其实只是抽象定义的一种表现, 或者说是抽象的定义的一种表示(representation)而已. 这是群论的思想.所有这些后面发展起来的表示理论, 在Hilbert空间中表示后,(尤其是算符的表示)显得非常重要.</p>
 </div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_似然函数">24.2. 似然函数</h3>
+<div class="paragraph">
+<p>1、似然与概率的区别<br></p>
+</div>
+<div class="paragraph">
+<p>在英语语境里，likelihood 和 probability 的日常使用是可以互换的，都表示对机会 (chance) 的同义替代。但在数学中，probability 这一指代是有严格的定义的，即符合柯尔莫果洛夫公理 (Kolmogorov axioms) 的一种数学对象（换句话说，不是所有的可以用0到1之间的数所表示的对象都能称为概率），
+而 likelihood (function) 这一概念是由Fisher提出，他采用这个词，也是为了凸显他所要表述的数学对象既和 probability 有千丝万缕的联系，但又不完全一样的这一感觉。中文把它们一个翻译为概率一个翻译为似然也是独具匠心。<br></p>
+</div>
+<div class="paragraph">
+<p>除此之外，统计学中的另一常见概念"置信（区间）"(confidence interval)中的置信度(confidence level)也不是概率。换句话说，"构建关于总体均值的95%的置信区间"里的"95%"不是概率意义下的0.95（即使它也是0到1之间的代表机会chance的一个度量）；
+更常见的p-值(p-value)严格来说其本身是一个(恰好位于0到1之间的)统计量(即样本随机变量的函数)，所以p-值也不是概率。<br></p>
+</div>
+<div class="paragraph">
+<p>一种方便区别是概率还是似然的方法是，根据定义，"谁谁谁的概率"中谁谁谁只能是概率空间中的事件，换句话说，我们只能说，事件(发生)的概率是多少多少(因为事件具有概率结构从而刻画随机性，所以才能谈概率)；而"谁谁谁的似然"中的谁谁谁只能是参数，
+比如说，参数等于\(\theta\) 时的似然是多少。 <br></p>
+</div>
+<div class="paragraph">
+<p>2、似然与概率的联系<br></p>
+</div>
+<div class="paragraph">
+<p>先看似然函数的定义，它是给定联合样本值\(x\)下关于(未知)参数\(\theta\)的函数：\(L(\theta | x) = f(x | \theta)\)<br>
+这里的小是\(x\)指联合样本随机变量\(X\)取到的值，即\(X=x\)；<br>
+这里的\(\theta\)是指未知参数，它属于参数空间；<br>
+这里的\(f(x | \theta)\)是一个密度函数，特别地，它表示(给定)\(\theta\)下关于联合样本值\(x\)的联合密度函数。<br>
+所以从定义上，似然函数和密度函数是完全不同的两个数学对象：前者是关于\(\theta\)的函数，后者是关于\(x\)的函数。所以这里的等号\(=\) 理解为函数值形式的相等，而不是两个函数本身是同一函数(根据函数相等的定义，函数相等当且仅当定义域相等并且对应关系相等)。<br></p>
+</div>
+<div class="paragraph">
+<p>说完两者的区别，再说两者的联系。<br></p>
+</div>
+<div class="paragraph">
+<p>（1）如果\(X\)是离散的随机向量，那么其概率密度函数\(f(x | \theta) \)可改写为\(f(x | \theta) = P_{\theta}(X = x)\)，即代表了在参数\(\theta\)下随机向量\(X\)取到值\(x\)的可能性；并且，如果我们发现<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[L(\theta_{1} | x) = P_{\theta_{1}}(X = x) &gt; P_{\theta_{2}}(X = x) = L(\theta_{2} | x)\]
+</div>
+</div>
+<div class="paragraph">
+<p>那么似然函数就反应出这样一个朴素推测：在参数\(\theta_{1}\)下随机向量\(X\)取到值\(x\)的可能性大于 在参数\(theta_{2}\)下随机向量\(X\)取到值\(x\)的可能性。换句话说，我们更有理由相信(相对于\(\theta_{2}\)来说) \(\theta_{1}\)<br>
+更有可能是真实值。这里的可能性由概率来刻画。<br></p>
+</div>
+<div class="paragraph">
+<p>（2）如果\(X\)是连续的随机向量，那么其密度函数\(f(x | \theta)\)本身（如果在连续的话）在\(x\)处的概率为0，为了方便考虑一维情况：给定一个充分小\(\epsilon &gt; 0\)，那么随机变量\(X\)取值在\((x-\epsilon, x+\epsilon)\)区间内的概率即为<br></p>
+</div>
+<div class="stemblock">
+<div class="content">
+\[P_{\theta} (x-\epsilon &lt; X &lt; x+ \epsilon) = \int_{x-\epsilon}^{x+\epsilon} f(x | \theta) dx \approx 2\epsilon f(x|\theta) =2\epsilon L(\theta | x)\]
+</div>
+</div>
+<div class="paragraph">
+<p>并且两个未知参数的情况下做比就能约掉\(2\epsilon\)，所以和离散情况下的理解一致，只是此时似然所表达的那种可能性和概率\(f(x| \theta = 0)\)无关。<br></p>
+</div>
+<div class="paragraph">
+<p>综上，概率(密度)表达给定\(\theta\)下样本随机向量\(X=x\)的可能性，而似然表达了给定样本\(X=x\)下参数\(theta_{1}\)(相对于另外的参数\(\theta_{2}\))为真实值的可能性。我们总是对随机变量的取值谈概率，而在非贝叶斯统计的角度下，参数是一个实数而非随机变量，所以我们一般不谈一个参数的概率。<br></p>
+</div>
+<div class="paragraph">
+<p>最后我们再回到\(L(\theta | x) = f(x | \theta)\)这个表达。首先我们严格记号，竖线\(|\)表示条件概率或者条件分布，分号\(;\)表示把参数隔开。所以这个式子的严格书写方式是\(L(\theta | x) = f(x; \theta)\)因为\(\theta\)在右端只当作参数理解。<br></p>
 </div>
 </div>
 </div>
