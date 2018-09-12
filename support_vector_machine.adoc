@@ -150,7 +150,7 @@ L(w, b, \alpha) = \frac{1}{2}||w||^{2}+\sum_{i=1}^{N}\alpha_{i}[1-y_{i}(w\cdot x
 因此不能满足(4.7)的要求，那么反过来，如果给拉格朗日函数附加最大化约束呢，即\(max \hspace{0.1cm} L(w, b, \alpha)\),我们发现当\(1-y_{i}(w\cdot x_{i} + b)\)想要大于0时(即违背公式(4.7)约束),我们可以取\(\alpha_{i} = 0\),
 而当\(1-y_{i}(w\cdot x_{i} + b)\)小于0时，取\(\alpha_{i} > 0\)即可，刚好满足公式(4.7)的约束条件。 +
 
-因此为了满足公式(4.7)的约束条件，拉格朗日函数必须附加最小化约束条件，即: +
+因此为了满足公式(4.7)的约束条件，拉格朗日函数必须附加最大化约束条件，即: +
 [stem]
 ++++
 max \hspace{0.1cm} L(w, b, \alpha)
@@ -159,7 +159,7 @@ max \hspace{0.1cm} L(w, b, \alpha)
 再考虑公式(4.6)的约束，这个比较简单，因为是等式约束，所以将最小化约束条件加在朗格朗日函数前就可以了，即得到朗格朗日与原问题完全等价的函数约束形式: +
 [stem]
 ++++
-\underset{\alpha}{max} \hspace{0.1cm}\underset{w, b}{min} L(w, b, \alpha) \hspace{1cm} (4.9)
+\underset{\alpha}{min} \hspace{0.1cm}\underset{w, b}{max} L(w, b, \alpha) \hspace{1cm} (4.9)
 ++++
 
 通过朗格朗日变换，我们发现原始问题是一个最小最大值问题，这个问题不好直接求解，是否转换为对偶问题后方便求解呢？ +
@@ -168,7 +168,7 @@ max \hspace{0.1cm} L(w, b, \alpha)
 
 [stem]
 ++++
-\underset{\alpha}{min} \hspace{0.1cm}\underset{w, b}{max} L(w, b, \alpha) \hspace{1cm} (4.10)
+\underset{\alpha}{max} \hspace{0.1cm}\underset{w, b}{min} L(w, b, \alpha) \hspace{1cm} (4.10)
 ++++
 
 假设原问题的最优解为\(p^{*} \)，对偶问题的最优解为\( q^{ * } \)，那么一个很显然的结论是: \(q^{ * } \leq p^{ * }\),这个结论不需要什么证明，看下这两个问题的负号关系就知道了，
@@ -265,7 +265,7 @@ w & = \sum_{i=1}^{N}\alpha_{i}y_{i}x_{i} \hspace{1cm}(4.11) \\
 
 \begin{align}
 L(w, b, \alpha) & = \frac{1}{2} ||w||^{2} + \sum_{i=1}^{N} \alpha_{i} [1-y_{i} (w \cdot x_{i} + b) ] \\
-& = \frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) - \sum_{i=1}^{N}[ 1 - y_{i}( (\sum_{j=1}^{N} \alpha_{j}y_{j}x_{j} ) \cdot x_{j} +b )  \\
+& = \frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) - \sum_{i=1}^{N} \alpha_{i} [ 1 - y_{i}( (\sum_{j=1}^{N} \alpha_{j}y_{j}x_{j} ) \cdot x_{j} +b )  \\
 & = -\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) + \sum_{i=1}^{N}\alpha_{i}
 \end{align}
 即 +

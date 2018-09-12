@@ -2232,7 +2232,7 @@ L = \frac{1}{||w||} \hspace{3cm} (4.3)\]
 而当\(1-y_{i}(w\cdot x_{i} + b)\)小于0时，取\(\alpha_{i} &gt; 0\)即可，刚好满足公式(4.7)的约束条件。<br></p>
 </div>
 <div class="paragraph">
-<p>因此为了满足公式(4.7)的约束条件，拉格朗日函数必须附加最小化约束条件，即:<br></p>
+<p>因此为了满足公式(4.7)的约束条件，拉格朗日函数必须附加最大化约束条件，即:<br></p>
 </div>
 <div class="stemblock">
 <div class="content">
@@ -2244,7 +2244,7 @@ L = \frac{1}{||w||} \hspace{3cm} (4.3)\]
 </div>
 <div class="stemblock">
 <div class="content">
-\[\underset{\alpha}{max} \hspace{0.1cm}\underset{w, b}{min} L(w, b, \alpha) \hspace{1cm} (4.9)\]
+\[\underset{\alpha}{min} \hspace{0.1cm}\underset{w, b}{max} L(w, b, \alpha) \hspace{1cm} (4.9)\]
 </div>
 </div>
 <div class="paragraph">
@@ -2255,7 +2255,7 @@ L = \frac{1}{||w||} \hspace{3cm} (4.3)\]
 </div>
 <div class="stemblock">
 <div class="content">
-\[\underset{\alpha}{min} \hspace{0.1cm}\underset{w, b}{max} L(w, b, \alpha) \hspace{1cm} (4.10)\]
+\[\underset{\alpha}{max} \hspace{0.1cm}\underset{w, b}{min} L(w, b, \alpha) \hspace{1cm} (4.10)\]
 </div>
 </div>
 <div class="paragraph">
@@ -2392,7 +2392,7 @@ w &amp; = \sum_{i=1}^{N}\alpha_{i}y_{i}x_{i} \hspace{1cm}(4.11) \\
 <div class="paragraph">
 <p>\begin{align}
 L(w, b, \alpha) &amp; = \frac{1}{2} ||w||^{2} + \sum_{i=1}^{N} \alpha_{i} [1-y_{i} (w \cdot x_{i} + b) ] \\
-&amp; = \frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) - \sum_{i=1}^{N}[ 1 - y_{i}( (\sum_{j=1}^{N} \alpha_{j}y_{j}x_{j} ) \cdot x_{j} +b )  \\
+&amp; = \frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) - \sum_{i=1}^{N} \alpha_{i} [ 1 - y_{i}( (\sum_{j=1}^{N} \alpha_{j}y_{j}x_{j} ) \cdot x_{j} +b )  \\
 &amp; = -\frac{1}{2} \sum_{i=1}^{N} \sum_{j=1}^{N} \alpha_{i} \alpha_{j} y_{i} y_{j} (x_{i} \cdot x_{j}) + \sum_{i=1}^{N}\alpha_{i}
 \end{align}
 即<br></p>
@@ -6186,7 +6186,7 @@ H(D | A) &amp; = - \sum_{ik}p(D_{k}, A_{i})log \hspace{0.1cm} p(D_{k} | A_{i}) \
 <div class="sect3">
 <h4 id="_bagging和随机森林">8.2.1. Bagging和随机森林</h4>
 <div class="paragraph">
-<p><code>Bagging</code> 是并形式集成学习方法最著名的代表，其学习过程是基于一种叫做 <code>Bootstrap</code> 的自助采样法进行的，自助采样法是一种有放回的采样方法：<br></p>
+<p><code>Bagging</code> 是并行式集成学习方法最著名的代表，其学习过程是基于一种叫做 <code>Bootstrap</code> 的自助采样法进行的，自助采样法是一种有放回的采样方法：<br></p>
 </div>
 <div class="paragraph">
 <p><code>Bootstrap</code>:假定样本的数据集个数为\(m\)，我们先随机的取出一个样本放到采样集中，再把该样本放回初始样本集，使得下次采样时仍有可能选中该样本，
